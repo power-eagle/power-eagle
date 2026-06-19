@@ -1,0 +1,25 @@
+# Pathverse fail-first enforcement for Power Eagle.
+# Authored from the canonical templates in the good-bdd / good-tdd skills,
+# opted into HARD enforcement by owner confirmation (2026-06-19).
+# See docs/sdui-bdd-tdd-governance.md for the full approach.
+
+[bdd]
+enforcement = "hard"
+require_red_green_proof = true
+features_dir = "features"
+allow_runtime_override = true
+default_exceptions = ["prototype", "generated_code", "configuration_only", "spike"]
+override_active = false
+override_reason = ""
+override_scope = ""
+override_exception_class = ""
+
+[tdd]
+enforcement = "hard"
+require_red_green_proof = true
+allow_runtime_override = true
+default_exceptions = ["prototype", "generated_code", "configuration_only", "migration_script"]
+override_active = false
+override_reason = ""
+override_scope = ""
+override_exception_class = ""
