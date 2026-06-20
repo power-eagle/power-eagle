@@ -1,7 +1,5 @@
-# Pathverse fail-first enforcement for Power Eagle.
-# Authored from the canonical templates in the good-bdd / good-tdd skills,
-# opted into HARD enforcement by owner confirmation (2026-06-19).
-# See docs/sdui-bdd-tdd-governance.md for the full approach.
+# fail-first enforcement for Power Eagle.
+# Opted into HARD enforcement by owner confirmation (2026-06-19).
 
 [bdd]
 enforcement = "hard"
