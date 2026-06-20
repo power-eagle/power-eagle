@@ -7,6 +7,8 @@
 import type { PluginModule } from '../sdui/activate';
 import { fileCreator } from './file-creator';
 import { recentLibraries } from './recent-libraries';
+import { clipboard } from './clipboard';
+import { extras } from './extras';
 
 /** A plugin module with its concrete state type erased for dynamic activation. */
 export type AnyPluginModule = PluginModule<Record<string, unknown>>;
@@ -16,7 +18,7 @@ interface BuiltinEntry {
   module: AnyPluginModule;
 }
 
-const entries: BuiltinEntry[] = [fileCreator, recentLibraries].map((module) => ({
+const entries: BuiltinEntry[] = [fileCreator, recentLibraries, clipboard, extras].map((module) => ({
   manifest: module.manifest,
   module: module as unknown as AnyPluginModule,
 }));
