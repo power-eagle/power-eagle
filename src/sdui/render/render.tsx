@@ -76,22 +76,48 @@ export function PluginView(props: {
   return renderNode(app.view(), app.runtime, registry);
 }
 
+/**
+ * Baseline widget styling using the app's shadcn design tokens, so widgets are
+ * laid out and themed consistently with the host shell. The reactive theme
+ * cascade layers on top of these defaults.
+ */
+const WIDGET_CLASS = {
+  col: 'flex flex-col gap-3',
+  row: 'flex flex-row flex-wrap items-center gap-2',
+  list: 'flex flex-col gap-2',
+  empty: 'rounded-lg border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground',
+  text: 'text-sm text-foreground',
+  button:
+    'inline-flex items-center justify-center rounded-md border border-border bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50',
+  input: 'w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground',
+} as const;
+
 /** Register the minimal built-in widget catalog. */
 function registerBuiltins(registry: Registry<WidgetComponent>): void {
   registry.register('text', ({ resolved }) =>
-    React.createElement('span', null, String(resolved.data ?? '')),
+    React.createElement('span', { className: WIDGET_CLASS.text }, String(resolved.data ?? '')),
   );
-  registry.register('col', ({ children }) => React.createElement('div', { 'data-w': 'col' }, children));
-  registry.register('row', ({ children }) => React.createElement('div', { 'data-w': 'row' }, children));
+  registry.register('col', ({ children }) =>
+    React.createElement('div', { 'data-w': 'col', className: WIDGET_CLASS.col }, children),
+  );
+  registry.register('row', ({ children }) =>
+    React.createElement('div', { 'data-w': 'row', className: WIDGET_CLASS.row }, children),
+  );
   registry.register('button', ({ resolved, node, children }) =>
     React.createElement(
       'button',
-      { disabled: Boolean(resolved.disabled), onClick: node.on?.press as React.MouseEventHandler | undefined },
+      {
+        type: 'button',
+        className: WIDGET_CLASS.button,
+        disabled: Boolean(resolved.disabled),
+        onClick: node.on?.press as React.MouseEventHandler | undefined,
+      },
       children,
     ),
   );
   registry.register('input', ({ resolved, node }) =>
     React.createElement('input', {
+      className: WIDGET_CLASS.input,
       value: String(resolved.value ?? ''),
       placeholder: resolved.placeholder !== undefined ? String(resolved.placeholder) : undefined,
       disabled: Boolean(resolved.disabled),
@@ -101,10 +127,10 @@ function registerBuiltins(registry: Registry<WidgetComponent>): void {
   registry.register('list', ({ resolved, children }) =>
     React.createElement(
       'div',
-      { 'data-w': 'list' },
+      { 'data-w': 'list', className: WIDGET_CLASS.list },
       React.Children.count(children) > 0
         ? children
-        : React.createElement('span', { 'data-w': 'empty' }, String(resolved.empty ?? '')),
+        : React.createElement('span', { 'data-w': 'empty', className: WIDGET_CLASS.empty }, String(resolved.empty ?? '')),
     ),
   );
 }
