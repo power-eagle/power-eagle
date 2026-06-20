@@ -1,8 +1,8 @@
 /**
  * The app-facing host service: composes the built-in plugin catalog with the
  * saucepan-backed install index into one surface the shell consumes. Built-ins
- * are always available and launchable; saucepan-installed plugins are listed,
- * and become launchable once a built-in (or a future disk loader) backs them.
+ * are always available and launchable; saucepan-installed visual plugins are
+ * launchable too — loadModule resolves their on-disk path and imports them.
  */
 import { listBuiltins, getBuiltin, type AnyPluginModule } from '../plugins/builtins';
 import { activatePlugin, pluginKind } from '../sdui/activate';
@@ -16,10 +16,12 @@ import {
   listBuckets,
   install,
   addBucket,
+  installedPath,
   type SaucepanOptions,
   type SaucepanEntry,
 } from '../host/install/saucepan';
 import { ensureSaucepanBinary, type EnsureBinaryOptions } from '../host/install/saucepan-binary';
+import { loadDiskPlugin, nativeImport, type ModuleImporter } from '../host/install/disk-plugin';
 
 /** One plugin the shell can show, from either the built-in catalog or saucepan. */
 export interface PluginSummary {
@@ -42,7 +44,9 @@ export function mapInstalled(entries: SaucepanEntry[]): PluginSummary[] {
       version: item.sauce.version,
       source: item.source_type,
       kind,
-      launchable: kind === 'visual' && getBuiltin(id) !== undefined,
+      // Visual plugins are launchable: built-ins are bundled, installed ones
+      // load from disk via loadModule. Service/styling are never launched.
+      launchable: kind === 'visual',
     };
   });
 }
@@ -128,17 +132,27 @@ export interface HostService {
   listBuckets(): string[];
   install(name: string): void;
   addBucket(url: string): void;
-  getLaunchable(id: string): AnyPluginModule | undefined;
+  /** Resolve a launchable plugin's module: bundled built-in, else disk-loaded. */
+  loadModule(id: string): Promise<AnyPluginModule | undefined>;
 }
 
-/** Build a host service over a resolved saucepan invocation context. */
-export function createHostService(saucepan: SaucepanOptions): HostService {
+/**
+ * Build a host service over a resolved saucepan invocation context. The module
+ * importer is injected so tests can fake the on-disk import; production uses the
+ * runtime file:// dynamic import.
+ */
+export function createHostService(saucepan: SaucepanOptions, importModule: ModuleImporter = nativeImport): HostService {
   return {
     listAvailable: () => mergeAvailable(mapInstalled(listInstalled(saucepan))),
     listBuckets: () => listBuckets(saucepan),
     install: (name) => install(saucepan, name),
     addBucket: (url) => addBucket(saucepan, url),
-    getLaunchable: (id) => getBuiltin(id),
+    loadModule: async (id) => {
+      const builtin = getBuiltin(id);
+      if (builtin) return builtin;
+      const dir = installedPath(saucepan, id);
+      return dir ? loadDiskPlugin(dir, { importModule }) : undefined;
+    },
   };
 }
 

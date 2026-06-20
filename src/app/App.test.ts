@@ -5,6 +5,7 @@ import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
 import type { HostService } from './host-service';
+import { getBuiltin } from '../plugins/builtins';
 import type { EagleHost } from '../plugins/eagle';
 
 // jsdom under Node 22 ships no localStorage without --localstorage-file; the real
@@ -35,7 +36,7 @@ function fakeService(): HostService {
     listBuckets: () => [],
     install: () => {},
     addBucket: () => {},
-    getLaunchable: () => undefined,
+    loadModule: async (id) => getBuiltin(id),
   };
 }
 

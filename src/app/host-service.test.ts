@@ -29,10 +29,18 @@ const entry = (name: string, extra: Record<string, unknown> = {}): SaucepanEntry
   sauce: { name, version: '1.0.0', description: 'd', ...extra },
 });
 
-// Fake saucepan process: argv is [root, ...subcommand].
-function fakeRunner(installed: SaucepanEntry[], buckets: string[]) {
+// Fake saucepan process: argv is [root, ...subcommand]. `paths` maps an
+// installed name to the artifact path the `path` subcommand should print;
+// anything not in the map reports NotFound (exit 1) like the real binary.
+function fakeRunner(installed: SaucepanEntry[], buckets: string[], paths: Record<string, string> = {}) {
   return vi.fn((_bin: string, args: string[]) => {
     const cmd = args.slice(1).join(' ');
+    if (cmd.startsWith('path ')) {
+      const found = paths[cmd.slice('path '.length)];
+      return found
+        ? { ok: true, exitCode: 0, stdout: found, stderr: '' }
+        : { ok: false, exitCode: 1, stdout: '', stderr: 'not installed' };
+    }
     const out =
       cmd === 'list --json' ? installed.map((e) => JSON.stringify(e)).join('\n')
         : cmd === 'bucket list --json' ? buckets.map((url) => JSON.stringify({ url })).join('\n')
@@ -48,10 +56,10 @@ describe('mapInstalled', () => {
     expect(mapped[1].id).toBe('plain');
   });
 
-  it('marks an installed plugin launchable only when a built-in backs it', () => {
-    const mapped = mapInstalled([entry('file-creator', { id: 'file-creator' }), entry('other')]);
-    expect(mapped.find((p) => p.id === 'file-creator')?.launchable).toBe(true);
-    expect(mapped.find((p) => p.id === 'other')?.launchable).toBe(false);
+  it('marks installed visual plugins launchable (loadable from disk) but not service/styling', () => {
+    const mapped = mapInstalled([entry('vis', { id: 'vis' }), entry('svc', { id: 'svc', service: true })]);
+    expect(mapped.find((p) => p.id === 'vis')?.launchable).toBe(true);
+    expect(mapped.find((p) => p.id === 'svc')?.launchable).toBe(false);
   });
 });
 
@@ -79,14 +87,34 @@ describe('createHostService', () => {
     const ids = service.listAvailable().map((p) => p.id);
     expect(ids).toEqual(expect.arrayContaining(['file-creator', 'recent-libraries', 'installed-tool']));
     expect(service.listBuckets()).toContain('/b.json');
-    expect(service.getLaunchable('file-creator')?.manifest.name).toBe('File Creator');
-    expect(service.getLaunchable('installed-tool')).toBeUndefined();
 
     service.install('owner/repo');
     service.addBucket('/new.json');
     const calls = runner.mock.calls.map(([, args]) => args.slice(1).join(' '));
     expect(calls).toContain('install owner/repo');
     expect(calls).toContain('bucket add /new.json');
+  });
+
+  it('loadModule returns the bundled module for a built-in id', async () => {
+    const service = createHostService({ root: freshRoot(), runner: fakeRunner([], []) });
+    expect((await service.loadModule('file-creator'))?.manifest.name).toBe('File Creator');
+  });
+
+  it('loadModule returns undefined when an id is neither bundled nor installed', async () => {
+    const service = createHostService({ root: freshRoot(), runner: fakeRunner([], []) });
+    expect(await service.loadModule('nope')).toBeUndefined();
+  });
+
+  it('loadModule disk-loads an installed plugin via its resolved path', async () => {
+    const root = freshRoot();
+    const installDir = nodeFs.mkdtempSync(nodePath.join(nodeOs.tmpdir(), 'pe-art-'));
+    nodeFs.writeFileSync(nodePath.join(installDir, 'manifest.json'), JSON.stringify({ name: 'D', version: '1', description: 'd', id: 'disk', main: 'index.js' }));
+    const runner = fakeRunner([entry('disk', { id: 'disk' })], [], { disk: installDir });
+    const importModule = async (): Promise<unknown> => ({ default: { manifest: { id: 'disk', name: 'Disk', version: '1' } } });
+
+    const service = createHostService({ root, runner }, importModule);
+
+    expect((await service.loadModule('disk'))?.manifest.name).toBe('Disk');
   });
 });
 

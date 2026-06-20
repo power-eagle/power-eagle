@@ -3,7 +3,8 @@ import { expect } from 'vitest';
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber';
-import { BuiltinPluginView } from '../src/app/builtin-plugin-view';
+import { PluginRuntimeView } from '../src/app/plugin-runtime-view';
+import { getBuiltin, type AnyPluginModule } from '../src/plugins/builtins';
 import type { EagleHost } from '../src/plugins/eagle';
 
 const feature = await loadFeature('features/builtin-launch.feature');
@@ -20,11 +21,13 @@ function fakeEagle(): EagleHost {
 describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
   AfterEachScenario(() => cleanup());
 
-  Scenario('Launching a built-in plugin renders its view', ({ Given, When, Then }) => {
-    Given('the host launches the built-in plugin "file-creator"', () => {
+  Scenario('Rendering a resolved built-in plugin shows its view', ({ Given, When, Then }) => {
+    Given('the host resolves and renders the built-in plugin "file-creator"', () => {
+      const module = getBuiltin('file-creator');
+      expect(module).toBeTruthy();
       render(
-        React.createElement(BuiltinPluginView, {
-          pluginId: 'file-creator',
+        React.createElement(PluginRuntimeView, {
+          module: module as AnyPluginModule,
           eagle: fakeEagle() as unknown as Record<string, unknown>,
         }),
       );
@@ -37,20 +40,13 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
     });
   });
 
-  Scenario('Launching an unknown built-in shows a not-found message', ({ Given, When, Then }) => {
-    Given('the host launches the built-in plugin "no-such-plugin"', () => {
-      render(
-        React.createElement(BuiltinPluginView, {
-          pluginId: 'no-such-plugin',
-          eagle: fakeEagle() as unknown as Record<string, unknown>,
-        }),
-      );
+  Scenario('An unknown built-in id resolves to no module', ({ Given, Then }) => {
+    let resolved: AnyPluginModule | undefined;
+    Given('the host resolves the built-in plugin "no-such-plugin"', () => {
+      resolved = getBuiltin('no-such-plugin');
     });
-    When('the plugin view settles', () => {
-      // synchronous unknown-plugin branch
-    });
-    Then('an unknown-plugin message is shown', () => {
-      expect(screen.getByText(/unknown plugin/iu)).toBeTruthy();
+    Then('no plugin module is resolved', () => {
+      expect(resolved).toBeUndefined();
     });
   });
 });

@@ -3,8 +3,9 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
-import { BuiltinPluginView } from './builtin-plugin-view';
+import { PluginRuntimeView } from './plugin-runtime-view';
 import { initHostService, buildHostContext, type HostService, type HostContext, type PluginSummary } from './host-service';
+import type { AnyPluginModule } from '../plugins/builtins';
 import { createEagleHost, defaultEagleHostDeps } from './eagle-host';
 import { loadTheme } from './theme-store';
 import { ThemeContext } from '../sdui/render/render';
@@ -51,6 +52,12 @@ interface HostEvent {
   body?: string;
 }
 
+/** Lazy-load state for the launched plugin: loaded only when a visual plugin is opened. */
+type Launch =
+  | { id: string; status: 'loading' }
+  | { id: string; status: 'ready'; module: AnyPluginModule }
+  | { id: string; status: 'error'; message: string };
+
 /** Does a plugin belong in the given tab? builtin = bundled (any kind); the rest group installed by kind. */
 function inTab(plugin: PluginSummary, tab: HostTab): boolean {
   if (tab === 'builtin') return plugin.source === 'builtin';
@@ -89,6 +96,7 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
   const [filter, setFilter] = useState('');
   const [bucketInput, setBucketInput] = useState('');
   const [installInput, setInstallInput] = useState('');
+  const [launch, setLaunch] = useState<Launch | null>(null);
 
   useEffect(() => {
     if (props.service) return;
@@ -129,6 +137,31 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
       active = false;
     };
   }, [eagle, disabled]);
+
+  // Lazy-load the launched plugin's module only when an enabled visual plugin is
+  // selected: built-ins resolve instantly, installed ones import from disk.
+  useEffect(() => {
+    const sel = available.find((plugin) => plugin.id === selectedId) ?? null;
+    if (!service || !sel || sel.kind !== 'visual' || !sel.launchable || disabled.has(sel.id)) {
+      setLaunch(null);
+      return;
+    }
+    let active = true;
+    const id = sel.id;
+    setLaunch({ id, status: 'loading' });
+    service.loadModule(id).then(
+      (module) => {
+        if (!active) return;
+        setLaunch(module ? { id, status: 'ready', module } : { id, status: 'error', message: 'could not load plugin' });
+      },
+      (error: unknown) => {
+        if (active) setLaunch({ id, status: 'error', message: error instanceof Error ? error.message : String(error) });
+      },
+    );
+    return () => {
+      active = false;
+    };
+  }, [service, available, selectedId, disabled]);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -263,20 +296,22 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
                     {selected.name} is disabled — enable it to {selected.kind === 'visual' ? 'launch' : 'see what it provides'}
                   </div>
                 ) : selected.kind === 'visual' ? (
-                  selected.launchable ? (
-                    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                      <ThemeContext.Provider value={mergeThemes(context.theme, theme)}>
-                        <BuiltinPluginView
-                          pluginId={selected.id}
+                  <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <ThemeContext.Provider value={mergeThemes(context.theme, theme)}>
+                      {launch?.id === selected.id && launch.status === 'ready' ? (
+                        <PluginRuntimeView
+                          module={launch.module}
                           eagle={eagle as unknown as Record<string, unknown>}
                           services={context.services}
                           widgets={context.widgets}
                         />
-                      </ThemeContext.Provider>
-                    </div>
-                  ) : (
-                    <div className="px-3 py-8 text-center text-sm text-muted-foreground">{selected.name} is installed — launching installed plugins is not supported yet</div>
-                  )
+                      ) : launch?.id === selected.id && launch.status === 'error' ? (
+                        <div className="text-sm text-destructive">failed to load {selected.name}: {launch.message}</div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground">loading {selected.name}…</div>
+                      )}
+                    </ThemeContext.Provider>
+                  </div>
                 ) : (
                   <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">{renderOverview(selected)}</div>
                 )

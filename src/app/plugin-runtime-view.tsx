@@ -1,20 +1,21 @@
 /**
- * Host bridge to the v3 runtime: activate a bundled plugin by id with the host
- * Eagle bridge and render its view through the registry-driven renderer. This
- * is the v3 replacement for the v2 runtime-plugin-view PluginWindow.
+ * Host bridge to the v3 runtime: activate an already-resolved plugin module
+ * (bundled built-in or disk-loaded) with the host Eagle bridge and render its
+ * view through the registry-driven renderer. Resolving *which* module to run is
+ * the host service's loadModule; this view just runs the one it is handed.
  */
 import React from 'react';
 import { activatePlugin, type ActivatedPlugin } from '../sdui/activate';
 import { createWidgetRegistry, PluginView, type WidgetComponent } from '../sdui/render/render';
-import { getBuiltin } from '../plugins/builtins';
+import type { AnyPluginModule } from '../plugins/builtins';
 
-export function BuiltinPluginView(props: {
-  pluginId: string;
+export function PluginRuntimeView(props: {
+  module: AnyPluginModule;
   eagle: Record<string, unknown>;
   services?: Record<string, unknown>;
   widgets?: Record<string, WidgetComponent>;
 }): React.ReactElement {
-  const { pluginId, eagle, services, widgets } = props;
+  const { module, eagle, services, widgets } = props;
   // Registry preloaded with built-ins, then styling-plugin widgets layered on
   // top (overload existing types / insert new ones).
   const registry = React.useMemo(() => {
@@ -24,15 +25,11 @@ export function BuiltinPluginView(props: {
     }
     return built;
   }, [widgets]);
-  const module = React.useMemo(() => getBuiltin(pluginId), [pluginId]);
   const [app, setApp] = React.useState<ActivatedPlugin<Record<string, unknown>> | null>(null);
 
   React.useEffect(() => {
-    if (!module) {
-      setApp(null);
-      return;
-    }
     let active = true;
+    setApp(null);
     void activatePlugin(module, eagle, services).then((activated) => {
       if (active) setApp(activated);
     });
@@ -41,9 +38,6 @@ export function BuiltinPluginView(props: {
     };
   }, [module, eagle, services]);
 
-  if (!module) {
-    return React.createElement('div', { 'data-state': 'unknown' }, `unknown plugin: ${pluginId}`);
-  }
   if (!app) {
     return React.createElement('div', { 'data-state': 'loading' }, 'loading plugin...');
   }

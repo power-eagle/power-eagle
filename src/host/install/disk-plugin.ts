@@ -15,6 +15,17 @@ import type { AnyPluginModule } from '../../plugins/builtins';
 /** Dynamic-imports a module from an absolute path (injected for testability). */
 export type ModuleImporter = (path: string) => Promise<unknown>;
 
+/**
+ * The real importer: dynamic-import an absolute path as a file:// URL. Only
+ * resolves at runtime in the Eagle webview (verified by a spike, not the node
+ * suite), so callers inject a fake in tests. `@vite-ignore` keeps the bundler
+ * from trying to resolve the runtime path at build time.
+ */
+export const nativeImport: ModuleImporter = (path) => {
+  const url = `file://${path.startsWith('/') ? '' : '/'}${path.replace(/\\/gu, '/')}`;
+  return import(/* @vite-ignore */ url);
+};
+
 /** A plugin's manifest.json: saucepan's sauce fields plus power-eagle's `main`. */
 interface DiskManifest {
   main?: unknown;
