@@ -5,13 +5,13 @@
  * defaultEagleHostDeps wires the actual Eagle global + fs bridge at the host.
  */
 import type { EagleHost } from '../plugins/eagle';
-import { joinPath, homeDir, readTextFile, writeTextFile } from '../host/install/fs-bridge';
+import { joinPath, readTextFile, writeTextFile } from '../host/install/fs-bridge';
 
 /** The host primitives the adapter composes into an EagleHost. */
 export interface EagleHostDeps {
   notifySink(message: { title: string; body?: string }): void;
   switchLibrary(path: string): Promise<void> | void;
-  readSettings(): string;
+  readSettings(): Promise<string> | string;
   chooseSavePath(suggestedName: string): Promise<string | null>;
   writeFile(path: string, content: string): Promise<void> | void;
 }
@@ -21,9 +21,9 @@ export function createEagleHost(deps: EagleHostDeps): EagleHost {
   return {
     notify: (message) => deps.notifySink(message),
     switchLibrary: (path) => deps.switchLibrary(path),
-    getRecentLibraries: () => {
+    getRecentLibraries: async () => {
       try {
-        const settings = JSON.parse(deps.readSettings()) as { libraryHistory?: unknown };
+        const settings = JSON.parse(await deps.readSettings()) as { libraryHistory?: unknown };
         return Array.isArray(settings.libraryHistory)
           ? settings.libraryHistory.filter((entry): entry is string => typeof entry === 'string')
           : [];
@@ -42,32 +42,23 @@ export function createEagleHost(deps: EagleHostDeps): EagleHost {
   };
 }
 
-interface EagleGlobal {
-  notification?: { show(message: { title: string; description?: string; body?: string }): void };
-  library?: { switch(path: string): Promise<void> | void };
-  dialog?: { showSaveDialog(options: { defaultPath?: string }): Promise<{ canceled: boolean; filePath?: string }> };
-}
-
-/** The Eagle settings file path for the current platform. */
-function eagleSettingsPath(): string {
-  const appData = typeof process !== 'undefined' ? process.env.APPDATA : undefined;
-  const base = appData ?? joinPath(homeDir(), 'Library', 'Application Support');
-  return joinPath(base, 'eagle', 'Settings');
-}
-
-/** Wire the host primitives to the real Eagle runtime + fs bridge. */
+/** Wire the host primitives to the injected Eagle global + fs bridge. */
 export function defaultEagleHostDeps(recordEvent: (message: { title: string; body?: string }) => void): EagleHostDeps {
-  const eagleGlobal = (typeof eagle !== 'undefined' ? eagle : undefined) as EagleGlobal | undefined;
   return {
     notifySink: (message) => {
       recordEvent(message);
-      eagleGlobal?.notification?.show({ title: message.title, description: message.body });
+      void eagle.notification.show({ title: message.title, body: message.body ?? '' });
     },
-    switchLibrary: (path) => eagleGlobal?.library?.switch(path),
-    readSettings: () => readTextFile(eagleSettingsPath()),
+    switchLibrary: (path) => recordEvent({ title: 'Switch Library', body: path }),
+    // Eagle exposes no recent-libraries API; read libraryHistory from its Settings
+    // file, located via the injected eagle global (not the unreliable node process).
+    readSettings: async () => {
+      const appData = await eagle.app.getPath('appData');
+      return readTextFile(joinPath(appData, 'eagle', 'Settings'));
+    },
     chooseSavePath: async (suggestedName) => {
-      const result = await eagleGlobal?.dialog?.showSaveDialog({ defaultPath: suggestedName });
-      return result && !result.canceled ? result.filePath ?? null : null;
+      const result = await eagle.dialog.showSaveDialog({ defaultPath: suggestedName });
+      return result.canceled ? null : result.filePath ?? null;
     },
     writeFile: (path, content) => writeTextFile(path, content),
   };
