@@ -4,13 +4,16 @@ import { Input } from '../components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
 import { BuiltinPluginView } from './builtin-plugin-view';
-import { initHostService, type HostService, type PluginSummary } from './host-service';
+import { initHostService, buildHostContext, type HostService, type HostContext, type PluginSummary } from './host-service';
 import { createEagleHost, defaultEagleHostDeps } from './eagle-host';
 import { loadTheme } from './theme-store';
 import { ThemeContext } from '../sdui/render/render';
-import { EMPTY_THEME } from '../sdui/theme';
+import { EMPTY_THEME, mergeThemes } from '../sdui/theme';
+import { listBuiltinModules } from '../plugins/builtins';
 import type { EagleHost } from '../plugins/eagle';
 import type { Theme } from '../sdui/types';
+
+const EMPTY_CONTEXT: HostContext = { services: {}, widgets: {}, theme: EMPTY_THEME };
 
 type HostTab = 'installed' | 'buckets' | 'url';
 interface HostEvent {
@@ -39,6 +42,7 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
     [props.eagle],
   );
 
+  const [context, setContext] = useState<HostContext>(EMPTY_CONTEXT);
   const [service, setService] = useState<HostService | null>(props.service ?? null);
   const [tab, setTab] = useState<HostTab>('installed');
   const [available, setAvailable] = useState<PluginSummary[]>([]);
@@ -74,6 +78,18 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
       setTheme(loadTheme());
     }
   }, [props.theme]);
+
+  // Activate service + styling plugins once; their surfaces/widgets/theme become
+  // the shared context every launched visual plugin runs against.
+  useEffect(() => {
+    let active = true;
+    void buildHostContext(listBuiltinModules(), eagle as unknown as Record<string, unknown>).then((built) => {
+      if (active) setContext(built);
+    });
+    return () => {
+      active = false;
+    };
+  }, [eagle]);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -165,8 +181,13 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
               {tab === 'installed' ? (
                 launchedId ? (
                   <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <ThemeContext.Provider value={theme}>
-                      <BuiltinPluginView pluginId={launchedId} eagle={eagle as unknown as Record<string, unknown>} />
+                    <ThemeContext.Provider value={mergeThemes(context.theme, theme)}>
+                      <BuiltinPluginView
+                        pluginId={launchedId}
+                        eagle={eagle as unknown as Record<string, unknown>}
+                        services={context.services}
+                        widgets={context.widgets}
+                      />
                     </ThemeContext.Provider>
                   </div>
                 ) : (
