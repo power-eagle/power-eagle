@@ -1,0 +1,7 @@
+{
+  "name": "Hello Note",
+  "version": "1.0.0",
+  "description": "Example Power Eagle plugin: add named notes to an in-memory list.",
+  "id": "hello-note",
+  "main": "index.mjs"
+}
