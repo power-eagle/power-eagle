@@ -7,15 +7,20 @@
  * the spec-sanctioned first cut; per-node subscription is a later optimization).
  */
 import React from 'react';
-import type { Widget } from '../types';
+import type { Widget, Theme } from '../types';
 import type { Runtime } from '../runtime';
 import type { Store } from '../state/store';
 import { createRegistry, type Registry } from '../registry';
+import { styleForNode, EMPTY_THEME } from '../theme';
 
-/** A widget render component: receives resolved props, the node, runtime, and children. */
+/** The active theme for rendering; provide a value to restyle the widget tree. */
+export const ThemeContext = React.createContext<Theme>(EMPTY_THEME);
+
+/** A widget render component: receives resolved props, style, the node, runtime, and children. */
 export type WidgetComponent = (p: {
   node: Widget;
   resolved: Record<string, unknown>;
+  style: React.CSSProperties;
   runtime: Runtime<Record<string, unknown>>;
   children: React.ReactNode;
 }) => React.ReactElement | null;
@@ -41,6 +46,7 @@ export function renderNode(
   node: Widget,
   runtime: Runtime<Record<string, unknown>>,
   registry: Registry<WidgetComponent>,
+  theme: Theme = EMPTY_THEME,
   key?: React.Key,
 ): React.ReactElement | null {
   if (node.when && !node.when()) {
@@ -48,7 +54,7 @@ export function renderNode(
   }
 
   const children = node.children
-    ? node.children.map((child, index) => renderNode(child, runtime, registry, index))
+    ? node.children.map((child, index) => renderNode(child, runtime, registry, theme, index))
     : null;
 
   const Component = registry.get(node.type);
@@ -60,6 +66,7 @@ export function renderNode(
     key,
     node,
     resolved: resolveProps(node),
+    style: styleForNode(node, theme) as React.CSSProperties,
     runtime,
     children,
   });
@@ -71,9 +78,10 @@ export function PluginView(props: {
   registry: Registry<WidgetComponent>;
 }): React.ReactElement | null {
   const { app, registry } = props;
+  const theme = React.useContext(ThemeContext);
   const [, force] = React.useReducer((tick: number) => tick + 1, 0);
   React.useEffect(() => app.store.subscribe(() => force()), [app]);
-  return renderNode(app.view(), app.runtime, registry);
+  return renderNode(app.view(), app.runtime, registry, theme);
 }
 
 /**
@@ -94,40 +102,42 @@ const WIDGET_CLASS = {
 
 /** Register the minimal built-in widget catalog. */
 function registerBuiltins(registry: Registry<WidgetComponent>): void {
-  registry.register('text', ({ resolved }) =>
-    React.createElement('span', { className: WIDGET_CLASS.text }, String(resolved.data ?? '')),
+  registry.register('text', ({ resolved, style }) =>
+    React.createElement('span', { className: WIDGET_CLASS.text, style }, String(resolved.data ?? '')),
   );
-  registry.register('col', ({ children }) =>
-    React.createElement('div', { 'data-w': 'col', className: WIDGET_CLASS.col }, children),
+  registry.register('col', ({ children, style }) =>
+    React.createElement('div', { 'data-w': 'col', className: WIDGET_CLASS.col, style }, children),
   );
-  registry.register('row', ({ children }) =>
-    React.createElement('div', { 'data-w': 'row', className: WIDGET_CLASS.row }, children),
+  registry.register('row', ({ children, style }) =>
+    React.createElement('div', { 'data-w': 'row', className: WIDGET_CLASS.row, style }, children),
   );
-  registry.register('button', ({ resolved, node, children }) =>
+  registry.register('button', ({ resolved, node, children, style }) =>
     React.createElement(
       'button',
       {
         type: 'button',
         className: WIDGET_CLASS.button,
+        style,
         disabled: Boolean(resolved.disabled),
         onClick: node.on?.press as React.MouseEventHandler | undefined,
       },
       children,
     ),
   );
-  registry.register('input', ({ resolved, node }) =>
+  registry.register('input', ({ resolved, node, style }) =>
     React.createElement('input', {
       className: WIDGET_CLASS.input,
+      style,
       value: String(resolved.value ?? ''),
       placeholder: resolved.placeholder !== undefined ? String(resolved.placeholder) : undefined,
       disabled: Boolean(resolved.disabled),
       onChange: (event: React.ChangeEvent<HTMLInputElement>) => node.on?.input?.(event.target.value),
     }),
   );
-  registry.register('list', ({ resolved, children }) =>
+  registry.register('list', ({ resolved, children, style }) =>
     React.createElement(
       'div',
-      { 'data-w': 'list', className: WIDGET_CLASS.list },
+      { 'data-w': 'list', className: WIDGET_CLASS.list, style },
       React.Children.count(children) > 0
         ? children
         : React.createElement('span', { 'data-w': 'empty', className: WIDGET_CLASS.empty }, String(resolved.empty ?? '')),
