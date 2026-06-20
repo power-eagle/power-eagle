@@ -77,6 +77,19 @@ export function writeTextFile(target: string, content: string): void {
   fs().writeFileSync(target, content);
 }
 
+export function writeBytes(target: string, bytes: Uint8Array): void {
+  fs().writeFileSync(target, bytes);
+}
+
+/** Mark a file executable (no-op effect on Windows; guarded for safety). */
+export function makeExecutable(target: string): void {
+  try {
+    fs().chmodSync(target, 0o755);
+  } catch {
+    // chmod is unsupported / unnecessary on some platforms (e.g. Windows)
+  }
+}
+
 export function removeDir(target: string): void {
   fs().rmSync(target, { recursive: true, force: true });
 }

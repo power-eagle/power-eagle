@@ -22,8 +22,9 @@ function freshRoot(): string {
   return nodeFs.mkdtempSync(nodePath.join(nodeOs.tmpdir(), 'pe-sauce-'));
 }
 
-// Real-binary integration is gated on the bundled binary being resolvable;
-// set POWEREAGLE_SAUCEPAN_BIN to run these locally / in CI.
+// Real-binary integration runs against the binary named by POWEREAGLE_SAUCEPAN_BIN
+// (the local build during development); skipped when unset so the committed
+// suite stays green without a saucepan binary present.
 const BIN = process.env.POWEREAGLE_SAUCEPAN_BIN;
 const realBinaryAvailable = Boolean(BIN) && isSaucepanAvailable({ binaryPath: BIN });
 

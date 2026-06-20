@@ -6,6 +6,7 @@
  * `--json` / `cat` output. saucepan's exit codes are mapped to typed errors.
  */
 import { joinPath, homeDir, pathExists, ensureDir, writeTextFile } from './fs-bridge';
+import { resolveSaucepanBinary } from './saucepan-binary';
 
 /** One spawn result from the saucepan binary. */
 export interface SaucepanResult {
@@ -22,7 +23,15 @@ export type SaucepanRunner = (binaryPath: string, args: string[]) => SaucepanRes
 export interface SaucepanOptions {
   root?: string;
   binaryPath?: string;
+  binDir?: string;
   runner?: SaucepanRunner;
+}
+
+/** Choose the binary to invoke: explicit path, else resolved-by-platform, else PATH. */
+function binaryFor(options: SaucepanOptions): string {
+  if (options.binaryPath) return options.binaryPath;
+  if (options.binDir) return resolveSaucepanBinary(options.binDir);
+  return 'saucepan';
 }
 
 /** One installed plugin record as saucepan reports it (`index.json` entry). */
@@ -59,16 +68,14 @@ function defaultRunner(binaryPath: string, args: string[]): SaucepanResult {
 
 /** Run one saucepan subcommand against the resolved root. */
 function run(options: SaucepanOptions, subcommand: string[]): SaucepanResult {
-  const binaryPath = options.binaryPath ?? 'saucepan';
   const runner = options.runner ?? defaultRunner;
-  return runner(binaryPath, [resolveSaucepanRoot(options.root), ...subcommand]);
+  return runner(binaryFor(options), [resolveSaucepanRoot(options.root), ...subcommand]);
 }
 
 /** Whether the saucepan binary can be spawned at all. */
 export function isSaucepanAvailable(options: SaucepanOptions = {}): boolean {
-  const binaryPath = options.binaryPath ?? 'saucepan';
   const runner = options.runner ?? defaultRunner;
-  return runner(binaryPath, ['--help']).exitCode === 0;
+  return runner(binaryFor(options), ['--help']).exitCode === 0;
 }
 
 /** Ensure the root exists and carries a saucepan.toml (config error otherwise). */
