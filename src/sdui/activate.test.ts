@@ -36,6 +36,19 @@ describe('definePlugin + activatePlugin (integration)', () => {
     expect(labelAccessor()).toBe('count: 1');
   });
 
+  it('exposes the plugin definition theme on the activated plugin', async () => {
+    const theme = { tokens: {}, widgets: { button: { base: { background: '#123456' } } } };
+    const mod = definePlugin({
+      manifest: { id: 'th', name: 'Th', version: '1.0.0' },
+      state: () => ({}),
+      theme,
+      view: () => w('button', { children: 'x' }),
+    });
+
+    const app = await activatePlugin(mod);
+    expect(app.theme).toEqual(theme);
+  });
+
   it('runs onMount during activation', async () => {
     const mod = definePlugin({
       manifest: { id: 'm', name: 'M', version: '1.0.0' },

@@ -5,7 +5,7 @@
  * store, the reactive scope (state + derived), and the runtime together, runs
  * `onMount`, and exposes `view()` which produces the widget tree on demand.
  */
-import type { Widget } from './types';
+import type { Widget, Theme } from './types';
 import { createStore, type Store } from './state/store';
 import { createScope, type Scope } from './state/reactive';
 import { createRuntime, type ActionFn, type Runtime } from './runtime';
@@ -16,6 +16,7 @@ export interface PluginDef<S extends object> {
   state: () => S;
   derived?: Record<string, (s: Readonly<S>) => unknown>;
   actions?: Record<string, ActionFn<S>>;
+  theme?: Theme;
   onMount?: (rt: Runtime<S>) => unknown;
   view: (s: Scope<S>, rt: Runtime<S>) => Widget;
 }
@@ -36,6 +37,7 @@ export interface ActivatedPlugin<S extends object> {
   manifest: PluginDef<S>['manifest'];
   store: Store<S>;
   runtime: Runtime<S>;
+  theme?: Theme;
   view: () => Widget;
 }
 
@@ -57,6 +59,7 @@ export async function activatePlugin<S extends object>(
     manifest: def.manifest,
     store,
     runtime,
+    theme: def.theme,
     view: () => def.view(scope, runtime),
   };
 }

@@ -14,3 +14,9 @@ Feature: Themed rendering
     And a theme that sets a different button background
     When the plugin is rendered under the theme
     Then the rendered button shows the per-instance background
+
+  Scenario: A plugin's own theme overrides the global theme
+    Given a plugin that ships its own button background theme
+    And a global theme that sets a different button background
+    When the plugin is rendered under the global theme
+    Then the rendered button shows the plugin's background

@@ -72,4 +72,28 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
       expect(styleAttr('Go')).toMatch(/#abcdef|rgb\(171,\s*205,\s*239\)/iu);
     });
   });
+
+  Scenario("A plugin's own theme overrides the global theme", ({ Given, And, When, Then }) => {
+    let app: ActivatedPlugin<Record<string, unknown>>;
+    let global: Theme;
+
+    Given('a plugin that ships its own button background theme', async () => {
+      const mod = definePlugin<Record<string, unknown>>({
+        manifest: { id: 'pt', name: 'PT', version: '1.0.0' },
+        state: () => ({}),
+        theme: { tokens: {}, widgets: { button: { base: { background: '#22cc88' } } } },
+        view: () => w('button', { children: 'Go' }),
+      });
+      app = await activatePlugin(mod);
+    });
+    And('a global theme that sets a different button background', () => {
+      global = { tokens: {}, widgets: { button: { base: { background: '#111111' } } } };
+    });
+    When('the plugin is rendered under the global theme', async () => {
+      await renderUnder(global, app);
+    });
+    Then("the rendered button shows the plugin's background", () => {
+      expect(styleAttr('Go')).toMatch(/#22cc88|rgb\(34,\s*204,\s*136\)/iu);
+    });
+  });
 });

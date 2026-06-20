@@ -11,7 +11,7 @@ import type { Widget, Theme } from '../types';
 import type { Runtime } from '../runtime';
 import type { Store } from '../state/store';
 import { createRegistry, type Registry } from '../registry';
-import { styleForNode, EMPTY_THEME } from '../theme';
+import { styleForNode, mergeThemes, EMPTY_THEME } from '../theme';
 
 /** The active theme for rendering; provide a value to restyle the widget tree. */
 export const ThemeContext = React.createContext<Theme>(EMPTY_THEME);
@@ -74,11 +74,13 @@ export function renderNode(
 
 /** Root view for an activated plugin; re-renders on any store change. */
 export function PluginView(props: {
-  app: { store: Store<Record<string, unknown>>; runtime: Runtime<Record<string, unknown>>; view: () => Widget };
+  app: { store: Store<Record<string, unknown>>; runtime: Runtime<Record<string, unknown>>; theme?: Theme; view: () => Widget };
   registry: Registry<WidgetComponent>;
 }): React.ReactElement | null {
   const { app, registry } = props;
-  const theme = React.useContext(ThemeContext);
+  const ambient = React.useContext(ThemeContext);
+  // Cascade: ambient (builtin < user-global) < this plugin's own theme.
+  const theme = app.theme ? mergeThemes(ambient, app.theme) : ambient;
   const [, force] = React.useReducer((tick: number) => tick + 1, 0);
   React.useEffect(() => app.store.subscribe(() => force()), [app]);
   return renderNode(app.view(), app.runtime, registry, theme);
