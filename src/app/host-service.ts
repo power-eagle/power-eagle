@@ -64,11 +64,19 @@ export function mergeAvailable(installed: PluginSummary[]): PluginSummary[] {
   return [...builtins, ...installed.filter((entry) => !seen.has(entry.id))];
 }
 
+/** What one service/styling plugin contributes, for the overview surface. */
+export interface PluginContribution {
+  services?: { methods: string[]; vars: string[] };
+  widgets?: string[];
+  theme?: boolean;
+}
+
 /** The shared runtime context contributed by service + styling plugins. */
 export interface HostContext {
   services: Record<string, unknown>;
   widgets: Record<string, WidgetComponent>;
   theme: Theme;
+  contributions: Record<string, PluginContribution>;
 }
 
 /**
@@ -84,22 +92,34 @@ export async function buildHostContext(
   eagle: Record<string, unknown> = {},
 ): Promise<HostContext> {
   const services: Record<string, unknown> = {};
+  const contributions: Record<string, PluginContribution> = {};
   let widgets: Record<string, WidgetComponent> = {};
   let theme: Theme = EMPTY_THEME;
 
   for (const module of modules) {
     const kind = pluginKind(module.manifest);
+    const id = module.manifest.id;
     if (kind === 'service') {
       const app = await activatePlugin(module, eagle, services);
-      if (app.provides) services[module.manifest.id] = app.provides;
+      if (app.provides) {
+        services[id] = app.provides;
+        const entries = Object.entries(app.provides);
+        contributions[id] = {
+          services: {
+            methods: entries.filter(([, value]) => typeof value === 'function').map(([key]) => key),
+            vars: entries.filter(([, value]) => typeof value !== 'function').map(([key]) => key),
+          },
+        };
+      }
     } else if (kind === 'styling') {
       const app = await activatePlugin(module, eagle, services);
       if (app.widgets) widgets = { ...widgets, ...app.widgets };
       if (app.theme) theme = mergeThemes(theme, app.theme);
+      contributions[id] = { widgets: Object.keys(app.widgets ?? {}), theme: Boolean(app.theme) };
     }
   }
 
-  return { services, widgets, theme };
+  return { services, widgets, theme, contributions };
 }
 
 /** The surface the shell uses to list, install, and launch plugins. */

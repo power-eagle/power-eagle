@@ -116,6 +116,24 @@ describe('buildHostContext', () => {
     expect(ctx.widgets.badge).toBe(badge);
     expect(ctx.theme.widgets?.button?.base).toEqual({ background: 'color.brand' });
   });
+
+  it('records per-plugin contributions for the overview surface', async () => {
+    const fmt = definePlugin({
+      manifest: { id: 'fmt', name: 'Fmt', version: '1.0.0', service: true },
+      provides: () => ({ upper: (s: string) => s.toUpperCase(), version: '2' }),
+    });
+    const dark = definePlugin({
+      manifest: { id: 'dark', name: 'Dark', version: '1.0.0', styling: true },
+      theme: aTheme,
+      widgets: { badge },
+    });
+
+    const ctx = await buildHostContext([fmt, dark] as unknown as AnyPluginModule[]);
+
+    expect(ctx.contributions.fmt.services).toEqual({ methods: ['upper'], vars: ['version'] });
+    expect(ctx.contributions.dark.widgets).toEqual(['badge']);
+    expect(ctx.contributions.dark.theme).toBe(true);
+  });
 });
 
 describe('initHostService', () => {

@@ -13,7 +13,7 @@ import { listBuiltinModules } from '../plugins/builtins';
 import type { EagleHost } from '../plugins/eagle';
 import type { Theme } from '../sdui/types';
 
-const EMPTY_CONTEXT: HostContext = { services: {}, widgets: {}, theme: EMPTY_THEME };
+const EMPTY_CONTEXT: HostContext = { services: {}, widgets: {}, theme: EMPTY_THEME, contributions: {} };
 
 // Plugin tabs split by source (builtin = bundled, any kind) and by kind for the
 // rest (app = installed visual, service, styling); buckets/install manage
@@ -60,7 +60,9 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
   const [tab, setTab] = useState<HostTab>('builtin');
   const [available, setAvailable] = useState<PluginSummary[]>([]);
   const [buckets, setBuckets] = useState<string[]>([]);
-  const [launchedId, setLaunchedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Enable state is in-memory (persistence tracked as a commit DEBT).
+  const [disabled, setDisabled] = useState<ReadonlySet<string>>(() => new Set());
   const [filter, setFilter] = useState('');
   const [bucketInput, setBucketInput] = useState('');
   const [installInput, setInstallInput] = useState('');
@@ -87,25 +89,53 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
     if (!props.theme) setTheme(loadTheme());
   }, [props.theme]);
 
-  // Activate service + styling plugins once; their surfaces/widgets/theme become
-  // the shared context every launched visual plugin runs against.
+  // Activate the enabled service + styling plugins; their surfaces/widgets/theme
+  // become the shared context every launched visual plugin runs against.
+  // Disabled plugins are excluded, so the context rebuilds when a toggle flips.
   useEffect(() => {
     let active = true;
-    void buildHostContext(listBuiltinModules(), eagle as unknown as Record<string, unknown>).then((built) => {
+    const modules = listBuiltinModules().filter((module) => !disabled.has(module.manifest.id));
+    void buildHostContext(modules, eagle as unknown as Record<string, unknown>).then((built) => {
       if (active) setContext(built);
     });
     return () => {
       active = false;
     };
-  }, [eagle]);
+  }, [eagle, disabled]);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
     return () => document.documentElement.classList.remove('dark');
   }, []);
 
-  function launch(plugin: PluginSummary): void {
-    if (plugin.launchable) setLaunchedId(plugin.id);
+  function toggle(id: string): void {
+    setDisabled((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  /** A service/styling plugin's overview: what it provides. */
+  function renderOverview(plugin: PluginSummary): JSX.Element {
+    const contribution = context.contributions[plugin.id];
+    if (plugin.kind === 'service') {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-semibold text-foreground">{plugin.name} · service</div>
+          <div className="text-xs text-muted-foreground">methods: {contribution?.services?.methods.join(', ') || '—'}</div>
+          <div className="text-xs text-muted-foreground">objects/vars: {contribution?.services?.vars.join(', ') || '—'}</div>
+        </div>
+      );
+    }
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-semibold text-foreground">{plugin.name} · styling</div>
+        <div className="text-xs text-muted-foreground">widget types: {contribution?.widgets?.join(', ') || '—'}</div>
+        <div className="text-xs text-muted-foreground">theme: {contribution?.theme ? 'yes' : 'no'}</div>
+      </div>
+    );
   }
 
   function refresh(): void {
@@ -133,6 +163,7 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
   const visible = available.filter(
     (plugin) => inTab(plugin, tab) && (!needle || plugin.name.toLowerCase().includes(needle)),
   );
+  const selected = available.find((plugin) => plugin.id === selectedId) ?? null;
 
   return (
     <main className="min-h-screen bg-background px-4 py-5 text-foreground md:px-6">
@@ -164,22 +195,33 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
                   />
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 text-sm">
-                  {visible.length ? visible.map((plugin) => (
-                    <button
-                      key={plugin.id}
-                      className={`mb-1.5 flex w-full flex-col rounded-xl border px-3 py-3 text-left transition-colors ${launchedId === plugin.id ? 'border-border bg-card shadow-sm' : 'border-transparent hover:bg-card hover:shadow-sm'} ${plugin.launchable ? '' : 'cursor-default'}`}
-                      onClick={() => launch(plugin)}
-                      type="button"
-                    >
-                      <span className="flex items-center gap-1.5 text-foreground">
-                        <span className="font-medium">{plugin.name}</span>
-                        <Badge className="rounded-md px-2 py-0.5 text-[10px] font-medium" variant="outline">{plugin.kind}</Badge>
-                        {launchedId === plugin.id ? <Badge className="rounded-md px-2 py-0.5 text-[10px]" variant="secondary">running</Badge> : null}
-                      </span>
-                      <span className="mt-1 text-xs text-muted-foreground">{plugin.id} · v{plugin.version} · {plugin.source}</span>
-                      {plugin.kind !== 'visual' ? <span className="mt-1 text-[10px] text-muted-foreground/80">background — contributes {plugin.kind === 'service' ? 'methods/objects' : 'widgets/theme'}</span> : null}
-                    </button>
-                  )) : (
+                  {visible.length ? visible.map((plugin) => {
+                    const isOff = disabled.has(plugin.id);
+                    return (
+                      <div
+                        key={plugin.id}
+                        className={`mb-1.5 flex items-stretch gap-1 rounded-xl border transition-colors ${selectedId === plugin.id ? 'border-border bg-card shadow-sm' : 'border-transparent hover:bg-card hover:shadow-sm'} ${isOff ? 'opacity-50' : ''}`}
+                      >
+                        <button className="flex flex-1 flex-col px-3 py-3 text-left" onClick={() => setSelectedId(plugin.id)} type="button">
+                          <span className="flex items-center gap-1.5 text-foreground">
+                            <span className="font-medium">{plugin.name}</span>
+                            <Badge className="rounded-md px-2 py-0.5 text-[10px] font-medium" variant="outline">{plugin.kind}</Badge>
+                          </span>
+                          <span className="mt-1 text-xs text-muted-foreground">{plugin.id} · v{plugin.version} · {plugin.source}</span>
+                          {plugin.kind !== 'visual' ? <span className="mt-1 text-[10px] text-muted-foreground/80">background — contributes {plugin.kind === 'service' ? 'methods/objects' : 'widgets/theme'}</span> : null}
+                        </button>
+                        <button
+                          className="flex-shrink-0 rounded-r-xl px-2 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+                          onClick={() => toggle(plugin.id)}
+                          type="button"
+                          aria-pressed={!isOff}
+                          title={isOff ? 'enable' : 'disable'}
+                        >
+                          {isOff ? 'off' : 'on'}
+                        </button>
+                      </div>
+                    );
+                  }) : (
                     <div className="px-3 py-4 text-sm text-muted-foreground">no {tab} plugins</div>
                   )}
                 </div>
@@ -187,19 +229,29 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
             ) : null}
             <section className="min-w-0 flex-1 overflow-y-auto bg-background/70 p-4 md:p-5">
               {isPluginTab ? (
-                launchedId ? (
-                  <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <ThemeContext.Provider value={mergeThemes(context.theme, theme)}>
-                      <BuiltinPluginView
-                        pluginId={launchedId}
-                        eagle={eagle as unknown as Record<string, unknown>}
-                        services={context.services}
-                        widgets={context.widgets}
-                      />
-                    </ThemeContext.Provider>
+                !selected ? (
+                  <div className="px-3 py-8 text-center text-sm text-muted-foreground">select a plugin</div>
+                ) : disabled.has(selected.id) ? (
+                  <div className="px-3 py-8 text-center text-sm text-muted-foreground">
+                    {selected.name} is disabled — enable it to {selected.kind === 'visual' ? 'launch' : 'see what it provides'}
                   </div>
+                ) : selected.kind === 'visual' ? (
+                  selected.launchable ? (
+                    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                      <ThemeContext.Provider value={mergeThemes(context.theme, theme)}>
+                        <BuiltinPluginView
+                          pluginId={selected.id}
+                          eagle={eagle as unknown as Record<string, unknown>}
+                          services={context.services}
+                          widgets={context.widgets}
+                        />
+                      </ThemeContext.Provider>
+                    </div>
+                  ) : (
+                    <div className="px-3 py-8 text-center text-sm text-muted-foreground">{selected.name} is installed — launching installed plugins is not supported yet</div>
+                  )
                 ) : (
-                  <div className="px-3 py-8 text-center text-sm text-muted-foreground">select a plugin to launch</div>
+                  <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">{renderOverview(selected)}</div>
                 )
               ) : null}
               {tab === 'buckets' ? (
