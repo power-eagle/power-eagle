@@ -12,26 +12,26 @@ export interface ReleaseAsset {
   sha256: string;
 }
 
-const RELEASE = 'v0.1.1';
+const RELEASE = 'v0.1.2';
 const RELEASE_BASE = `https://github.com/ZackaryW/saucepan/releases/download/${RELEASE}`;
 
-/** Pinned assets per platform/arch (sha256 verified against the v0.1.1 release). */
+/** Pinned assets per platform/arch (sha256 verified against the v0.1.2 release). */
 const ASSETS: Record<string, ReleaseAsset> = {
   'win32:x64': {
     name: 'saucepan-x86_64-pc-windows-msvc.exe',
-    sha256: 'b8fe2ca3cd037026d75a9b4014646be8baf0cb5b91825f4698a1830144bb3e80',
+    sha256: 'd8647299dd8ad691485ec4e01b3b14cfe736d8de38f731eb3dad72e33c03f320',
   },
   'win32:arm64': {
     name: 'saucepan-aarch64-pc-windows-msvc.exe',
-    sha256: 'acf50f6b5a96679db54ac0e7493353ef447878826d561e686f5d8cfb7399daa0',
+    sha256: '323c72dd2bb6174d3a2fd5326afa3abd80fdeeb7a6ae46e581eb0345d58a5868',
   },
   'darwin:x64': {
     name: 'saucepan-universal-apple-darwin',
-    sha256: 'c09aa69b3522f46c34d8081259d6ab56dc381631df38d689c8c7ec4cda8ab9e1',
+    sha256: 'eafa42d45f8c252aac07a444e07281a82d776aaaf74e9661ba9adadf5e722bb6',
   },
   'darwin:arm64': {
     name: 'saucepan-universal-apple-darwin',
-    sha256: 'c09aa69b3522f46c34d8081259d6ab56dc381631df38d689c8c7ec4cda8ab9e1',
+    sha256: 'eafa42d45f8c252aac07a444e07281a82d776aaaf74e9661ba9adadf5e722bb6',
   },
 };
 

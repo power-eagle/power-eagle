@@ -131,6 +131,19 @@ export function addBucket(options: SaucepanOptions, url: string): void {
   if (!result.ok) fail('bucket add', result);
 }
 
+/**
+ * Resolve the on-disk artifact path of an installed sauce, or undefined if it
+ * is not installed. Delegates to saucepan's own `path` command so the path
+ * formula stays the binary's single source of truth (no TS reconstruction).
+ */
+export function installedPath(options: SaucepanOptions, name: string): string | undefined {
+  ensureRoot(options);
+  const result = run(options, ['path', name]);
+  if (result.exitCode === EXIT.NOT_FOUND) return undefined;
+  if (!result.ok) fail('path', result);
+  return result.stdout.trim();
+}
+
 /** List registered bucket source urls. */
 export function listBuckets(options: SaucepanOptions = {}): string[] {
   ensureRoot(options);
