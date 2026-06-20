@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
@@ -15,18 +14,29 @@ import type { Theme } from '../sdui/types';
 
 const EMPTY_CONTEXT: HostContext = { services: {}, widgets: {}, theme: EMPTY_THEME };
 
-type HostTab = 'installed' | 'buckets' | 'url';
+// Tabs split plugins by source (builtin = bundled, any kind) and by kind for
+// the rest (app = installed visual, service, styling).
+type HostTab = 'builtin' | 'app' | 'service' | 'styling';
+const TABS: HostTab[] = ['builtin', 'app', 'service', 'styling'];
+
 interface HostEvent {
   id: number;
   title: string;
   body?: string;
 }
 
+/** Does a plugin belong in the given tab? builtin = bundled (any kind); the rest group installed by kind. */
+function inTab(plugin: PluginSummary, tab: HostTab): boolean {
+  if (tab === 'builtin') return plugin.source === 'builtin';
+  if (tab === 'app') return plugin.source !== 'builtin' && plugin.kind === 'visual';
+  return plugin.source !== 'builtin' && plugin.kind === tab;
+}
+
 /**
- * The v3 host shell: lists available plugins from the saucepan-backed host
- * service and launches one into the registry-driven renderer. Buckets and
- * url-install delegate to the service; host notifications surface in the
- * inspector. The service and eagle bridge are injectable for testing.
+ * The v3 host shell. Plugins are listed in four tabs (builtin / app / service /
+ * styling); a visual plugin launches into the registry-driven renderer, while
+ * service and styling plugins run in the background and contribute their
+ * surfaces / widgets / theme to every launched plugin.
  */
 export function App(props: { service?: HostService; eagle?: EagleHost; theme?: Theme }): JSX.Element {
   const [events, setEvents] = useState<HostEvent[]>([]);
@@ -44,18 +54,13 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
 
   const [context, setContext] = useState<HostContext>(EMPTY_CONTEXT);
   const [service, setService] = useState<HostService | null>(props.service ?? null);
-  const [tab, setTab] = useState<HostTab>('installed');
+  const [tab, setTab] = useState<HostTab>('builtin');
   const [available, setAvailable] = useState<PluginSummary[]>([]);
-  const [buckets, setBuckets] = useState<string[]>([]);
   const [launchedId, setLaunchedId] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
-  const [bucketInput, setBucketInput] = useState('');
-  const [installInput, setInstallInput] = useState('');
 
   useEffect(() => {
-    if (props.service) {
-      return;
-    }
+    if (props.service) return;
     let active = true;
     void initHostService().then((resolved) => {
       if (active) setService(resolved);
@@ -66,17 +71,11 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
   }, [props.service]);
 
   useEffect(() => {
-    if (!service) {
-      return;
-    }
-    setAvailable(service.listAvailable());
-    setBuckets(service.listBuckets());
+    if (service) setAvailable(service.listAvailable());
   }, [service]);
 
   useEffect(() => {
-    if (!props.theme) {
-      setTheme(loadTheme());
-    }
+    if (!props.theme) setTheme(loadTheme());
   }, [props.theme]);
 
   // Activate service + styling plugins once; their surfaces/widgets/theme become
@@ -96,34 +95,13 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
     return () => document.documentElement.classList.remove('dark');
   }, []);
 
-  function refresh(active = service): void {
-    if (!active) return;
-    setAvailable(active.listAvailable());
-    setBuckets(active.listBuckets());
-  }
-
   function launch(plugin: PluginSummary): void {
-    if (!plugin.launchable) return;
-    setLaunchedId(plugin.id);
-    setTab('installed');
+    if (plugin.launchable) setLaunchedId(plugin.id);
   }
 
-  function handleAddBucket(): void {
-    if (!service || !bucketInput.trim()) return;
-    service.addBucket(bucketInput.trim());
-    setBucketInput('');
-    refresh();
-  }
-
-  function handleInstall(): void {
-    if (!service || !installInput.trim()) return;
-    service.install(installInput.trim());
-    setInstallInput('');
-    refresh();
-  }
-
+  const needle = filter.trim().toLowerCase();
   const visible = available.filter(
-    (plugin) => !filter.trim() || plugin.name.toLowerCase().includes(filter.trim().toLowerCase()),
+    (plugin) => inTab(plugin, tab) && (!needle || plugin.name.toLowerCase().includes(needle)),
   );
 
   return (
@@ -137,9 +115,9 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
             </div>
             <Tabs className="ml-auto" onValueChange={(value) => setTab(value as HostTab)} value={tab}>
               <TabsList>
-                <TabsTrigger value="installed">installed</TabsTrigger>
-                <TabsTrigger value="buckets">buckets</TabsTrigger>
-                <TabsTrigger value="url">install</TabsTrigger>
+                {TABS.map((name) => (
+                  <TabsTrigger key={name} value={name}>{name}</TabsTrigger>
+                ))}
               </TabsList>
             </Tabs>
             {service ? null : <span className="text-xs">initializing saucepan...</span>}
@@ -149,7 +127,7 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
               <div className="border-b border-border p-3">
                 <Input
                   className="w-full"
-                  placeholder="filter plugins..."
+                  placeholder={`filter ${tab}...`}
                   value={filter}
                   onChange={(event) => setFilter(event.target.value)}
                 />
@@ -158,61 +136,38 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
                 {visible.length ? visible.map((plugin) => (
                   <button
                     key={plugin.id}
-                    className={`mb-1.5 flex w-full flex-col rounded-xl border px-3 py-3 text-left transition-colors ${launchedId === plugin.id ? 'border-border bg-card shadow-sm' : 'border-transparent hover:bg-card hover:shadow-sm'}`}
+                    className={`mb-1.5 flex w-full flex-col rounded-xl border px-3 py-3 text-left transition-colors ${launchedId === plugin.id ? 'border-border bg-card shadow-sm' : 'border-transparent hover:bg-card hover:shadow-sm'} ${plugin.launchable ? '' : 'cursor-default'}`}
                     onClick={() => launch(plugin)}
                     type="button"
                   >
                     <span className="flex items-center gap-1.5 text-foreground">
                       <span className="font-medium">{plugin.name}</span>
-                      <Badge className="rounded-md px-2 py-0.5 text-[10px] font-medium" variant={plugin.source === 'builtin' ? 'default' : 'outline'}>
-                        {plugin.source}
-                      </Badge>
+                      <Badge className="rounded-md px-2 py-0.5 text-[10px] font-medium" variant="outline">{plugin.kind}</Badge>
                       {launchedId === plugin.id ? <Badge className="rounded-md px-2 py-0.5 text-[10px]" variant="secondary">running</Badge> : null}
                     </span>
-                    <span className="mt-1 text-xs text-muted-foreground">{plugin.id} · v{plugin.version}</span>
-                    {!plugin.launchable ? <span className="mt-1 text-[10px] text-muted-foreground/80">installed — launch not yet supported</span> : null}
+                    <span className="mt-1 text-xs text-muted-foreground">{plugin.id} · v{plugin.version} · {plugin.source}</span>
+                    {plugin.kind !== 'visual' ? <span className="mt-1 text-[10px] text-muted-foreground/80">background — contributes {plugin.kind === 'service' ? 'methods/objects' : 'widgets/theme'}</span> : null}
                   </button>
                 )) : (
-                  <div className="px-3 py-4 text-sm text-muted-foreground">{available.length ? 'no match' : 'no plugins available'}</div>
+                  <div className="px-3 py-4 text-sm text-muted-foreground">no {tab} plugins</div>
                 )}
               </div>
             </aside>
             <section className="min-w-0 flex-1 overflow-y-auto bg-background/70 p-4 md:p-5">
-              {tab === 'installed' ? (
-                launchedId ? (
-                  <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <ThemeContext.Provider value={mergeThemes(context.theme, theme)}>
-                      <BuiltinPluginView
-                        pluginId={launchedId}
-                        eagle={eagle as unknown as Record<string, unknown>}
-                        services={context.services}
-                        widgets={context.widgets}
-                      />
-                    </ThemeContext.Provider>
-                  </div>
-                ) : (
-                  <div className="px-3 py-8 text-center text-sm text-muted-foreground">select a plugin to launch</div>
-                )
-              ) : null}
-              {tab === 'buckets' ? (
-                <div className="space-y-4">
-                  <div className="flex gap-2">
-                    <Input className="flex-1" placeholder="bucket path or file:// url" value={bucketInput} onChange={(event) => setBucketInput(event.target.value)} />
-                    <Button onClick={handleAddBucket} type="button">add bucket</Button>
-                  </div>
-                  <ul className="space-y-1.5 text-sm">
-                    {buckets.length ? buckets.map((url) => (
-                      <li key={url} className="rounded-lg border border-border bg-card px-3 py-2 text-muted-foreground">{url}</li>
-                    )) : <li className="px-3 py-4 text-muted-foreground">no buckets registered</li>}
-                  </ul>
+              {launchedId ? (
+                <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                  <ThemeContext.Provider value={mergeThemes(context.theme, theme)}>
+                    <BuiltinPluginView
+                      pluginId={launchedId}
+                      eagle={eagle as unknown as Record<string, unknown>}
+                      services={context.services}
+                      widgets={context.widgets}
+                    />
+                  </ThemeContext.Provider>
                 </div>
-              ) : null}
-              {tab === 'url' ? (
-                <div className="flex gap-2">
-                  <Input className="flex-1" placeholder="owner/repo to install" value={installInput} onChange={(event) => setInstallInput(event.target.value)} />
-                  <Button onClick={handleInstall} type="button">install</Button>
-                </div>
-              ) : null}
+              ) : (
+                <div className="px-3 py-8 text-center text-sm text-muted-foreground">select a plugin to launch</div>
+              )}
             </section>
           </div>
         </div>

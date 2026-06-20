@@ -27,6 +27,7 @@ export interface PluginSummary {
   name: string;
   version: string;
   source: 'builtin' | 'github' | 'local' | 'customgit';
+  kind: 'visual' | 'service' | 'styling';
   launchable: boolean;
 }
 
@@ -34,25 +35,31 @@ export interface PluginSummary {
 export function mapInstalled(entries: SaucepanEntry[]): PluginSummary[] {
   return entries.map((item) => {
     const id = typeof item.sauce.id === 'string' ? item.sauce.id : item.sauce.name;
+    const kind = pluginKind({ service: Boolean(item.sauce.service), styling: Boolean(item.sauce.styling) });
     return {
       id,
       name: item.sauce.name,
       version: item.sauce.version,
       source: item.source_type,
-      launchable: getBuiltin(id) !== undefined,
+      kind,
+      launchable: kind === 'visual' && getBuiltin(id) !== undefined,
     };
   });
 }
 
 /** Built-ins first, then installed plugins that do not duplicate a built-in id. */
 export function mergeAvailable(installed: PluginSummary[]): PluginSummary[] {
-  const builtins: PluginSummary[] = listBuiltins().map((manifest) => ({
-    id: manifest.id,
-    name: manifest.name,
-    version: manifest.version,
-    source: 'builtin',
-    launchable: true,
-  }));
+  const builtins: PluginSummary[] = listBuiltins().map((manifest) => {
+    const kind = pluginKind(manifest);
+    return {
+      id: manifest.id,
+      name: manifest.name,
+      version: manifest.version,
+      source: 'builtin',
+      kind,
+      launchable: kind === 'visual',
+    };
+  });
   const seen = new Set(builtins.map((entry) => entry.id));
   return [...builtins, ...installed.filter((entry) => !seen.has(entry.id))];
 }

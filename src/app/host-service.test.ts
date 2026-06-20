@@ -58,8 +58,8 @@ describe('mapInstalled', () => {
 describe('mergeAvailable', () => {
   it('lists built-ins first and drops installed entries that duplicate a built-in id', () => {
     const merged = mergeAvailable([
-      { id: 'file-creator', name: 'dup', version: '9', source: 'github', launchable: true },
-      { id: 'fresh', name: 'Fresh', version: '1', source: 'github', launchable: false },
+      { id: 'file-creator', name: 'dup', version: '9', source: 'github', kind: 'visual', launchable: true },
+      { id: 'fresh', name: 'Fresh', version: '1', source: 'github', kind: 'visual', launchable: false },
     ]);
     const ids = merged.map((p) => p.id);
     expect(ids).toContain('file-creator');

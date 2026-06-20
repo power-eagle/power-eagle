@@ -12,8 +12,8 @@ afterEach(cleanup);
 function fakeService(): HostService {
   return {
     listAvailable: () => [
-      { id: 'file-creator', name: 'File Creator', version: '3.0.0', source: 'builtin', launchable: true },
-      { id: 'recent-libraries', name: 'Recent Libraries', version: '3.0.0', source: 'builtin', launchable: true },
+      { id: 'file-creator', name: 'File Creator', version: '3.0.0', source: 'builtin', kind: 'visual', launchable: true },
+      { id: 'recent-libraries', name: 'Recent Libraries', version: '3.0.0', source: 'builtin', kind: 'visual', launchable: true },
     ],
     listBuckets: () => [],
     install: () => {},
