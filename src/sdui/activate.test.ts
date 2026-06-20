@@ -25,7 +25,7 @@ describe('definePlugin + activatePlugin (integration)', () => {
     });
 
     const app = await activatePlugin(mod);
-    const tree = app.view();
+    const tree = app.view!();
     expect(tree.type).toBe('col');
 
     const labelAccessor = (tree.children![0].props as { data: () => string }).data;

@@ -97,7 +97,7 @@ function renderForEach(
 
 /** Root view for an activated plugin; re-renders on any store change. */
 export function PluginView(props: {
-  app: { store: Store<Record<string, unknown>>; runtime: Runtime<Record<string, unknown>>; theme?: Theme; view: () => Widget };
+  app: { store: Store<Record<string, unknown>>; runtime: Runtime<Record<string, unknown>>; theme?: Theme; view?: () => Widget };
   registry: Registry<WidgetComponent>;
 }): React.ReactElement | null {
   const { app, registry } = props;
@@ -106,7 +106,8 @@ export function PluginView(props: {
   const theme = app.theme ? mergeThemes(ambient, app.theme) : ambient;
   const [, force] = React.useReducer((tick: number) => tick + 1, 0);
   React.useEffect(() => app.store.subscribe(() => force()), [app]);
-  return renderNode(app.view(), app.runtime, registry, theme);
+  // A service plugin has no view; nothing to render.
+  return app.view ? renderNode(app.view(), app.runtime, registry, theme) : null;
 }
 
 /**

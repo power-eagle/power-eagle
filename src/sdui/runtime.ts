@@ -15,13 +15,16 @@ export interface Runtime<S extends object = Record<string, unknown>> {
   batch(fn: () => void): void;
   run(action: string, ...args: unknown[]): Promise<unknown>;
   eagle: Record<string, unknown>;
+  /** Resolve a service plugin's provided surface by manifest id. */
+  service<C = unknown>(id: string): C;
 }
 
-/** Build a runtime bound to a store and the plugin's action map. */
+/** Build a runtime bound to a store, the plugin's action map, and resolvable services. */
 export function createRuntime<S extends object>(
   store: Store<S>,
   actions: Record<string, ActionFn<S>>,
   eagle: Record<string, unknown> = {},
+  services: Record<string, unknown> = {},
 ): Runtime<S> {
   const rt: Runtime<S> = {
     get: () => store.get(),
@@ -34,6 +37,12 @@ export function createRuntime<S extends object>(
         throw new Error(`unknown action: ${action}`);
       }
       return fn(rt, ...args);
+    },
+    service: <C = unknown>(id: string): C => {
+      if (!(id in services)) {
+        throw new Error(`unknown service: ${id}`);
+      }
+      return services[id] as C;
     },
   };
   return rt;
