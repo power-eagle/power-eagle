@@ -15,6 +15,29 @@ import type { Theme } from '../sdui/types';
 
 const EMPTY_CONTEXT: HostContext = { services: {}, widgets: {}, theme: EMPTY_THEME, contributions: {} };
 
+const DISABLED_KEY = 'peagle.disabled.v1';
+
+/** Load the set of disabled plugin ids from localStorage (empty on any failure). */
+function loadDisabled(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const ids = JSON.parse(window.localStorage.getItem(DISABLED_KEY) ?? '[]') as unknown;
+    return new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === 'string') : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/** Persist the set of disabled plugin ids to localStorage. */
+function saveDisabled(ids: ReadonlySet<string>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(DISABLED_KEY, JSON.stringify([...ids]));
+  } catch {
+    // persistence is best-effort
+  }
+}
+
 // Plugin tabs split by source (builtin = bundled, any kind) and by kind for the
 // rest (app = installed visual, service, styling); buckets/install manage
 // adding plugins through the saucepan-backed host service.
@@ -61,8 +84,8 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
   const [available, setAvailable] = useState<PluginSummary[]>([]);
   const [buckets, setBuckets] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // Enable state is in-memory (persistence tracked as a commit DEBT).
-  const [disabled, setDisabled] = useState<ReadonlySet<string>>(() => new Set());
+  // Enable state persists across reloads via localStorage (disabled plugin ids).
+  const [disabled, setDisabled] = useState<ReadonlySet<string>>(loadDisabled);
   const [filter, setFilter] = useState('');
   const [bucketInput, setBucketInput] = useState('');
   const [installInput, setInstallInput] = useState('');
@@ -88,6 +111,10 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
   useEffect(() => {
     if (!props.theme) setTheme(loadTheme());
   }, [props.theme]);
+
+  useEffect(() => {
+    saveDisabled(disabled);
+  }, [disabled]);
 
   // Activate the enabled service + styling plugins; their surfaces/widgets/theme
   // become the shared context every launched visual plugin runs against.

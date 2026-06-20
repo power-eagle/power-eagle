@@ -7,7 +7,23 @@ import { App } from './App';
 import type { HostService } from './host-service';
 import type { EagleHost } from '../plugins/eagle';
 
-afterEach(cleanup);
+// jsdom under Node 22 ships no localStorage without --localstorage-file; the real
+// Eagle/Electron renderer has it. Shim a minimal in-memory Storage for the tests.
+class MemStorage {
+  private store = new Map<string, string>();
+  get length(): number { return this.store.size; }
+  clear(): void { this.store.clear(); }
+  getItem(key: string): string | null { return this.store.has(key) ? (this.store.get(key) as string) : null; }
+  key(index: number): string | null { return [...this.store.keys()][index] ?? null; }
+  removeItem(key: string): void { this.store.delete(key); }
+  setItem(key: string, value: string): void { this.store.set(key, String(value)); }
+}
+Object.defineProperty(window, 'localStorage', { value: new MemStorage(), configurable: true });
+
+afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+});
 
 function fakeService(): HostService {
   return {
@@ -54,12 +70,17 @@ describe('App shell (v3)', () => {
     expect(await screen.findByText(/methods:\s*copy, read/iu)).toBeTruthy();
   });
 
-  it('toggles a plugin off', async () => {
-    render(React.createElement(App, { service: fakeService(), eagle: fakeEagle() }));
+  it('toggles a plugin off and persists the disabled id across a remount', async () => {
+    const { unmount } = render(React.createElement(App, { service: fakeService(), eagle: fakeEagle() }));
 
     const row = screen.getByText('Clipboard').closest('div') as HTMLElement;
     await userEvent.click(within(row).getByTitle('disable'));
-
     expect(within(row).getByTitle('enable')).toBeTruthy();
+
+    // Remount: the toggle survives because disabled ids are read back from localStorage.
+    unmount();
+    render(React.createElement(App, { service: fakeService(), eagle: fakeEagle() }));
+    const remounted = screen.getByText('Clipboard').closest('div') as HTMLElement;
+    expect(within(remounted).getByTitle('enable')).toBeTruthy();
   });
 });
