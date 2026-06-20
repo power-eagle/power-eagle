@@ -6,6 +6,13 @@ import { Badge } from '../components/ui/badge';
 import { PluginRuntimeView } from './plugin-runtime-view';
 import { initHostService, buildHostContext, type HostService, type HostContext, type PluginSummary } from './host-service';
 import type { AnyPluginModule } from '../plugins/builtins';
+import { AiTab } from '../ai/ai-tab';
+import { generatePlugin } from '../ai/generate';
+import type { PromptOptions } from '../ai/prompt';
+import { aidrivenDir, listAttempts, powereagleHome, type Attempt } from '../ai/aidriven-store';
+import { resolveAiModule, type AiModule } from '../ai/ai-bridge';
+import { loadDiskPlugin, nativeImport } from '../host/install/disk-plugin';
+import { joinPath } from '../host/install/fs-bridge';
 import { createEagleHost, defaultEagleHostDeps } from './eagle-host';
 import { loadTheme } from './theme-store';
 import { ThemeContext } from '../sdui/render/render';
@@ -29,6 +36,15 @@ function loadDisabled(): Set<string> {
   }
 }
 
+/** Read AI attempts from disk, tolerating an unavailable filesystem bridge. */
+function readAttemptsSafely(): Attempt[] {
+  try {
+    return listAttempts(powereagleHome());
+  } catch {
+    return [];
+  }
+}
+
 /** Persist the set of disabled plugin ids to localStorage. */
 function saveDisabled(ids: ReadonlySet<string>): void {
   if (typeof window === 'undefined') return;
@@ -42,9 +58,9 @@ function saveDisabled(ids: ReadonlySet<string>): void {
 // Plugin tabs split by source (builtin = bundled, any kind) and by kind for the
 // rest (app = installed visual, service, styling); buckets/install manage
 // adding plugins through the saucepan-backed host service.
-type HostTab = 'builtin' | 'app' | 'service' | 'styling' | 'buckets' | 'install';
+type HostTab = 'builtin' | 'app' | 'service' | 'styling' | 'ai' | 'buckets' | 'install';
 const PLUGIN_TABS: HostTab[] = ['builtin', 'app', 'service', 'styling'];
-const TABS: HostTab[] = [...PLUGIN_TABS, 'buckets', 'install'];
+const TABS: HostTab[] = [...PLUGIN_TABS, 'ai', 'buckets', 'install'];
 
 interface HostEvent {
   id: number;
@@ -71,7 +87,7 @@ function inTab(plugin: PluginSummary, tab: HostTab): boolean {
  * service and styling plugins run in the background and contribute their
  * surfaces / widgets / theme to every launched plugin.
  */
-export function App(props: { service?: HostService; eagle?: EagleHost; theme?: Theme }): JSX.Element {
+export function App(props: { service?: HostService; eagle?: EagleHost; theme?: Theme; ai?: AiModule }): JSX.Element {
   const [events, setEvents] = useState<HostEvent[]>([]);
   const [theme, setTheme] = useState<Theme>(props.theme ?? EMPTY_THEME);
   const eagle = useMemo<EagleHost>(
@@ -225,6 +241,21 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
   );
   const selected = available.find((plugin) => plugin.id === selectedId) ?? null;
 
+  // AI tab wiring. The filesystem/home and the injected `ai` global are only
+  // touched on the ai tab, so the non-ai shell (and App.test) never hit them.
+  const eagleRecord = eagle as unknown as Record<string, unknown>;
+  const aiAttempts: Attempt[] = tab === 'ai' ? readAttemptsSafely() : [];
+  const runGenerate = (instruction: string, promptOptions: PromptOptions): ReturnType<typeof generatePlugin> =>
+    generatePlugin(instruction, {
+      ai: (props.ai ?? resolveAiModule()) as AiModule,
+      home: powereagleHome(),
+      context,
+      newId: () => `ai-${Date.now().toString(36)}`,
+      promptOptions,
+    });
+  const loadAttempt = (id: string): Promise<AnyPluginModule> =>
+    loadDiskPlugin(joinPath(aidrivenDir(powereagleHome()), id), { importModule: nativeImport });
+
   return (
     <main className="min-h-screen bg-background px-4 py-5 text-foreground md:px-6">
       <section className="relative mx-auto flex min-h-[720px] max-w-7xl overflow-hidden rounded-[24px] border border-border/80 bg-card/95 shadow-[0_24px_70px_hsl(var(--foreground)/0.12)]">
@@ -244,6 +275,16 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
             {service ? null : <span className="text-xs">initializing saucepan...</span>}
           </header>
           <div className="flex min-h-0 flex-1">
+            {tab === 'ai' ? (
+              <AiTab
+                context={context}
+                eagle={eagleRecord}
+                attempts={aiAttempts}
+                generate={runGenerate}
+                loadAttempt={loadAttempt}
+              />
+            ) : (
+            <>
             {isPluginTab ? (
               <aside className="flex w-[248px] flex-shrink-0 flex-col border-r border-border bg-muted/25">
                 <div className="border-b border-border p-3">
@@ -336,6 +377,8 @@ export function App(props: { service?: HostService; eagle?: EagleHost; theme?: T
                 </div>
               ) : null}
             </section>
+            </>
+            )}
           </div>
         </div>
         <aside className="hidden w-[260px] flex-shrink-0 flex-col border-l border-border bg-muted/25 lg:flex">
