@@ -96,7 +96,7 @@ const WIDGET_CLASS = {
   row: 'flex flex-row flex-wrap items-center gap-2',
   list: 'flex flex-col gap-2',
   empty: 'rounded-lg border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground',
-  text: 'text-sm text-foreground',
+  text: 'text-sm', // no color — inherit from container (button supplies its own foreground)
   button:
     'inline-flex items-center justify-center rounded-md border border-border bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50',
   input: 'w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground',
