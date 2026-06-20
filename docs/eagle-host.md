@@ -23,8 +23,9 @@ primitives, and `defaultEagleHostDeps` wires the real Eagle global.
   `libraryHistory` array inside Eagle's `Settings` file at
   `<appData>/eagle/Settings`, read through the filesystem bridge.
 - Eagle's plugin API has **no `library.switch`**. Switching the active library
-  is an Eagle *Web API* (HTTP) operation, not a plugin-global call — until that
-  client exists, `switchLibrary` only records a host event.
+  is an Eagle *Web API* (HTTP) operation, not a plugin-global call — this adapter
+  delegates `switchLibrary` to the Eagle web API client (`docs/eagle-webapi.md`)
+  and records the attempt as a host event, swallowing failures.
 
 ## Key Invariants
 
