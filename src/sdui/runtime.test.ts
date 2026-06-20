@@ -6,9 +6,9 @@ describe('runtime', () => {
   it('run invokes a plugin action with rt and args; set mutates state', async () => {
     const store = createStore({ n: 0 });
     const rt = createRuntime(store, {
-      async add(r, by: number) {
+      async add(r, by) {
         r.set((d) => {
-          d.n += by;
+          d.n += by as number;
         });
       },
     });
