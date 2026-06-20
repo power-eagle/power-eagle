@@ -6,6 +6,7 @@
  */
 import type { EagleHost } from '../plugins/eagle';
 import { joinPath, readTextFile, writeTextFile } from '../host/install/fs-bridge';
+import { createEagleWebApi } from './eagle-webapi';
 
 /** The host primitives the adapter composes into an EagleHost. */
 export interface EagleHostDeps {
@@ -44,12 +45,20 @@ export function createEagleHost(deps: EagleHostDeps): EagleHost {
 
 /** Wire the host primitives to the injected Eagle global + fs bridge. */
 export function defaultEagleHostDeps(recordEvent: (message: { title: string; body?: string }) => void): EagleHostDeps {
+  const webApi = createEagleWebApi();
   return {
     notifySink: (message) => {
       recordEvent(message);
       void eagle.notification.show({ title: message.title, body: message.body ?? '' });
     },
-    switchLibrary: (path) => recordEvent({ title: 'Switch Library', body: path }),
+    switchLibrary: async (path) => {
+      recordEvent({ title: 'Switch Library', body: path });
+      try {
+        await webApi.library.switch(path);
+      } catch (error) {
+        recordEvent({ title: 'Switch failed', body: error instanceof Error ? error.message : String(error) });
+      }
+    },
     // Eagle exposes no recent-libraries API; read libraryHistory from its Settings
     // file, located via the injected eagle global (not the unreliable node process).
     readSettings: async () => {
