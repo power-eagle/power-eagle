@@ -54,6 +54,20 @@ Layout under `~/.powereagle`: `bin/` (cached binary), `.saucepan/index.json`
 > service/styling extensions are listed but not yet activated into the shared
 > context — only bundled service/styling plugins contribute today.
 
+## AI-generated extensions
+
+The **ai** tab turns a prompt into a plugin. It builds a prompt from authoring
+rules, a worked sample, the live service/styling registries, and the Eagle
+platform surface (the `eagle.d.ts` types and Web API — each opt-in via a
+toggle), then asks Eagle's AI SDK (`eagle.extraModule.ai`, configured in Eagle's
+AI preferences) for a self-contained `definePlugin` ESM module. The result is
+written under `~/.powereagle/aidriven/<id>/` and loaded through the same disk
+loader as any installed extension, then rendered. Each attempt is recorded in a
+left-hand history and can be reselected.
+
+> Generated plugins are arbitrary code executed unsandboxed in the Eagle
+> webview; v1 renders after generation completes (no live streaming).
+
 ## Component docs
 
 - [docs/authoring-extensions.md](docs/authoring-extensions.md) — build the three kinds + the on-disk package format
