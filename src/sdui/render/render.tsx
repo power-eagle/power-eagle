@@ -58,10 +58,11 @@ export function renderNode(
     return null;
   }
 
+  const kids = node.for ? null : childWidgets(node.children);
   const children = node.for
     ? renderForEach(node, runtime, registry, theme)
-    : node.children
-      ? node.children.map((child, index) => renderNode(child, runtime, registry, theme, index))
+    : kids && kids.length > 0
+      ? kids.map((child, index) => renderNode(child, runtime, registry, theme, index))
       : null;
 
   const Component = registry.get(node.type);
@@ -77,6 +78,18 @@ export function renderNode(
     runtime,
     children,
   });
+}
+
+/**
+ * Coerce a node's `children` into a Widget[] at the render trust boundary. The
+ * w() builder already normalizes built-in plugins, but disk/AI-generated trees
+ * may hand us a single child object, a bare string, or a malformed non-array —
+ * none of which should crash the renderer.
+ */
+function childWidgets(children: unknown): Widget[] {
+  if (children == null) return [];
+  const list = Array.isArray(children) ? children : [children];
+  return list.map((child) => (typeof child === 'string' ? { type: 'text', props: { data: child } } : (child as Widget)));
 }
 
 /** Render a `for`/`render` list: one rendered node per item, else the `empty` widget. */
