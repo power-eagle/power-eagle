@@ -90,4 +90,21 @@ function registerBuiltins(registry: Registry<WidgetComponent>): void {
       children,
     ),
   );
+  registry.register('input', ({ resolved, node }) =>
+    React.createElement('input', {
+      value: String(resolved.value ?? ''),
+      placeholder: resolved.placeholder !== undefined ? String(resolved.placeholder) : undefined,
+      disabled: Boolean(resolved.disabled),
+      onChange: (event: React.ChangeEvent<HTMLInputElement>) => node.on?.input?.(event.target.value),
+    }),
+  );
+  registry.register('list', ({ resolved, children }) =>
+    React.createElement(
+      'div',
+      { 'data-w': 'list' },
+      React.Children.count(children) > 0
+        ? children
+        : React.createElement('span', { 'data-w': 'empty' }, String(resolved.empty ?? '')),
+    ),
+  );
 }
