@@ -17,7 +17,11 @@ import { styleForNode, mergeThemes, EMPTY_THEME } from '../theme';
 /** The active theme for rendering; provide a value to restyle the widget tree. */
 export const ThemeContext = React.createContext<Theme>(EMPTY_THEME);
 
-/** A widget render component: receives resolved props, style, the node, runtime, and children. */
+/**
+ * A widget render component: receives resolved props, the node, its computed
+ * style, the runtime, and rendered children. A styling plugin contributes these
+ * by widget `type` to overload an existing widget or insert a new one.
+ */
 export type WidgetComponent = (p: {
   node: Widget;
   resolved: Record<string, unknown>;

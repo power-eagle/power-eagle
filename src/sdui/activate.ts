@@ -6,6 +6,7 @@
  * `onMount`, and exposes `view()` which produces the widget tree on demand.
  */
 import type { Widget, Theme } from './types';
+import type { WidgetComponent } from './render/render';
 import { createStore, type Store } from './state/store';
 import { createScope, type Scope } from './state/reactive';
 import { createRuntime, type ActionFn, type Runtime } from './runtime';
@@ -18,9 +19,11 @@ export interface PluginDef<S extends object> {
   actions?: Record<string, ActionFn<S>>;
   theme?: Theme;
   onMount?: (rt: Runtime<S>) => unknown;
-  // A UI plugin renders a view; a service plugin (manifest.service) exposes a surface.
+  // A UI plugin renders a view; a service plugin (manifest.service) exposes a surface;
+  // a styling plugin (manifest.styling) contributes a theme and/or widget types.
   view?: (s: Scope<S>, rt: Runtime<S>) => Widget;
   provides?: (rt: Runtime<S>) => object;
+  widgets?: Record<string, WidgetComponent>;
 }
 
 /** A loaded plugin module: static manifest + the captured definition. */
@@ -48,15 +51,16 @@ function validatePluginDef<S extends object>(def: PluginDef<S>): void {
   const kind = pluginKind(def.manifest);
   if (kind === 'service') {
     if (def.view) throw new Error('a service plugin cannot have a view');
-    if (def.theme) throw new Error('a service plugin cannot provide styling (theme)');
+    if (def.theme || def.widgets) throw new Error('a service plugin cannot provide styling (theme or widgets)');
     if (!def.provides) throw new Error('a service plugin must provide a surface');
   } else if (kind === 'styling') {
     if (def.view) throw new Error('a styling plugin cannot have a view');
     if (def.provides) throw new Error('a styling plugin cannot provide a service surface');
-    if (!def.theme) throw new Error('a styling plugin must provide a theme');
+    if (!def.theme && !def.widgets) throw new Error('a styling plugin must provide a theme or widget types');
   } else {
     if (!def.view) throw new Error('a visual plugin must have a view');
     if (def.provides) throw new Error('a visual plugin cannot provide a service surface (mark it service: true)');
+    if (def.widgets) throw new Error('a visual plugin cannot provide widget types (mark it styling: true)');
   }
 }
 
@@ -74,6 +78,7 @@ export interface ActivatedPlugin<S extends object> {
   theme?: Theme;
   view?: () => Widget;
   provides?: object;
+  widgets?: Record<string, WidgetComponent>;
 }
 
 /** Assemble a live plugin from its module, the host eagle bridge, and resolvable services. */
@@ -99,5 +104,6 @@ export async function activatePlugin<S extends object>(
     theme: def.theme,
     view: view ? () => view(scope, runtime) : undefined,
     provides: def.provides ? def.provides(runtime) : undefined,
+    widgets: def.widgets,
   };
 }

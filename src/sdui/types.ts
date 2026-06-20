@@ -1,6 +1,6 @@
 /**
  * @peagle/sdui — public contract types for the v3 (typed-JS, in-process) plugin model.
- * See docs/sdui-spec-v3.md. This file is declarations only; no runtime behavior.
+ * Declarations only; no runtime behavior.
  */
 
 // ── Reactivity ──────────────────────────────────────────────────────────────

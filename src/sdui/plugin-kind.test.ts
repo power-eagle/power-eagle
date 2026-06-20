@@ -2,8 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { definePlugin, activatePlugin, pluginKind } from './activate';
 import { w } from './widget';
 import type { Theme } from './types';
+import type { WidgetComponent } from './render/render';
 
 const aTheme: Theme = { tokens: {}, widgets: { button: { base: { background: '#123456' } } } };
+const noopWidget: WidgetComponent = () => null;
 
 describe('pluginKind', () => {
   it('classifies visual, service, and styling plugins by manifest flags', () => {
@@ -28,6 +30,38 @@ describe('styling plugins', () => {
     expect(app.theme).toEqual(aTheme);
     expect(app.view).toBeUndefined();
     expect(app.provides).toBeUndefined();
+  });
+});
+
+describe('styling plugins provide widgets and/or a theme', () => {
+  it('exposes provided widget components (overload/insert widget types)', async () => {
+    const pack = definePlugin({
+      manifest: { id: 'wpack', name: 'WPack', version: '1.0.0', styling: true },
+      widgets: { fancyButton: noopWidget, chart: noopWidget },
+    });
+    const app = await activatePlugin(pack);
+    expect(app.widgets?.fancyButton).toBe(noopWidget);
+    expect(app.theme).toBeUndefined();
+    expect(app.view).toBeUndefined();
+  });
+
+  it('allows both widgets and a theme', async () => {
+    const pack = definePlugin({
+      manifest: { id: 'wp2', name: 'WP2', version: '1.0.0', styling: true },
+      theme: aTheme,
+      widgets: { chart: noopWidget },
+    });
+    const app = await activatePlugin(pack);
+    expect(app.widgets?.chart).toBe(noopWidget);
+    expect(app.theme).toEqual(aTheme);
+  });
+
+  it('rejects a styling plugin that provides neither theme nor widgets', () => {
+    expect(() => definePlugin({ manifest: { id: 'sp', name: 'SP', version: '1.0.0', styling: true } })).toThrow(/theme|widget/iu);
+  });
+
+  it('rejects widgets on a non-styling kind', () => {
+    expect(() => definePlugin({ manifest: { id: 'vw', name: 'VW', version: '1.0.0' }, view: () => w('text', { data: 'x' }), widgets: { x: noopWidget } })).toThrow(/widget/iu);
   });
 });
 
