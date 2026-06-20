@@ -6,7 +6,11 @@ import { Badge } from '../components/ui/badge';
 import { BuiltinPluginView } from './builtin-plugin-view';
 import { initHostService, type HostService, type PluginSummary } from './host-service';
 import { createEagleHost, defaultEagleHostDeps } from './eagle-host';
+import { loadTheme } from './theme-store';
+import { ThemeContext } from '../sdui/render/render';
+import { EMPTY_THEME } from '../sdui/theme';
 import type { EagleHost } from '../plugins/eagle';
+import type { Theme } from '../sdui/types';
 
 type HostTab = 'installed' | 'buckets' | 'url';
 interface HostEvent {
@@ -21,8 +25,9 @@ interface HostEvent {
  * url-install delegate to the service; host notifications surface in the
  * inspector. The service and eagle bridge are injectable for testing.
  */
-export function App(props: { service?: HostService; eagle?: EagleHost }): JSX.Element {
+export function App(props: { service?: HostService; eagle?: EagleHost; theme?: Theme }): JSX.Element {
   const [events, setEvents] = useState<HostEvent[]>([]);
+  const [theme, setTheme] = useState<Theme>(props.theme ?? EMPTY_THEME);
   const eagle = useMemo<EagleHost>(
     () =>
       props.eagle ??
@@ -63,6 +68,12 @@ export function App(props: { service?: HostService; eagle?: EagleHost }): JSX.El
     setAvailable(service.listAvailable());
     setBuckets(service.listBuckets());
   }, [service]);
+
+  useEffect(() => {
+    if (!props.theme) {
+      setTheme(loadTheme());
+    }
+  }, [props.theme]);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -154,7 +165,9 @@ export function App(props: { service?: HostService; eagle?: EagleHost }): JSX.El
               {tab === 'installed' ? (
                 launchedId ? (
                   <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <BuiltinPluginView pluginId={launchedId} eagle={eagle as unknown as Record<string, unknown>} />
+                    <ThemeContext.Provider value={theme}>
+                      <BuiltinPluginView pluginId={launchedId} eagle={eagle as unknown as Record<string, unknown>} />
+                    </ThemeContext.Provider>
                   </div>
                 ) : (
                   <div className="px-3 py-8 text-center text-sm text-muted-foreground">select a plugin to launch</div>
