@@ -2,9 +2,14 @@ import { describe, it, expect, vi } from 'vitest';
 import * as nodeFs from 'node:fs';
 import * as nodePath from 'node:path';
 import * as nodeOs from 'node:os';
-import { mapInstalled, mergeAvailable, createHostService, initHostService } from './host-service';
+import { mapInstalled, mergeAvailable, createHostService, initHostService, buildHostContext } from './host-service';
 import type { SaucepanEntry } from '../host/install/saucepan';
 import { resolveSaucepanBinary } from '../host/install/saucepan-binary';
+import { definePlugin } from '../sdui/activate';
+import { w } from '../sdui/widget';
+import type { AnyPluginModule } from '../plugins/builtins';
+import type { Theme } from '../sdui/types';
+import type { WidgetComponent } from '../sdui/render/render';
 
 (globalThis as unknown as { window: { require: (m: string) => unknown } }).window = {
   require: (moduleName: string) => {
@@ -82,6 +87,34 @@ describe('createHostService', () => {
     const calls = runner.mock.calls.map(([, args]) => args.slice(1).join(' '));
     expect(calls).toContain('install owner/repo');
     expect(calls).toContain('bucket add /new.json');
+  });
+});
+
+describe('buildHostContext', () => {
+  const aTheme: Theme = { tokens: { color: { brand: '#0066ff' } }, widgets: { button: { base: { background: 'color.brand' } } } };
+  const badge: WidgetComponent = () => null;
+
+  it('activates service and styling plugins into services, widgets, and a merged theme', async () => {
+    const fmt = definePlugin({
+      manifest: { id: 'fmt', name: 'Fmt', version: '1.0.0', service: true },
+      provides: () => ({ upper: (s: string) => s.toUpperCase() }),
+    });
+    const dark = definePlugin({
+      manifest: { id: 'dark', name: 'Dark', version: '1.0.0', styling: true },
+      theme: aTheme,
+      widgets: { badge },
+    });
+    const visual = definePlugin<{ x: number }>({
+      manifest: { id: 'u', name: 'U', version: '1.0.0' },
+      state: () => ({ x: 0 }),
+      view: () => w('text', { data: 'x' }),
+    });
+
+    const ctx = await buildHostContext([fmt, dark, visual] as unknown as AnyPluginModule[]);
+
+    expect((ctx.services.fmt as { upper(s: string): string }).upper('a')).toBe('A');
+    expect(ctx.widgets.badge).toBe(badge);
+    expect(ctx.theme.widgets?.button?.base).toEqual({ background: 'color.brand' });
   });
 });
 

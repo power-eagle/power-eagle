@@ -30,3 +30,8 @@ export function listBuiltins(): AnyPluginModule['manifest'][] {
 export function getBuiltin(id: string): AnyPluginModule | undefined {
   return entries.find((entry) => entry.manifest.id === id)?.module;
 }
+
+/** All bundled plugin modules (for activating service/styling contributions). */
+export function listBuiltinModules(): AnyPluginModule[] {
+  return entries.map((entry) => entry.module);
+}
