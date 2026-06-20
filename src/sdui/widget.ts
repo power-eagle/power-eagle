@@ -8,7 +8,7 @@
 import type { Widget } from './types';
 
 /** Keys that are structural node fields, not widget props. */
-const STRUCTURAL = new Set(['children', 'theme', 'variant', 'when', 'key']);
+const STRUCTURAL = new Set(['children', 'theme', 'variant', 'when', 'key', 'for', 'render', 'empty']);
 
 /** Build one uniform widget node from a type tag and an options bag. */
 export function w(type: string, opts: Record<string, unknown> = {}): Widget {
@@ -41,6 +41,15 @@ export function w(type: string, opts: Record<string, unknown> = {}): Widget {
   }
   if (opts.key) {
     node.key = opts.key as Widget['key'];
+  }
+  if (opts.for) {
+    node.for = opts.for as Widget['for'];
+  }
+  if (opts.render) {
+    node.render = opts.render as Widget['render'];
+  }
+  if (opts.empty) {
+    node.empty = opts.empty as Widget['empty'];
   }
   if (Object.keys(on).length > 0) {
     node.on = on;

@@ -15,7 +15,7 @@ export interface Accessor<T> {
 }
 
 /** Wrap a read function as an Accessor with a `.not()` helper. */
-function makeAccessor<T>(read: () => T): Accessor<T> {
+export function makeAccessor<T>(read: () => T): Accessor<T> {
   const acc = (() => read()) as Accessor<T>;
   acc.not = () => makeAccessor(() => !read());
   return acc;

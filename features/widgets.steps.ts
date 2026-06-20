@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { loadFeature, describeFeature } from '@amiceli/vitest-cucumber';
 import { definePlugin, activatePlugin, type ActivatedPlugin } from '../src/sdui/activate';
 import { w } from '../src/sdui/widget';
+import type { Accessor } from '../src/sdui/state/reactive';
 import { createWidgetRegistry, PluginView } from '../src/sdui/render/render';
 
 const feature = await loadFeature('features/widgets.feature');
@@ -78,8 +79,9 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
         state: () => ({ items: [] }),
         view: (s) =>
           w('list', {
-            empty: 'No items yet',
-            children: s.items().map((it) => w('text', { key: it, data: it })),
+            for: s.items,
+            empty: w('text', { data: 'No items yet' }),
+            render: (it: Accessor<unknown>) => w('text', { data: () => String(it()) }),
           }),
       });
       app = await activatePlugin(mod);

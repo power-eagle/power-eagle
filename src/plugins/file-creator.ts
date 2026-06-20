@@ -5,6 +5,7 @@
  */
 import { definePlugin } from '../sdui/activate';
 import { w } from '../sdui/widget';
+import type { Accessor } from '../sdui/state/reactive';
 import { host } from './eagle';
 
 export interface FileCreatorState {
@@ -85,17 +86,19 @@ export const fileCreator = definePlugin<FileCreatorState>({
           ],
         }),
         w('list', {
-          empty: 'No extensions saved yet',
-          children: s.savedExtensions().map((extension) =>
-            w('row', {
+          for: s.savedExtensions,
+          empty: w('text', { data: 'No extensions saved yet' }),
+          render: (item: Accessor<unknown>) => {
+            const extension = item() as string;
+            return w('row', {
               key: extension,
               children: [
                 w('text', { data: `.${extension}` }),
                 w('button', { children: 'Create', onPress: () => rt.run('createFile', extension) }),
                 w('button', { children: 'Remove', onPress: () => rt.run('removeExtension', extension) }),
               ],
-            }),
-          ),
+            });
+          },
         }),
       ],
     }),

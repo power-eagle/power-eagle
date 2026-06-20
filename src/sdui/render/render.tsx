@@ -11,6 +11,7 @@ import type { Widget, Theme } from '../types';
 import type { Runtime } from '../runtime';
 import type { Store } from '../state/store';
 import { createRegistry, type Registry } from '../registry';
+import { makeAccessor } from '../state/reactive';
 import { styleForNode, mergeThemes, EMPTY_THEME } from '../theme';
 
 /** The active theme for rendering; provide a value to restyle the widget tree. */
@@ -53,9 +54,11 @@ export function renderNode(
     return null;
   }
 
-  const children = node.children
-    ? node.children.map((child, index) => renderNode(child, runtime, registry, theme, index))
-    : null;
+  const children = node.for
+    ? renderForEach(node, runtime, registry, theme)
+    : node.children
+      ? node.children.map((child, index) => renderNode(child, runtime, registry, theme, index))
+      : null;
 
   const Component = registry.get(node.type);
   if (!Component) {
@@ -69,6 +72,26 @@ export function renderNode(
     style: styleForNode(node, theme) as React.CSSProperties,
     runtime,
     children,
+  });
+}
+
+/** Render a `for`/`render` list: one rendered node per item, else the `empty` widget. */
+function renderForEach(
+  node: Widget,
+  runtime: Runtime<Record<string, unknown>>,
+  registry: Registry<WidgetComponent>,
+  theme: Theme,
+): React.ReactNode[] {
+  const items = node.for!();
+  if (items.length === 0) {
+    return node.empty ? [renderNode(node.empty, runtime, registry, theme, 'empty')] : [];
+  }
+  return items.map((_, index) => {
+    const itemAccessor = makeAccessor(() => node.for!()[index]);
+    const indexAccessor = makeAccessor(() => index);
+    const childNode = node.render!(itemAccessor, indexAccessor);
+    const key = typeof childNode.key === 'function' ? childNode.key() : childNode.key ?? index;
+    return renderNode(childNode, runtime, registry, theme, key);
   });
 }
 
@@ -95,7 +118,6 @@ const WIDGET_CLASS = {
   col: 'flex flex-col gap-3',
   row: 'flex flex-row flex-wrap items-center gap-2',
   list: 'flex flex-col gap-2',
-  empty: 'rounded-lg border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground',
   text: 'text-sm', // no color — inherit from container (button supplies its own foreground)
   button:
     'inline-flex items-center justify-center rounded-md border border-border bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50',
@@ -136,13 +158,7 @@ function registerBuiltins(registry: Registry<WidgetComponent>): void {
       onChange: (event: React.ChangeEvent<HTMLInputElement>) => node.on?.input?.(event.target.value),
     }),
   );
-  registry.register('list', ({ resolved, children, style }) =>
-    React.createElement(
-      'div',
-      { 'data-w': 'list', className: WIDGET_CLASS.list, style },
-      React.Children.count(children) > 0
-        ? children
-        : React.createElement('span', { 'data-w': 'empty', className: WIDGET_CLASS.empty }, String(resolved.empty ?? '')),
-    ),
+  registry.register('list', ({ children, style }) =>
+    React.createElement('div', { 'data-w': 'list', className: WIDGET_CLASS.list, style }, children),
   );
 }

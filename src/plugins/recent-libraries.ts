@@ -6,6 +6,7 @@
  */
 import { definePlugin } from '../sdui/activate';
 import { w } from '../sdui/widget';
+import type { Accessor } from '../sdui/state/reactive';
 import { host } from './eagle';
 
 interface Library {
@@ -104,9 +105,11 @@ export const recentLibraries = definePlugin<RecentLibrariesState>({
           ],
         }),
         w('list', {
-          empty: 'No libraries found',
-          children: s.filtered().map((library) =>
-            w('row', {
+          for: s.filtered,
+          empty: w('text', { data: 'No libraries found' }),
+          render: (item: Accessor<unknown>) => {
+            const library = item() as Library;
+            return w('row', {
               key: library.id,
               children: [
                 w('text', { data: library.name }),
@@ -115,8 +118,8 @@ export const recentLibraries = definePlugin<RecentLibrariesState>({
                 w('button', { children: 'Open', onPress: () => rt.run('open', library) }),
                 w('button', { children: 'Remove', onPress: () => rt.run('remove', library) }),
               ],
-            }),
-          ),
+            });
+          },
         }),
       ],
     }),

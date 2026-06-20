@@ -41,6 +41,10 @@ export interface Widget {
   on?: Record<string, EventHandler>;
   when?: Accessor<boolean>;
   key?: string | Accessor<string>;
+  // list control-flow: bind a collection and render each item
+  for?: Accessor<readonly unknown[]>;
+  render?: (item: Accessor<unknown>, index: Accessor<number>) => Widget;
+  empty?: Widget;
 }
 
 /** Well-known keys recognized in a `w(type, opts)` call; everything else is a prop. */
