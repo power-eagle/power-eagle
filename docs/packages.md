@@ -38,6 +38,14 @@ Discovery resolves every declared entry and asset from the canonical package roo
 
 When provider code changes, `reloadCompiledContributions` removes cached modules only when their canonical files belong to that package, then reloads its entries. Package-local dependency instances are replaced with the provider while modules owned by other installed packages remain cached.
 
+## Qualified dependency graph
+
+Every export enters the registry as `package.id/exportId`. Package-manifest dependencies apply to each export in that package; dependencies declared by `run.json` apply to its runtime exports. Resolution verifies the required identity, export kind, and package semantic-version range before making a consumer available.
+
+The graph calculates a stable dependency-first activation order by qualified identity, independent of source discovery order. A duplicate identity is an error for every colliding candidate and never selects a winner. Missing exports, ambiguous identities, wrong kinds, incompatible versions, and cycles fail only the affected branch; unrelated exports remain in the available registry. A dependent of a failed branch reports the unavailable identity rather than appearing valid.
+
+Each export also records sorted, distinct package identities that directly declare it. This includes consumers whose own status is failed, because `used by` describes the declared graph rather than observed calls or current activation.
+
 ## Provider SDK factories
 
 Provider source imports the public authoring entry that the package compiler supplies:

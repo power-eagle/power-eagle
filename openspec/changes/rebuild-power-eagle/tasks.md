@@ -47,11 +47,13 @@ Task 4.5 evidence (2026-10-04): the package guide now documents the `@power-eagl
 
 ## 5. Activate and reconcile contributions
 
-- [ ] 5.1 Implement the qualified export registry and dependency graph with version/kind checks, deterministic ordering, cycle detection, and declared direct-consumer counts; verify mixed cross-package references and independent operation after a missing provider, collision, or cycle.
+- [x] 5.1 Implement the qualified export registry and dependency graph with version/kind checks, deterministic ordering, cycle detection, and declared direct-consumer counts; verify mixed cross-package references and independent operation after a missing provider, collision, or cycle.
 - [ ] 5.2 Implement persistent package/export preferences and effective active/off/failed status; verify package toggles preserve export preferences across reloads, dependent failures identify their cause, and valid re-enablement recovers consumers.
 - [ ] 5.3 Implement coherent registration, revocable service handles, dependent-first disposal, and view-versus-provider lifetimes; verify partial activation cleanup, stale-handle rejection, repeated toggles without resource accumulation, and view replacement without stopping unrelated services.
 - [ ] 5.4 Implement ordered token/theme/variant composition and targeted overrides; verify layer precedence, explicit same-layer ordering, optional-style removal, required-style dependency failure, and separation of styling from widget implementation registration.
 - [ ] 5.5 Document activation, dependencies, lifecycle, reload, usage counts, and styling semantics with examples; verify the contribution-activation BDD scenarios and focused registry/lifecycle tests pass before connecting shell toggles.
+
+Task 5.1 evidence (2026-10-04): the qualified registry combines package-manifest and runtime-document dependencies, validates target identity/kind/version, and produces a dependency-first lexicographic activation order independent of discovery order. Duplicate identities never select a winner. Strongly connected cycles and their downstream consumers fail without removing unrelated exports. Every candidate records sorted distinct direct consuming package identities, including failed consumers. Focused tests cover a widget/style/runtime chain, missing providers, kind and version mismatches, duplicate package exports, a two-package cycle, a downstream cycle consumer, deterministic reversed input, and independent availability. Typecheck, zero-warning lint, all 92 application/BDD tests, the production build, and strict OpenSpec validation pass.
 
 ## 6. Establish production visual components and basic widgets
 
