@@ -145,13 +145,13 @@ function ImageWidget({ props, style, slots, events }: WidgetRenderProps) {
   /></figure>;
 }
 
-const icons: Record<string, LucideIcon> = {
+export const runtimeIcons: Record<string, LucideIcon> = {
   image: ImageIcon, file: File, folder: Folder, search: Search, settings: Settings, info: Info, alert: CircleAlert,
   check: Check, close: X, plus: Plus, minus: Minus, chevronDown: ChevronDown, chevronRight: ChevronRight,
   copy: Copy, download: Download, upload: Upload, externalLink: ExternalLink, code: CodeIcon, sparkles: Sparkles,
 };
 function IconWidget({ props, style }: WidgetRenderProps) {
-  const Glyph = icons[string(props.name)];
+  const Glyph = runtimeIcons[string(props.name)];
   const label = string(props.semanticLabel);
   return <Glyph
     data-pe-widget="Icon" className="pe-content-icon" size={number(props.size) ?? 20} strokeWidth={number(props.strokeWidth) ?? 2}

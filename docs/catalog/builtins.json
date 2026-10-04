@@ -4,6 +4,159 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "multiple": false
+        },
+        "events": {
+          "change": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "items": [
+              {
+                "id": "details",
+                "label": "Details"
+              },
+              {
+                "id": "dependencies",
+                "label": "Dependencies"
+              }
+            ],
+            "label": "Package details",
+            "value": [
+              "details"
+            ]
+          },
+          "slots": {
+            "children": [
+              {
+                "props": {
+                  "text": "Package metadata"
+                },
+                "type": "Text"
+              },
+              {
+                "props": {
+                  "text": "No dependencies"
+                },
+                "type": "Text"
+              }
+            ]
+          },
+          "type": "Accordion"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "multiple": {
+              "type": "boolean"
+            },
+            "value": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "label",
+            "value",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "control",
+          "accordion"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "items": [
+            {
+              "id": "details",
+              "label": "Details"
+            },
+            {
+              "id": "dependencies",
+              "label": "Dependencies"
+            }
+          ],
+          "label": "Package details",
+          "value": [
+            "details"
+          ]
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Package metadata"
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "text": "No dependencies"
+              },
+              "type": "Text"
+            }
+          ]
+        },
+        "type": "Accordion"
+      },
+      "type": "Accordion"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "alignment": "center"
         },
         "events": {},
@@ -349,23 +502,167 @@
           "disabled": false
         },
         "events": {
-          "press": {
-            "type": "null"
+          "select": {
+            "type": "string"
           }
         },
         "example": {
           "props": {
-            "label": "Continue"
+            "items": [
+              {
+                "id": "sources",
+                "label": "Sources"
+              },
+              {
+                "current": true,
+                "id": "package",
+                "label": "Package"
+              }
+            ],
+            "label": "Package location"
           },
-          "type": "Button"
+          "type": "Breadcrumbs"
         },
         "properties": {
           "properties": {
             "disabled": {
               "type": "boolean"
             },
+            "items": {
+              "items": {
+                "properties": {
+                  "current": {
+                    "type": "boolean"
+                  },
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
             "label": {
+              "minLength": 1,
               "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "control",
+          "breadcrumbs"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "items": [
+            {
+              "id": "sources",
+              "label": "Sources"
+            },
+            {
+              "current": true,
+              "id": "package",
+              "label": "Package"
+            }
+          ],
+          "label": "Package location"
+        },
+        "type": "Breadcrumbs"
+      },
+      "type": "Breadcrumbs"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "autofocus": false,
+          "busy": false,
+          "buttonType": "button",
+          "disabled": false,
+          "size": "default",
+          "variant": "default"
+        },
+        "events": {
+          "focus": {
+            "type": "boolean"
+          },
+          "press": {
+            "type": "null"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Continue",
+            "variant": "default"
+          },
+          "type": "Button"
+        },
+        "properties": {
+          "properties": {
+            "autofocus": {
+              "type": "boolean"
+            },
+            "busy": {
+              "type": "boolean"
+            },
+            "buttonType": {
+              "type": "enum",
+              "values": [
+                "button",
+                "submit",
+                "reset"
+              ]
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "size": {
+              "type": "enum",
+              "values": [
+                "small",
+                "default",
+                "large"
+              ]
+            },
+            "tooltip": {
+              "type": "string"
+            },
+            "variant": {
+              "type": "enum",
+              "values": [
+                "default",
+                "secondary",
+                "outline",
+                "ghost",
+                "destructive"
+              ]
             }
           },
           "required": [
@@ -376,7 +673,7 @@
         "slots": {},
         "themeHooks": [
           "control",
-          "primary"
+          "button"
         ]
       },
       "family": "control",
@@ -385,7 +682,8 @@
       },
       "runnableExample": {
         "props": {
-          "label": "Continue"
+          "label": "Continue",
+          "variant": "default"
         },
         "type": "Button"
       },
@@ -874,6 +1172,136 @@
         "type": "ConstrainedBox"
       },
       "type": "ConstrainedBox"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false
+        },
+        "events": {
+          "close": {
+            "type": "null"
+          },
+          "open": {
+            "type": "null"
+          },
+          "select": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "items": [
+              {
+                "id": "inspect",
+                "label": "Inspect"
+              },
+              {
+                "id": "disable",
+                "label": "Disable"
+              }
+            ],
+            "label": "Package context actions"
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Right-click or press Shift+F10"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "ContextMenu"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "destructive": {
+                    "type": "boolean"
+                  },
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "separatorBefore": {
+                    "type": "boolean"
+                  },
+                  "shortcut": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "control",
+          "contextMenu"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "items": [
+            {
+              "id": "inspect",
+              "label": "Inspect"
+            },
+            {
+              "id": "disable",
+              "label": "Disable"
+            }
+          ],
+          "label": "Package context actions"
+        },
+        "slots": {
+          "child": {
+            "props": {
+              "text": "Right-click or press Shift+F10"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "ContextMenu"
+      },
+      "type": "ContextMenu"
     },
     {
       "availability": "active",
@@ -1536,6 +1964,144 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "autofocus": false,
+          "disabled": false,
+          "selected": false,
+          "size": "default",
+          "variant": "ghost"
+        },
+        "events": {
+          "focus": {
+            "type": "boolean"
+          },
+          "press": {
+            "type": "null"
+          }
+        },
+        "example": {
+          "props": {
+            "icon": "plus",
+            "label": "Add item",
+            "variant": "outline"
+          },
+          "type": "IconButton"
+        },
+        "properties": {
+          "properties": {
+            "autofocus": {
+              "type": "boolean"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "icon": {
+              "type": "enum",
+              "values": [
+                "image",
+                "file",
+                "folder",
+                "search",
+                "settings",
+                "info",
+                "alert",
+                "check",
+                "close",
+                "plus",
+                "minus",
+                "chevronDown",
+                "chevronRight",
+                "copy",
+                "download",
+                "upload",
+                "externalLink",
+                "code",
+                "sparkles"
+              ]
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selected": {
+              "type": "boolean"
+            },
+            "selectedIcon": {
+              "type": "enum",
+              "values": [
+                "image",
+                "file",
+                "folder",
+                "search",
+                "settings",
+                "info",
+                "alert",
+                "check",
+                "close",
+                "plus",
+                "minus",
+                "chevronDown",
+                "chevronRight",
+                "copy",
+                "download",
+                "upload",
+                "externalLink",
+                "code",
+                "sparkles"
+              ]
+            },
+            "size": {
+              "type": "enum",
+              "values": [
+                "small",
+                "default",
+                "large"
+              ]
+            },
+            "tooltip": {
+              "type": "string"
+            },
+            "variant": {
+              "type": "enum",
+              "values": [
+                "default",
+                "secondary",
+                "outline",
+                "ghost",
+                "destructive"
+              ]
+            }
+          },
+          "required": [
+            "icon",
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "control",
+          "button",
+          "icon"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "icon": "plus",
+          "label": "Add item",
+          "variant": "outline"
+        },
+        "type": "IconButton"
+      },
+      "type": "IconButton"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "failureText": "Image unavailable",
           "fit": "contain",
           "loading": "lazy"
@@ -1675,6 +2241,129 @@
         "type": "Markdown"
       },
       "type": "Markdown"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "placement": "bottomStart"
+        },
+        "events": {
+          "close": {
+            "type": "null"
+          },
+          "open": {
+            "type": "null"
+          },
+          "select": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "items": [
+              {
+                "id": "open",
+                "label": "Open"
+              },
+              {
+                "destructive": true,
+                "id": "remove",
+                "label": "Remove",
+                "separatorBefore": true
+              }
+            ],
+            "label": "Package actions"
+          },
+          "type": "Menu"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "destructive": {
+                    "type": "boolean"
+                  },
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "separatorBefore": {
+                    "type": "boolean"
+                  },
+                  "shortcut": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "placement": {
+              "type": "enum",
+              "values": [
+                "bottomStart",
+                "bottomEnd",
+                "topStart",
+                "topEnd"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "control",
+          "menu"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "items": [
+            {
+              "id": "open",
+              "label": "Open"
+            },
+            {
+              "destructive": true,
+              "id": "remove",
+              "label": "Remove",
+              "separatorBefore": true
+            }
+          ],
+          "label": "Package actions"
+        },
+        "type": "Menu"
+      },
+      "type": "Menu"
     },
     {
       "availability": "active",
@@ -2290,6 +2979,106 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Density",
+            "options": [
+              {
+                "label": "Compact",
+                "value": "compact"
+              },
+              {
+                "label": "Comfortable",
+                "value": "comfortable"
+              }
+            ],
+            "value": "compact"
+          },
+          "type": "SegmentedControl"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "options": {
+              "items": {
+                "properties": {
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "value": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "value",
+            "options"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "control",
+          "segmented"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Density",
+          "options": [
+            {
+              "label": "Compact",
+              "value": "compact"
+            },
+            {
+              "label": "Comfortable",
+              "value": "comfortable"
+            }
+          ],
+          "value": "compact"
+        },
+        "type": "SegmentedControl"
+      },
+      "type": "SegmentedControl"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "disabled": false,
           "readOnly": false,
           "required": false
@@ -2720,6 +3509,137 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "direction": "horizontal",
+          "disabled": false,
+          "minimumEnd": 20,
+          "minimumStart": 20,
+          "step": 5
+        },
+        "events": {
+          "resize": {
+            "type": "number"
+          },
+          "resizeEnd": {
+            "type": "number"
+          },
+          "resizeStart": {
+            "type": "number"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Inspector split",
+            "minimumEnd": 25,
+            "minimumStart": 25,
+            "value": 45
+          },
+          "slots": {
+            "end": {
+              "props": {
+                "text": "Inspector"
+              },
+              "type": "Text"
+            },
+            "start": {
+              "props": {
+                "text": "Stage"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "SplitPane"
+        },
+        "properties": {
+          "properties": {
+            "direction": {
+              "type": "enum",
+              "values": [
+                "horizontal",
+                "vertical"
+              ]
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minimumEnd": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "minimumStart": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "step": {
+              "maximum": 100,
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "value": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "end": {
+            "cardinality": "one",
+            "required": true
+          },
+          "start": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout",
+          "splitPane"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Inspector split",
+          "minimumEnd": 25,
+          "minimumStart": 25,
+          "value": 45
+        },
+        "slots": {
+          "end": {
+            "props": {
+              "text": "Inspector"
+            },
+            "type": "Text"
+          },
+          "start": {
+            "props": {
+              "text": "Stage"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "SplitPane"
+      },
+      "type": "SplitPane"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "alignment": "topLeft",
           "overflow": "hidden"
         },
@@ -2860,6 +3780,143 @@
         "type": "Switch"
       },
       "type": "Switch"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Package view",
+            "tabs": [
+              {
+                "label": "Preview",
+                "value": "preview"
+              },
+              {
+                "label": "Activation",
+                "value": "activation"
+              }
+            ],
+            "value": "preview"
+          },
+          "slots": {
+            "children": [
+              {
+                "props": {
+                  "text": "Preview content"
+                },
+                "type": "Text"
+              },
+              {
+                "props": {
+                  "text": "Activation content"
+                },
+                "type": "Text"
+              }
+            ]
+          },
+          "type": "Tabs"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "tabs": {
+              "items": {
+                "properties": {
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "value": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "value",
+            "tabs"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "control",
+          "tabs"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Package view",
+          "tabs": [
+            {
+              "label": "Preview",
+              "value": "preview"
+            },
+            {
+              "label": "Activation",
+              "value": "activation"
+            }
+          ],
+          "value": "preview"
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Preview content"
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "text": "Activation content"
+              },
+              "type": "Text"
+            }
+          ]
+        },
+        "type": "Tabs"
+      },
+      "type": "Tabs"
     },
     {
       "availability": "active",

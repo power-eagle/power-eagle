@@ -1,6 +1,6 @@
 # Power Eagle language v1
 
-Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the layout, content, form, and selection-control catalog are implemented. Collections, workbench, and AI integration remain later checkpoints.
+Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the layout, content, form, selection, and desktop-interaction catalog are implemented. Collections, workbench, and AI integration remain later checkpoints.
 
 ## Build and inspect
 
@@ -128,10 +128,18 @@ Disabled fields cannot change, do not validate, and are omitted from submitted v
 
 Autocomplete exposes a combobox/listbox relationship and supports arrow-key traversal, Enter selection, and Escape dismissal. Slider implements arrow, Home, and End keys and clamps emitted numbers to its declared minimum and maximum. FilePicker is the only built-in field that opens a host surface. Its injected selection adapter receives file-or-directory mode, multiplicity, labels, an initial path, extension filters, and the active screen's abort signal. Eagle maps that request to `dialog.showOpenDialog`. A cancelled dialog returns `null`, emits `cancel`, and does not change the controlled value; a missing adapter or host failure is rendered as an associated field diagnostic.
 
+## Desktop interaction controls
+
+Button and IconButton use native button activation and expose `press` plus boolean focus events. SegmentedControl and Tabs keep string selection in runtime state and use roving keyboard focus; Tabs pairs each tab descriptor with the child at the same index and renders the selected child as a tab panel. Accordion similarly pairs descriptors and children, stores open ids as a string array, and supports single or multiple expansion with arrow, Home, and End focus movement.
+
+Menu and ContextMenu emit item ids through `select`. Opening moves focus into the menu, arrow/Home/End keys move among enabled items, and Escape or selection closes the menu and restores its invoker. ContextMenu opens from a pointer context-menu event or Shift+F10. Breadcrumbs render ordinary navigation buttons and only emit an id; screen changes still occur through a declared `navigate` or `back` action.
+
+SplitPane pairs `start` and `end` slots around a focusable separator. Its controlled `value`, `minimumStart`, and `minimumEnd` are percentages from 0 through 100. Pointer movement and direction-appropriate arrow keys emit bounded resize values; Home and End snap to the two declared bounds. `resizeStart` and `resizeEnd` identify a pointer drag's lifetime.
+
 Each active screen has an abort signal and LIFO resource disposers. `push` deactivates the current screen but retains its typed screen/component state for `back`; returning creates a new activation scope. `replace` disposes and removes the current frame. `reset` disposes the whole stack before creating the target. All modes validate parameters first. Async adapters receive the signal, and results check that the originating scope is still active before a success branch or state write, so late completion cannot mutate a replacement view.
 
 ## Diagnostics
 
 `validateRuntime(input, catalog)` and `validatePackage(input, sdkVersion)` return a success/data result or `{success:false, diagnostics}`. A diagnostic includes `path` (JSON Pointer), `code`, and `message`. `unwrap` throws `LanguageError` containing the same diagnostics. Example: `/screens/home/body/props/text: Expected string`.
 
-Unknown widgets are rejected; there is no fallback renderer. The release catalog must only advertise widgets with implemented behavior. The foundation catalog currently contains the working layout, content, form, and selection-control families plus the provisional Button used by language examples; it is not the completed release catalog.
+Unknown widgets are rejected; there is no fallback renderer. The release catalog must only advertise widgets with implemented behavior. The foundation catalog currently contains the working layout, content, form, selection, and desktop-interaction families; it is not the completed release catalog.

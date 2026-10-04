@@ -32,6 +32,7 @@ const contentTypes = new Set([
 const controlTypes = new Set([
   'Button', 'Form', 'TextField', 'TextArea', 'NumberField', 'Checkbox', 'RadioGroup', 'Switch',
   'Select', 'Autocomplete', 'Slider', 'DatePicker', 'ColorPicker', 'FilePicker',
+  'IconButton', 'SegmentedControl', 'Tabs', 'Accordion', 'Menu', 'ContextMenu', 'Breadcrumbs', 'SplitPane',
 ]);
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
