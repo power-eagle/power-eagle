@@ -40,7 +40,16 @@ When provider code changes, `reloadCompiledContributions` removes cached modules
 
 ## Provider SDK factories
 
-The typed SDK entry under `src/sdui/sdk` exports `defineWidgetProvider`, `defineActionProvider`, `defineServiceProvider`, and `defineStylingProvider`. `npm run language:types` emits their public declarations. Each factory accepts static definitions or a callback that receives the package-scoped SDK:
+Provider source imports the public authoring entry that the package compiler supplies:
+
+```ts
+import {
+  defineWidgetProvider,
+  type ProviderWidgetRenderProps,
+} from '@power-eagle/sdk';
+```
+
+The entry exports `defineWidgetProvider`, `defineActionProvider`, `defineServiceProvider`, and `defineStylingProvider`. `npm run language:types` emits their declarations to `.artifacts/sdk-types/sdk`; `tsconfig.package-examples.json` shows the repository mapping used to typecheck local package sources. The package compiler resolves `@power-eagle/sdk` into the compiled provider, so the installed artifact does not require the authoring SDK package. Each factory accepts static definitions or a callback that receives the package-scoped SDK:
 
 - widget implementations provide a React renderer for resolved properties, slots, styles, and events;
 - action implementations provide one typed asynchronous invoker;
@@ -74,6 +83,8 @@ The provider build compiles TS/TSX to CommonJS for Chrome 108 and Node 16.17, bu
 
 Every provider source is optional and must correspond to the matching manifest contribution. Dependencies in `externalDependencies` must also appear in the source package's production `dependencies`; the builder resolves them from the source package and copies their production trees without package-manager links. Omit an imported library from this list to bundle it into the compiled provider, which is the normal choice for ESM-only libraries. React, ReactDOM, and JSX runtime imports always remain host supplied.
 
+An import such as `clsx` listed in `externalDependencies` is required at run time from the artifact's own `node_modules`. Imports omitted from that list are compiled into each provider entry. UI dependencies should normally be bundled so their React imports pass through the provider's host-runtime mapping. Assets are copied only when declared in `manifest.json`; provider code obtains them with `sdk.assetUrl('assets/name.ext')`, while runtime JSON uses `{ "$asset": "assets/name.ext" }`.
+
 Build a staged, validated artifact with:
 
 ```sh
@@ -83,6 +94,44 @@ npm run package:build -- path/to/power-eagle.build.json path/to/output
 The output contains only the normalized manifest, declared runtime documents and assets, compiled `.cjs` providers, package metadata, and copied production dependencies. It does not contain the provider TypeScript, build configuration, workspace symlinks, or an install script. `package.json` records the exact copied dependency versions plus the manifest SDK and platform target. The resulting directory can be relocated and loaded without the author's checkout, package cache, TypeScript compiler, or a runtime dependency installation.
 
 The isolated experiment is available via `npm run fixture:check`. It has a deliberately minimal experimental manifest and is not a public SDK example. The approach passed in Eagle 4.0.0 on Windows x64 as recorded in [provider-host-validation.md](provider-host-validation.md), and the production manifest-first loader now uses that verified boundary. The currently verified compiled target is Eagle's Windows x64 runtime with Node 16.17.1. Packages that declare a different platform, architecture, or Node range are rejected before their native or JavaScript entry executes.
+
+| Contract | Verified value |
+| --- | --- |
+| Host SDK | `1.0.0` (`manifest.sdk: ^1.0.0`) |
+| Eagle | `4.0.0` build `23` |
+| Electron / Chrome | `22.3.7` / `108.0.5359.215` |
+| Node / module ABI | `16.17.1` / `110` |
+| Platform / architecture | Windows `win32` / `x64` |
+| Provider output | CommonJS `.cjs`, Chrome 108 and Node 16.17 syntax target |
+
+Other operating systems, architectures, Node ranges, and native-addon builds are not implied by this result. Declare the exact supported `target`; discovery reports incompatible dimensions before provider execution.
+
+## Provider-only and mixed examples
+
+`examples/provider-only` contains only a widget contribution. Its hook-using toggle imports `@power-eagle/sdk`, uses host React, loads `clsx` from its artifact-local `node_modules`, and resolves a declared SVG through `sdk.assetUrl`.
+
+`examples/mixed-package` combines `run.json`, a hook-using widget provider, a styling provider, the same kind of private dependency, and a separate declared asset. The runtime declares and renders its package's own widget export. Each source directory retains `manifest.json`, `package.json`, `power-eagle.build.json`, provider sources, and assets; compiled outputs preserve the installed layout rather than the authoring tree.
+
+Build and typecheck both examples from the repository root:
+
+```sh
+npm run package:examples
+```
+
+The outputs are `.artifacts/package-examples/provider-only` and `.artifacts/package-examples/mixed-package`. To build either package independently:
+
+```sh
+npm run package:build -- examples/provider-only/power-eagle.build.json .artifacts/provider-only
+npm run package:build -- examples/mixed-package/power-eagle.build.json .artifacts/mixed-package
+```
+
+The normal production contract is exercised with:
+
+```sh
+npx vitest run src/host/install/package-examples.test.tsx
+```
+
+That check builds clean artifacts, discovers their manifests without running code, validates the recorded Eagle target, loads through the package-anchored CommonJS loader, renders both widgets through runtime documents, clicks their hook-driven controls, resolves their relocated assets, verifies separate private dependency instances, and loads the mixed styling export.
 
 ## Runtime-only example
 

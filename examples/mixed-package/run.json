@@ -1,0 +1,18 @@
+{
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "start": "home",
+  "state": {},
+  "screens": {
+    "home": {
+      "params": { "type": "object", "properties": {}, "required": [] },
+      "state": {},
+      "body": { "type": "example.mixed/counter", "props": { "label": "Mixed example" } }
+    }
+  },
+  "components": {},
+  "actions": {},
+  "dependencies": [
+    { "package": "example.mixed", "version": "^1.0.0", "export": "counter", "kind": "widget" }
+  ]
+}

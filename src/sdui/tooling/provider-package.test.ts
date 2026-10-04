@@ -70,12 +70,13 @@ function fixture() {
   writeFileSync(join(source, 'assets/marker.txt'), 'asset');
   writeFileSync(join(source, 'package.json'), JSON.stringify({ name: 'build-example', private: true, dependencies: { clsx: '^2.1.1', 'esm-only': '1.0.0' } }));
   writeFileSync(join(source, 'src/types.ts'), `import clsx from 'clsx'; import { esmLabel } from 'esm-only';
-    export default sdk => ({ format: 'power-eagle/provider', formatVersion: 1, kind: 'widget', exports: [{
+    import { defineWidgetProvider } from '@power-eagle/sdk';
+    export default defineWidgetProvider(sdk => [{
       descriptor: ${JSON.stringify(descriptor)}, implementation: {
         dependencyVersion: sdk.require('./node_modules/clsx/package.json').version,
         dependencyPath: sdk.require.resolve('clsx'), label: clsx(esmLabel, 'ready'), marker: sdk.assetUrl('assets/marker.txt'), render: () => null
       }
-    }] });`);
+    }]);`);
   const config = join(source, 'power-eagle.build.json');
   writeFileSync(config, JSON.stringify({
     format: 'power-eagle/build', formatVersion: 1, manifest: 'manifest.json', providers: { widgets: 'src/types.ts' }, externalDependencies: ['clsx'],

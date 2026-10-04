@@ -1,0 +1,31 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.provider-only",
+  "name": "Provider-only toggle",
+  "version": "1.0.0",
+  "description": "A hook-using widget provider with a private dependency and package asset",
+  "sdk": "^1.0.0",
+  "contributions": { "widgets": "types.cjs" },
+  "exports": [
+    {
+      "kind": "widget",
+      "id": "toggle",
+      "contract": {
+        "properties": {
+          "type": "object",
+          "properties": { "label": { "type": "string" } },
+          "required": ["label"]
+        },
+        "defaults": {},
+        "slots": {},
+        "events": { "change": { "type": "boolean" } },
+        "themeHooks": ["control", "accent"],
+        "example": { "type": "example.provider-only/toggle", "props": { "label": "Provider example" } }
+      }
+    }
+  ],
+  "dependencies": [],
+  "assets": ["assets/bolt.svg"],
+  "target": { "platform": ["win32"], "arch": ["x64"], "node": "^16.17.0" }
+}

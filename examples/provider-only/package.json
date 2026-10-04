@@ -1,0 +1,6 @@
+{
+  "name": "power-eagle-example-provider-only",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": { "clsx": "^2.1.1" }
+}

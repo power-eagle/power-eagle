@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@power-eagle/sdk": ["src/sdui/sdk/index.ts"] }
+  },
+  "include": [
+    "examples/provider-only/src/**/*.ts",
+    "examples/provider-only/src/**/*.tsx",
+    "examples/mixed-package/src/**/*.ts",
+    "examples/mixed-package/src/**/*.tsx"
+  ],
+  "references": []
+}

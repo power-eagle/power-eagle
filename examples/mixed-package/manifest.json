@@ -1,0 +1,49 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.mixed",
+  "name": "Mixed counter package",
+  "version": "1.0.0",
+  "description": "A runtime, widget, styling provider, private dependency, and package asset in one package",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "runtime": "run.json",
+    "widgets": "types.cjs",
+    "styling": "styling.cjs"
+  },
+  "exports": [
+    { "kind": "runtime", "id": "main", "screens": ["home"] },
+    {
+      "kind": "widget",
+      "id": "counter",
+      "contract": {
+        "properties": {
+          "type": "object",
+          "properties": { "label": { "type": "string" } },
+          "required": ["label"]
+        },
+        "defaults": {},
+        "slots": {},
+        "events": { "change": { "type": "number" } },
+        "themeHooks": ["panel", "accent"],
+        "example": { "type": "example.mixed/counter", "props": { "label": "Mixed example" } }
+      }
+    },
+    {
+      "kind": "styling",
+      "id": "blueprint",
+      "tokens": {
+        "type": "object",
+        "properties": {
+          "accent": { "type": "string" },
+          "panel": { "type": "string" }
+        },
+        "required": ["accent", "panel"]
+      },
+      "targets": ["example.mixed/counter"]
+    }
+  ],
+  "dependencies": [],
+  "assets": ["assets/layers.svg"],
+  "target": { "platform": ["win32"], "arch": ["x64"], "node": "^16.17.0" }
+}

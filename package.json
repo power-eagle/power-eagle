@@ -10,6 +10,7 @@
     "fixture:check": "tsc --noEmit -p tsconfig.fixture.json && npm run fixture:build && vitest run --config vitest.fixture.config.ts",
     "fixture:eagle": "npm run fixture:build && npm run build",
     "package:build": "node scripts/provider-package.mjs",
+    "package:examples": "tsc --noEmit -p tsconfig.package-examples.json && node scripts/package-examples.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",

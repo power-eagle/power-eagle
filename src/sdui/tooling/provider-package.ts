@@ -35,6 +35,16 @@ export interface PackageBuildResult {
 
 const sharedModules = ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'];
 const executableContributions = ['widgets', 'styling', 'actions', 'services'] as const;
+const publicSdkRuntime = `
+const factory = (kind, source) => sdk => ({
+  format: 'power-eagle/provider', formatVersion: 1, kind,
+  exports: [...(typeof source === 'function' ? source(sdk) : source)],
+});
+export const defineWidgetProvider = source => factory('widget', source);
+export const defineStylingProvider = source => factory('styling', source);
+export const defineActionProvider = source => factory('action', source);
+export const defineServiceProvider = source => factory('service', source);
+`;
 
 function inside(root: string, target: string): boolean {
   const rel = relative(root, target);
@@ -153,6 +163,13 @@ async function compileProvider(source: string, externalDependencies: string[]): 
     entryPoints: [source], bundle: true, write: false, format: 'cjs', platform: 'browser', target: ['chrome108', 'node16.17'],
     jsx: 'automatic', external: [...sharedModules, ...externalDependencies],
     define: { 'process.env.NODE_ENV': '"production"' }, logLevel: 'silent',
+    plugins: [{
+      name: 'power-eagle-sdk',
+      setup(build) {
+        build.onResolve({ filter: /^@power-eagle\/sdk$/ }, () => ({ path: '@power-eagle/sdk', namespace: 'power-eagle-sdk' }));
+        build.onLoad({ filter: /.*/, namespace: 'power-eagle-sdk' }, () => ({ contents: publicSdkRuntime, loader: 'js' }));
+      },
+    }],
   });
   return wrapProvider(result.outputFiles[0].text);
 }
@@ -210,7 +227,7 @@ export async function buildContributionArtifact(configFile: string, outputDirect
     }, null, 2)}\n`);
     discoverContributionPackage(temporary, createRequire(join(temporary, 'manifest.json')), { hostTarget: false });
     if (existsSync(output)) {
-      await renameWithRetry(output, backup);
+      await publishDirectory(output, backup);
       backedUp = true;
     }
     publishing = true;

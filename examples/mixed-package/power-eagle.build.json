@@ -1,0 +1,10 @@
+{
+  "format": "power-eagle/build",
+  "formatVersion": 1,
+  "manifest": "manifest.json",
+  "providers": {
+    "widgets": "src/types.tsx",
+    "styling": "src/styling.ts"
+  },
+  "externalDependencies": ["clsx"]
+}
