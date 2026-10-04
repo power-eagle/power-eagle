@@ -4,10 +4,10 @@ Work only in `power-eagle-revised`; use `power-eagle` and `power-eagle-design-sy
 
 ## 1. Verify compiled providers inside Eagle
 
-- [ ] 1.1 Create an isolated runnable Eagle loader fixture and minimal build harness under the revised repository, preserving existing module boundaries; verify it builds/launches without using the reference repository's `node_modules` or altering live package data.
+- [x] 1.1 Create an isolated runnable Eagle loader fixture and minimal build harness under the revised repository, preserving existing module boundaries; verify it builds/launches without using the reference repository's `node_modules` or altering live package data.
 - [x] 1.2 Build two fixture packages with separate versions of one pure-JavaScript dependency, package-relative assets, and explicit `.cjs` entries; verify their artifacts are self-contained and loader tests resolve each dependency from its owning package.
-- [ ] 1.3 Prove host React/ReactDOM/JSX-runtime sharing with a hook-using third-party widget and the proposed SDK/build mapping; verify interactive rendering, asset loading, disable/re-enable, disposal, and changed-code reload in actual Eagle, not only Node or a browser preview.
-- [ ] 1.4 Record the tested Eagle build, embedded runtime, module-bridge availability, fixture steps, and results in `docs/provider-host-validation.md`; verify the report distinguishes passed host observations from simulated tests and stops dependent loader integration if the required behavior fails.
+- [x] 1.3 Prove host React/ReactDOM/JSX-runtime sharing with a hook-using third-party widget and the proposed SDK/build mapping; verify interactive rendering, asset loading, disable/re-enable, disposal, and changed-code reload in actual Eagle, not only Node or a browser preview.
+- [x] 1.4 Record the tested Eagle build, embedded runtime, module-bridge availability, fixture steps, and results in `docs/provider-host-validation.md`; verify the report distinguishes passed host observations from simulated tests and stops dependent loader integration if the required behavior fails.
 
 ## 2. Establish the new language and package contracts
 
@@ -16,7 +16,7 @@ Work only in `power-eagle-revised`; use `power-eagle` and `power-eagle-design-sy
 - [x] 2.3 Implement the typed authoring model, reusable inputs/slots, canonical JSON emission, and schema-derived declarations; verify compile-and-load examples, deterministic output, independent component instances, and rejection of nonserializable handlers or partial build output.
 - [x] 2.4 Publish the initial language/package reference and a runtime-only example in `docs` and `examples`; verify documented build/validation commands run against the new schema and contain no v2/v3 authoring instructions.
 
-Checkpoint evidence (2026-10-03): clean `npm ci`, typecheck, lint, production build, 39 app/language tests, declaration emission, JSON Schema export, example compilation, and both example validation commands pass. `npm run fixture:check` builds relocated private-dependency artifacts and passes 3 Node tests. Actual Eagle launch fails with `0xC0000005`; tasks 1.1, 1.3, and 1.4 remain incomplete. See `docs/provider-host-validation.md`. The app currently provides a static language preview; checkpoint 3 execution and later package integration are not claimed complete.
+Checkpoint evidence (2026-10-04): clean `npm ci`, typecheck, lint, production build, application/language tests, declaration emission, JSON Schema export, example compilation, and example validation commands pass. `npm run fixture:check` builds relocated private-dependency artifacts and passes 3 Node tests. The normal revised plugin then passed all 14 provider checks in Eagle 4.0.0 build 23 on Windows x64 with Electron 22.3.7 and Node 16.17.1. See `docs/provider-host-validation.md`. This satisfies the compiled-provider feasibility gate; production package integration remains checkpoint 4 work.
 
 ## 3. Implement executable language behavior
 

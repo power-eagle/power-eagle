@@ -1,19 +1,21 @@
 # Compiled provider host experiment
 
-## Status: provider fixture execution pending
+## Status: passed in Eagle
 
-The isolated fixture builds and all three Node tests pass. **The compiled-provider architecture has not yet been verified in Eagle.** Do not begin dependent loader/activation integration or treat the Node results as host evidence.
+The isolated fixture builds, all three Node tests pass, and all 14 host checks passed in Eagle on 2026-10-04. This verifies the initial CommonJS provider, package-local dependency, shared React, asset, lifecycle, and cache-reload approach for production integration.
 
 Observed on 2026-10-03, Windows x64:
 
-- Installed Eagle: `4.0.0`, resource metadata build `20260401`, build number `23`.
-- Test runner: Node `26.8.2`; this is not Eagle's embedded Node version.
+- Eagle `4.0.0`, build `23`, on Windows x64.
+- Embedded runtime: Electron `22.3.7`, Node `16.17.1`, Chromium `108.0.5359.215`, V8 `10.8.168.25-electron.0`, Node modules ABI `110`, and N-API `8`.
+- The host exposed both the Eagle API and Node `require`. `onPluginCreate` supplied the local repository through `PluginContext.path`; plugin documents use the non-file `eagleplugin:` URL scheme.
+- Test runner: Node `26.8.2`; this remains separate from the embedded runtime above.
 - Automated launches with a remote-debugging flag exited during startup with decimal `-1073741819` (`0xC0000005`, access violation), including a retry with `--disable-gpu`. This did not establish normal-launch behavior.
 - On 2026-10-03 the user confirmed a normal Eagle launch and supplied a screenshot of the revised root plugin rendering inside Eagle 4.0.0. Eagle also reported that `_locales/en.json` was missing; the localization resource and a regression check have since been restored.
 - The shell sets `ELECTRON_RUN_AS_NODE=1`. Automated child launches removed it without changing the global environment.
-- Embedded Electron/Node/Chromium versions, the provider fixture, and plugin module-bridge availability remain **unobserved**. The installed resource manifest's Electron development dependency is not runtime evidence.
+- The root application ran the fixture from `.artifacts/provider-host` without importing a second plugin or modifying the live Power Eagle package store.
 
-No fixture was installed into the live package store and no library/package data was edited. Startup used the installed Eagle executable; fixture output and all intentional experiment writes remain in `.artifacts` or an isolated temporary test directory.
+No fixture was installed into the live package store and no library/package data was edited. Startup used the installed Eagle executable; fixture output and all intentional experiment writes remain in `.artifacts` or an isolated temporary test directory. The retained report is `.artifacts/provider-host/result.json`.
 
 ## Reproduce
 
@@ -34,6 +36,8 @@ Node tests copy both packages outside the repository and verify package-local re
 
 The Eagle harness records actual runtime versions, exercises a real switch click, decodes the packaged image, unmounts and re-enables the widget, checks listener disposal, replaces provider code, and verifies an unrelated cached dependency survives. It restores the changed fixture entry even after failure. Browser previews report that Eagle is required.
 
-## Gate
+## Host results
 
-Task 1.1 remains incomplete until the isolated provider fixture itself is launched; the root application launch does confirm Eagle can host the revised Vite/React output. Task 1.3 remains incomplete. Task 1.2 has Node/artifact evidence. Task 1.4 records current observations but remains incomplete until the provider report exists. Independent language/schema and presentation work may continue; production compiled-provider integration must wait.
+All 14 checks passed: fixture discovery, runtime JSON selection, two private `clsx` versions, package-owned resolution paths, React/ReactDOM/JSX identity, a hook-using Radix switch render and click, package-relative image decoding, disable/re-enable cleanup, changed-code reload, unrelated dependency-cache retention, and balanced mount/disposal events.
+
+The checkpoint-one gate is satisfied for the tested Eagle/runtime/platform combination. Production compiled-provider integration may use the verified package-anchored CommonJS factory and host-injected shared-runtime approach. Other Eagle/runtime/platform combinations still require compatibility diagnostics rather than assumed support.
