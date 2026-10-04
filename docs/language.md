@@ -1,6 +1,6 @@
 # Power Eagle language v1
 
-Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the layout, content, form, selection, and desktop-interaction catalog are implemented. Collections, workbench, and AI integration remain later checkpoints.
+Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the layout, content, form, selection, desktop-interaction, collection, feedback, and media catalog are implemented. Package installation, the workbench, and AI integration remain later checkpoints.
 
 ## Build and inspect
 
@@ -27,12 +27,13 @@ npm run language -- validate examples/runtime-flow/manifest.json
 npm run language -- validate examples/layout-widgets/run.json
 npm run language -- validate examples/content-widgets/run.json
 npm run language -- validate examples/control-widgets/run.json
+npm run language -- validate examples/collection-feedback-media/run.json
 npm run language -- catalog
 npm run language -- schemas
 npm run language:types
 ```
 
-`examples/runtime-only/document.ts` demonstrates reusable inputs and slots. `examples/runtime-flow/document.ts` demonstrates state, expressions, keyed repetition, sequential/parallel actions, and navigation. The layout and content examples exercise their complete initial widget families, including a package-relative image. `examples/control-widgets/document.ts` references every form, selection, and desktop-interaction contract and provides a short keyboard path through typed form submission and declared navigation. The example command validates every example and atomically replaces its `run.json`. Invalid input never overwrites a previous valid file. Declaration files in `.artifacts/sdk-types` derive from the same TypeScript/Zod contracts used by validation. Structural JSON schemas live in `docs/schemas`; use the TypeScript validator as well for cross-reference, type availability, version, parent, and slot checks. The CLI validates built-ins against the foundation catalog; installed descriptors enter through provider activation.
+`examples/runtime-only/document.ts` demonstrates reusable inputs and slots. `examples/runtime-flow/document.ts` demonstrates state, expressions, keyed repetition, sequential/parallel actions, and navigation. The layout and content examples exercise their complete initial widget families, including a package-relative image. `examples/control-widgets/document.ts` references every form, selection, and desktop-interaction contract and provides a short keyboard path through typed form submission and declared navigation. `examples/collection-feedback-media/document.ts` composes the complete collection, feedback, and media families in one runtime-only package. The example command validates every example and atomically replaces its `run.json`. Invalid input never overwrites a previous valid file. Declaration files in `.artifacts/sdk-types` derive from the same TypeScript/Zod contracts used by validation. Structural JSON schemas live in `docs/schemas`; use the TypeScript validator as well for cross-reference, type availability, version, parent, and slot checks. The CLI validates built-ins against the foundation catalog; installed descriptors enter through provider activation.
 
 ## Document
 
@@ -137,10 +138,30 @@ Menu and ContextMenu emit item ids through `select`. Opening moves focus into th
 
 SplitPane pairs `start` and `end` slots around a focusable separator. Its controlled `value`, `minimumStart`, and `minimumEnd` are percentages from 0 through 100. Pointer movement and direction-appropriate arrow keys emit bounded resize values; Home and End snap to the two declared bounds. `resizeStart` and `resizeEnd` identify a pointer drag's lifetime.
 
+## Collections
+
+ScrollView owns directional overflow and emits `{x,y}` scroll positions. ListView and GridView render ordinary keyed child nodes, keep selection as a controlled string array of child keys, and expose single, multiple, or no-selection modes. Space changes the active selection, Enter activates its key, and arrow/Home/End keys move the active item. Reordering child declarations does not change their identity.
+
+VirtualList and VirtualGrid use the same child-node contract, selection model, and events. Their fixed item or row extent plus viewport height determines a bounded visible window with overscan; off-screen children are not materialized as React elements. This keeps thousands of declarative children usable without introducing a separate item-data language.
+
+ReorderableList emits the complete ordered key array after Alt+Arrow movement or drag/drop; document state still owns the underlying data. TreeView accepts flat `{id,label,parentId?,disabled?}` entries and keeps expansion and selection as controlled id arrays. DataTable requires stable row identities, declares each column as string, number, boolean, or date, and emits controlled selection and sort requests without mutating source rows. PropertyGrid emits `{id,value}` edits and preserves string, number, boolean, and JSON value types; entries without an editable editor remain outputs.
+
+## Feedback and stage-local overlays
+
+ProgressIndicator and Skeleton always expose readable loading labels. EmptyState, ErrorState, and Banner provide explicit action, retry, dismiss, and tone semantics. Error and warning content remains textual and does not rely on color alone.
+
+`feedback('toast', id, value)`, `feedback('openDialog', id, value)`, and `feedback('closeDialog', id)` update the current RuntimeSession feedback controller. Toast and Dialog nodes with matching ids render that state inside the active `[data-pe-runtime-stage]` boundary. Feedback entries belong to the active view signal and disappear when navigation replaces or disposes that view. Dialog moves focus inside, traps Tab while modal, supports declared close, button, Escape, and backdrop paths, and restores the invoking element.
+
+## Media
+
+ImageGallery uses stable item ids for controlled selection and contains a failed image to its own tile. ZoomableImage keeps scale in document state and emits values clamped to its declared minimum and maximum. Both expose load and error events with visible fallback text.
+
+AudioPlayer and VideoPlayer use native media elements and publish visible loading, ready, playing, paused, ended, error, and unsupported states. A declared MIME type is checked before requesting an unsupported resource. Playback events preserve null, time, and structured error payloads. When a view is replaced, each player pauses active playback, detaches its source, and reloads non-empty native resource state so Electron can release the resource.
+
 Each active screen has an abort signal and LIFO resource disposers. `push` deactivates the current screen but retains its typed screen/component state for `back`; returning creates a new activation scope. `replace` disposes and removes the current frame. `reset` disposes the whole stack before creating the target. All modes validate parameters first. Async adapters receive the signal, and results check that the originating scope is still active before a success branch or state write, so late completion cannot mutate a replacement view.
 
 ## Diagnostics
 
 `validateRuntime(input, catalog)` and `validatePackage(input, sdkVersion)` return a success/data result or `{success:false, diagnostics}`. A diagnostic includes `path` (JSON Pointer), `code`, and `message`. `unwrap` throws `LanguageError` containing the same diagnostics. Example: `/screens/home/body/props/text: Expected string`.
 
-Unknown widgets are rejected; there is no fallback renderer. The release catalog must only advertise widgets with implemented behavior. The foundation catalog currently contains the working layout, content, form, selection, and desktop-interaction families; it is not the completed release catalog.
+Unknown widgets are rejected; there is no fallback renderer. The release catalog must only advertise widgets with implemented behavior. The foundation catalog currently contains the working layout, content, form, selection, desktop-interaction, collection, feedback, and media families; it is not the completed release catalog.

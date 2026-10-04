@@ -1,0 +1,13 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.collection-feedback-media",
+  "name": "Collection, feedback, and media widgets",
+  "version": "1.0.0",
+  "description": "Keyed collections, stage-scoped feedback, and controlled media widgets",
+  "sdk": "^1.0.0",
+  "contributions": { "runtime": "run.json" },
+  "exports": [{ "kind": "runtime", "id": "main", "screens": ["home"] }],
+  "dependencies": [],
+  "assets": []
+}

@@ -1,0 +1,856 @@
+{
+  "actions": {},
+  "components": {},
+  "dependencies": [],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "screens": {
+    "home": {
+      "body": {
+        "props": {
+          "crossAxisAlignment": "stretch",
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Collection, feedback, and media vocabulary",
+                "variant": "title"
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "direction": "horizontal",
+                "height": 52
+              },
+              "slots": {
+                "children": [
+                  {
+                    "props": {
+                      "text": "Scrollable package activity"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "props": {
+                      "text": "Provider ready"
+                    },
+                    "type": "Text"
+                  }
+                ]
+              },
+              "type": "ScrollView"
+            },
+            {
+              "events": {
+                "selectionChange": {
+                  "kind": "set",
+                  "path": [
+                    "listSelection"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "height": 88,
+                "label": "Packages",
+                "selection": {
+                  "$ref": {
+                    "path": [
+                      "listSelection"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "selectionMode": "single"
+              },
+              "slots": {
+                "children": [
+                  {
+                    "key": "alpha",
+                    "props": {
+                      "text": "Alpha package"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "beta",
+                    "props": {
+                      "text": "Beta package"
+                    },
+                    "type": "Text"
+                  }
+                ],
+                "empty": {
+                  "props": {
+                    "text": "No packages"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "ListView"
+            },
+            {
+              "props": {
+                "columns": 2,
+                "height": 88,
+                "label": "Widget grid",
+                "selection": [],
+                "selectionMode": "multiple"
+              },
+              "slots": {
+                "children": [
+                  {
+                    "key": "layout",
+                    "props": {
+                      "text": "Layout"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "content",
+                    "props": {
+                      "text": "Content"
+                    },
+                    "type": "Text"
+                  }
+                ],
+                "empty": {
+                  "props": {
+                    "text": "No widgets"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "GridView"
+            },
+            {
+              "props": {
+                "height": 72,
+                "itemExtent": 32,
+                "label": "Virtual package list",
+                "selection": [],
+                "selectionMode": "single"
+              },
+              "slots": {
+                "children": [
+                  {
+                    "key": "virtual-alpha",
+                    "props": {
+                      "text": "Virtual alpha"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "virtual-beta",
+                    "props": {
+                      "text": "Virtual beta"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "virtual-gamma",
+                    "props": {
+                      "text": "Virtual gamma"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "virtual-delta",
+                    "props": {
+                      "text": "Virtual delta"
+                    },
+                    "type": "Text"
+                  }
+                ],
+                "empty": {
+                  "props": {
+                    "text": "No virtual packages"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "VirtualList"
+            },
+            {
+              "props": {
+                "columns": 2,
+                "height": 72,
+                "label": "Virtual widget grid",
+                "rowExtent": 32,
+                "selection": [],
+                "selectionMode": "multiple"
+              },
+              "slots": {
+                "children": [
+                  {
+                    "key": "one",
+                    "props": {
+                      "text": "One"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "two",
+                    "props": {
+                      "text": "Two"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "three",
+                    "props": {
+                      "text": "Three"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "four",
+                    "props": {
+                      "text": "Four"
+                    },
+                    "type": "Text"
+                  }
+                ],
+                "empty": {
+                  "props": {
+                    "text": "No virtual widgets"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "VirtualGrid"
+            },
+            {
+              "events": {
+                "reorder": {
+                  "kind": "set",
+                  "path": [
+                    "order"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "height": 88,
+                "label": "Activation order",
+                "selection": [],
+                "selectionMode": "none"
+              },
+              "slots": {
+                "children": [
+                  {
+                    "key": "runtime",
+                    "props": {
+                      "text": "Runtime"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "key": "styling",
+                    "props": {
+                      "text": "Styling"
+                    },
+                    "type": "Text"
+                  }
+                ],
+                "empty": {
+                  "props": {
+                    "text": "No activation entries"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "ReorderableList"
+            },
+            {
+              "events": {
+                "expandedChange": {
+                  "kind": "set",
+                  "path": [
+                    "expanded"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                },
+                "selectionChange": {
+                  "kind": "set",
+                  "path": [
+                    "treeSelection"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "expanded": {
+                  "$ref": {
+                    "path": [
+                      "expanded"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "items": [
+                  {
+                    "id": "package",
+                    "label": "Package"
+                  },
+                  {
+                    "id": "runtime",
+                    "label": "Runtime",
+                    "parentId": "package"
+                  },
+                  {
+                    "id": "styles",
+                    "label": "Styles",
+                    "parentId": "package"
+                  }
+                ],
+                "label": "Package tree",
+                "selection": {
+                  "$ref": {
+                    "path": [
+                      "treeSelection"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "selectionMode": "single"
+              },
+              "type": "TreeView"
+            },
+            {
+              "events": {
+                "selectionChange": {
+                  "kind": "set",
+                  "path": [
+                    "tableSelection"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                },
+                "sortChange": {
+                  "kind": "set",
+                  "path": [
+                    "mediaEvent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "columns": [
+                  {
+                    "key": "name",
+                    "label": "Name",
+                    "sortable": true,
+                    "type": "string"
+                  },
+                  {
+                    "align": "end",
+                    "key": "rank",
+                    "label": "Rank",
+                    "sortable": true,
+                    "type": "number"
+                  }
+                ],
+                "label": "Installed packages",
+                "rowKey": "id",
+                "rows": [
+                  {
+                    "id": "alpha",
+                    "name": "Alpha",
+                    "rank": 2
+                  },
+                  {
+                    "id": "beta",
+                    "name": "Beta",
+                    "rank": 1
+                  }
+                ],
+                "selection": {
+                  "$ref": {
+                    "path": [
+                      "tableSelection"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "selectionMode": "single",
+                "sortColumn": {
+                  "$ref": {
+                    "path": [
+                      "sortColumn"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "sortDirection": {
+                  "$ref": {
+                    "path": [
+                      "sortDirection"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "DataTable"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "propertyChange"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "columns": 2,
+                "items": [
+                  {
+                    "editable": true,
+                    "editor": "text",
+                    "id": "name",
+                    "label": "Name",
+                    "value": "Power Eagle"
+                  },
+                  {
+                    "editable": true,
+                    "editor": "boolean",
+                    "id": "enabled",
+                    "label": "Enabled",
+                    "value": true
+                  },
+                  {
+                    "id": "version",
+                    "label": "Version",
+                    "value": "1.0.0"
+                  }
+                ],
+                "label": "Package properties"
+              },
+              "type": "PropertyGrid"
+            },
+            {
+              "props": {
+                "label": "Installing package",
+                "status": "3 of 5 files",
+                "value": 60
+              },
+              "type": "ProgressIndicator"
+            },
+            {
+              "props": {
+                "label": "Loading package details",
+                "lines": 2
+              },
+              "type": "Skeleton"
+            },
+            {
+              "events": {
+                "action": {
+                  "id": "notice",
+                  "kind": "feedback",
+                  "operation": "toast",
+                  "value": {
+                    "message": "Notification requested",
+                    "tone": "success"
+                  }
+                }
+              },
+              "props": {
+                "actionLabel": "Notify me",
+                "message": "Ask the Agent to create one.",
+                "title": "No generated packages"
+              },
+              "type": "EmptyState"
+            },
+            {
+              "events": {
+                "retry": {
+                  "id": "notice",
+                  "kind": "feedback",
+                  "operation": "toast",
+                  "value": {
+                    "message": "Retry started",
+                    "tone": "info"
+                  }
+                }
+              },
+              "props": {
+                "message": "The package source could not be reached.",
+                "retryLabel": "Retry",
+                "title": "Source unavailable"
+              },
+              "type": "ErrorState"
+            },
+            {
+              "events": {
+                "action": {
+                  "id": "review",
+                  "kind": "feedback",
+                  "operation": "openDialog",
+                  "value": {
+                    "description": "The package is ready to activate.",
+                    "title": "Review package"
+                  }
+                }
+              },
+              "props": {
+                "actionLabel": "Review",
+                "message": "Review before activation.",
+                "title": "Package ready",
+                "tone": "success"
+              },
+              "type": "Banner"
+            },
+            {
+              "props": {
+                "duration": 0,
+                "id": "notice",
+                "message": "Package notification",
+                "open": false
+              },
+              "type": "Toast"
+            },
+            {
+              "props": {
+                "description": "",
+                "id": "review",
+                "open": false,
+                "title": "Review"
+              },
+              "slots": {
+                "actions": [
+                  {
+                    "events": {
+                      "press": {
+                        "id": "review",
+                        "kind": "feedback",
+                        "operation": "closeDialog"
+                      }
+                    },
+                    "props": {
+                      "label": "Close review"
+                    },
+                    "type": "Button"
+                  }
+                ],
+                "children": [
+                  {
+                    "props": {
+                      "text": "example.collection-feedback-media/main"
+                    },
+                    "type": "Text"
+                  }
+                ]
+              },
+              "type": "Dialog"
+            },
+            {
+              "events": {
+                "error": {
+                  "kind": "set",
+                  "path": [
+                    "mediaEvent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                },
+                "selectionChange": {
+                  "kind": "set",
+                  "path": [
+                    "gallerySelection"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "columns": 2,
+                "items": [
+                  {
+                    "alt": "Amber package preview",
+                    "caption": "Amber",
+                    "id": "amber",
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='90'%3E%3Crect width='160' height='90' fill='%23ffae2b'/%3E%3C/svg%3E"
+                  },
+                  {
+                    "alt": "Blue package preview",
+                    "caption": "Blue",
+                    "id": "blue",
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='90'%3E%3Crect width='160' height='90' fill='%235e8cff'/%3E%3C/svg%3E"
+                  }
+                ],
+                "label": "Package images",
+                "selection": {
+                  "$ref": {
+                    "path": [
+                      "gallerySelection"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "ImageGallery"
+            },
+            {
+              "events": {
+                "error": {
+                  "kind": "set",
+                  "path": [
+                    "mediaEvent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                },
+                "zoom": {
+                  "kind": "set",
+                  "path": [
+                    "zoom"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "alt": "Zoomable package preview",
+                "scale": {
+                  "$ref": {
+                    "path": [
+                      "zoom"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='90'%3E%3Crect width='160' height='90' fill='%23ffae2b'/%3E%3C/svg%3E"
+              },
+              "type": "ZoomableImage"
+            },
+            {
+              "events": {
+                "error": {
+                  "kind": "set",
+                  "path": [
+                    "mediaEvent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                },
+                "timeUpdate": {
+                  "kind": "set",
+                  "path": [
+                    "mediaEvent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "label": "Audio package preview",
+                "mimeType": "audio/mpeg",
+                "src": "preview.mp3"
+              },
+              "type": "AudioPlayer"
+            },
+            {
+              "events": {
+                "error": {
+                  "kind": "set",
+                  "path": [
+                    "mediaEvent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                },
+                "timeUpdate": {
+                  "kind": "set",
+                  "path": [
+                    "mediaEvent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "height": 135,
+                "label": "Video package preview",
+                "mimeType": "video/mp4",
+                "src": "preview.mp4",
+                "width": 240
+              },
+              "type": "VideoPlayer"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    }
+  },
+  "start": "home",
+  "state": {
+    "expanded": {
+      "initial": [
+        "package"
+      ],
+      "schema": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "gallerySelection": {
+      "initial": "amber",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "listSelection": {
+      "initial": [
+        "alpha"
+      ],
+      "schema": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "mediaEvent": {
+      "initial": null,
+      "schema": {
+        "type": "json"
+      }
+    },
+    "order": {
+      "initial": [],
+      "schema": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "propertyChange": {
+      "initial": null,
+      "schema": {
+        "type": "json"
+      }
+    },
+    "sortColumn": {
+      "initial": "rank",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "sortDirection": {
+      "initial": "ascending",
+      "schema": {
+        "type": "enum",
+        "values": [
+          "ascending",
+          "descending"
+        ]
+      }
+    },
+    "tableSelection": {
+      "initial": [],
+      "schema": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "treeSelection": {
+      "initial": [],
+      "schema": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "zoom": {
+      "initial": 1,
+      "schema": {
+        "type": "number"
+      }
+    }
+  }
+}

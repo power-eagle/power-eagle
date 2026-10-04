@@ -212,7 +212,7 @@ npm run language -- validate examples/runtime-only/run.json
 
 The typed source is unnecessary once compiled. Production installation and release packaging are later checkpoints; the runtime-only example loads through the foundation validator and runtime renderer.
 
-The same manifest-first layout is used by `examples/layout-widgets`, `examples/content-widgets`, and `examples/control-widgets`. The control package is the public Section 7 acceptance example: its typed source references every form, selection, and desktop interaction, while its generated `run.json` is the only runtime payload an installed package needs.
+The same manifest-first layout is used by `examples/layout-widgets`, `examples/content-widgets`, `examples/control-widgets`, and `examples/collection-feedback-media`. The control package is the public Section 7 acceptance example; the collection/feedback/media package is the Section 8 acceptance example. Their typed sources reference every widget in their checkpoints, while each generated `run.json` is the only runtime payload an installed package needs.
 
 ## Retained organization
 

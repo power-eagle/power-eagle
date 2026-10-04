@@ -12,6 +12,7 @@ import flow from '../../../examples/runtime-flow/document';
 import layout from '../../../examples/layout-widgets/document';
 import content from '../../../examples/content-widgets/document';
 import controls from '../../../examples/control-widgets/document';
+import collectionFeedbackMedia from '../../../examples/collection-feedback-media/document';
 
 export async function main(command: string, args: string[]) {
   if (command === 'schemas') {
@@ -25,7 +26,7 @@ export async function main(command: string, args: string[]) {
   } else if (command === 'example') {
     for (const [directory, document] of [
       ['runtime-only', example], ['runtime-flow', flow], ['layout-widgets', layout], ['content-widgets', content],
-      ['control-widgets', controls],
+      ['control-widgets', controls], ['collection-feedback-media', collectionFeedbackMedia],
     ] as const) {
       const manifest = JSON.parse(await readFile(resolve(`examples/${directory}/manifest.json`), 'utf8'));
       unwrap(validatePackage(manifest));
