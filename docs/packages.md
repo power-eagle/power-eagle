@@ -16,7 +16,23 @@ Every contribution must have matching descriptors in `exports`. Export IDs are u
 | `action` | `id`, `contract` with `input`/`output` schemas |
 | `service` | `id`, named `methods`, each with `input`/`output` schemas |
 
-Use the schema vocabulary in [language.md](language.md). Widget examples name their qualified export. Static discovery can read these fields without evaluating executable modules; matching providers to the descriptors remains a later loader checkpoint.
+Use the schema vocabulary in [language.md](language.md). Widget examples name their qualified export. Static discovery reads these fields and validates every declared entry, asset, and runtime screen without evaluating executable modules. `discoverContributionPackage` returns canonical package-owned paths and rejects missing files or paths that resolve outside the package.
+
+Compiled entries export one factory function. Loading injects a package-anchored `require`, host shared modules, and an asset URL resolver. The factory returns one contribution with its full descriptors beside its implementations:
+
+```js
+module.exports = sdk => ({
+  format: 'power-eagle/provider',
+  formatVersion: 1,
+  kind: 'widget',
+  exports: [{
+    descriptor: widgetDescriptor,
+    implementation: widgetImplementation,
+  }],
+});
+```
+
+The loader publishes nothing unless every provider export matches the manifest's kind, id, and descriptor exactly. Undeclared, duplicate, omitted, or schema-divergent exports fail the package. A missing private npm dependency identifies the owning package contribution instead of affecting unrelated packages. Kind-specific authoring factories are added in the next SDK checkpoint.
 
 `dependencies` is an explicit array of `{package, version, export, kind}` requirements. Ranges follow npm semantic version syntax. Duplicate dependencies on the same qualified identity are invalid. Runtime validation checks the supplied available-export catalog for matching kind/version and requires a widget/call reference to declare its dependency. npm dependencies remain private and do not become public exports.
 
@@ -26,7 +42,7 @@ Use the schema vocabulary in [language.md](language.md). Widget examples name th
 
 The candidate provider build compiles TS/TSX to CommonJS, bundles transitive UI code, maps React/ReactDOM/JSX imports to the host, and ships remaining production dependencies in a package-local `node_modules`. It must not need the author's checkout, package cache, or runtime dependency installation.
 
-The isolated experiment is available via `npm run fixture:check`. It has a deliberately minimal experimental manifest and is not a public SDK example. **Production provider integration remains blocked on actual Eagle execution**, as recorded in [provider-host-validation.md](provider-host-validation.md). Native addons, ESM-only libraries, and cross-platform behavior have not been verified by this fixture.
+The isolated experiment is available via `npm run fixture:check`. It has a deliberately minimal experimental manifest and is not a public SDK example. The approach passed in Eagle 4.0.0 on Windows x64 as recorded in [provider-host-validation.md](provider-host-validation.md), and the production manifest-first loader now uses that verified boundary. Native addons, ESM-only libraries, and other platform/runtime combinations remain subject to later compatibility and build checks.
 
 ## Runtime-only example
 
