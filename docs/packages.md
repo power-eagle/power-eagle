@@ -212,6 +212,8 @@ npm run language -- validate examples/runtime-only/run.json
 
 The typed source is unnecessary once compiled. Production installation and release packaging are later checkpoints; the runtime-only example loads through the foundation validator and runtime renderer.
 
+The same manifest-first layout is used by `examples/layout-widgets`, `examples/content-widgets`, and `examples/control-widgets`. The control package is the public Section 7 acceptance example: its typed source references every form, selection, and desktop interaction, while its generated `run.json` is the only runtime payload an installed package needs.
+
 ## Retained organization
 
 Implementation stays under `src/app`, `src/sdui`, `src/host/install`, `src/plugins`, `src/ai`, and `src/components/ui`. The intended installed layout remains `~/.powereagle/bin`, `saucepan.toml`, `.saucepan/index.json`, Saucepan-reported package paths, local packages in place, and `conversations/<id>/v<N>`. This checkpoint does not touch those stores. Old payloads are unsupported and are not converted or overwritten.

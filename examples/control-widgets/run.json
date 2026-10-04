@@ -1,0 +1,913 @@
+{
+  "actions": {},
+  "components": {},
+  "dependencies": [],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "screens": {
+    "home": {
+      "body": {
+        "props": {
+          "crossAxisAlignment": "stretch",
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Control vocabulary",
+                "variant": "title"
+              },
+              "type": "Text"
+            },
+            {
+              "events": {
+                "submit": {
+                  "kind": "set",
+                  "path": [
+                    "submission"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "profile",
+                "validationMode": "change"
+              },
+              "slots": {
+                "children": [
+                  {
+                    "events": {
+                      "change": {
+                        "kind": "set",
+                        "path": [
+                          "name"
+                        ],
+                        "value": {
+                          "$ref": {
+                            "path": [],
+                            "scope": "event"
+                          }
+                        }
+                      }
+                    },
+                    "props": {
+                      "id": "name",
+                      "label": "Display name",
+                      "required": true,
+                      "value": {
+                        "$ref": {
+                          "path": [
+                            "name"
+                          ],
+                          "scope": "state"
+                        }
+                      }
+                    },
+                    "type": "TextField"
+                  },
+                  {
+                    "events": {
+                      "change": {
+                        "kind": "set",
+                        "path": [
+                          "terms"
+                        ],
+                        "value": {
+                          "$ref": {
+                            "path": [],
+                            "scope": "event"
+                          }
+                        }
+                      }
+                    },
+                    "props": {
+                      "id": "terms",
+                      "label": "Accept terms",
+                      "required": true,
+                      "value": {
+                        "$ref": {
+                          "path": [
+                            "terms"
+                          ],
+                          "scope": "state"
+                        }
+                      }
+                    },
+                    "type": "Checkbox"
+                  },
+                  {
+                    "events": {
+                      "change": {
+                        "kind": "set",
+                        "path": [
+                          "files"
+                        ],
+                        "value": {
+                          "$ref": {
+                            "path": [],
+                            "scope": "event"
+                          }
+                        }
+                      }
+                    },
+                    "props": {
+                      "buttonLabel": "Choose source",
+                      "id": "files",
+                      "label": "Source file",
+                      "required": true,
+                      "value": {
+                        "$ref": {
+                          "path": [
+                            "files"
+                          ],
+                          "scope": "state"
+                        }
+                      }
+                    },
+                    "type": "FilePicker"
+                  },
+                  {
+                    "props": {
+                      "buttonType": "submit",
+                      "label": "Submit profile"
+                    },
+                    "type": "Button"
+                  }
+                ]
+              },
+              "type": "Form"
+            },
+            {
+              "events": {
+                "select": {
+                  "kind": "navigate",
+                  "mode": "push",
+                  "params": {},
+                  "screen": "review"
+                }
+              },
+              "props": {
+                "items": [
+                  {
+                    "current": true,
+                    "id": "home",
+                    "label": "Home"
+                  },
+                  {
+                    "id": "review",
+                    "label": "Review"
+                  }
+                ],
+                "label": "Workflow"
+              },
+              "type": "Breadcrumbs"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "notes"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "notes",
+                "label": "Notes",
+                "rows": 2,
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "notes"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "TextArea"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "copies"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "copies",
+                "integer": true,
+                "label": "Copies",
+                "maximum": 9,
+                "minimum": 1,
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "copies"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "NumberField"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "density"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "density",
+                "label": "Density",
+                "options": [
+                  {
+                    "label": "Compact",
+                    "value": "compact"
+                  },
+                  {
+                    "label": "Comfortable",
+                    "value": "comfortable"
+                  }
+                ],
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "density"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "RadioGroup"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "telemetry"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "telemetry",
+                "label": "Anonymous telemetry",
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "telemetry"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "Switch"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "channel"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "channel",
+                "label": "Release channel",
+                "options": [
+                  {
+                    "label": "Stable",
+                    "value": "stable"
+                  },
+                  {
+                    "label": "Preview",
+                    "value": "preview"
+                  }
+                ],
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "channel"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "Select"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "city"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "city",
+                "label": "City",
+                "options": [
+                  {
+                    "label": "Vancouver",
+                    "value": "vancouver"
+                  },
+                  {
+                    "label": "Victoria",
+                    "value": "victoria"
+                  }
+                ],
+                "placeholder": "Find a city",
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "city"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "Autocomplete"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "opacity"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "opacity",
+                "label": "Opacity",
+                "maximum": 100,
+                "minimum": 0,
+                "step": 5,
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "opacity"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "valueLabel": "%"
+              },
+              "type": "Slider"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "releaseDate"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "releaseDate",
+                "label": "Release date",
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "releaseDate"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "DatePicker"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "accent"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "accent",
+                "label": "Accent color",
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "accent"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "ColorPicker"
+            },
+            {
+              "props": {
+                "icon": "plus",
+                "label": "Add item",
+                "variant": "outline"
+              },
+              "type": "IconButton"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "segment"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "label": "Stage mode",
+                "options": [
+                  {
+                    "label": "Preview",
+                    "value": "preview"
+                  },
+                  {
+                    "label": "Activation",
+                    "value": "activation"
+                  }
+                ],
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "segment"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "SegmentedControl"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "tab"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "label": "Package view",
+                "tabs": [
+                  {
+                    "label": "Preview",
+                    "value": "preview"
+                  },
+                  {
+                    "label": "Activation",
+                    "value": "activation"
+                  }
+                ],
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "tab"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "slots": {
+                "children": [
+                  {
+                    "props": {
+                      "text": "Preview panel"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "props": {
+                      "text": "Activation panel"
+                    },
+                    "type": "Text"
+                  }
+                ]
+              },
+              "type": "Tabs"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "sections"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "items": [
+                  {
+                    "id": "details",
+                    "label": "Details"
+                  },
+                  {
+                    "id": "dependencies",
+                    "label": "Dependencies"
+                  }
+                ],
+                "label": "Package sections",
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "sections"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "slots": {
+                "children": [
+                  {
+                    "props": {
+                      "text": "Package metadata"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "props": {
+                      "text": "No dependencies"
+                    },
+                    "type": "Text"
+                  }
+                ]
+              },
+              "type": "Accordion"
+            },
+            {
+              "events": {
+                "select": {
+                  "kind": "set",
+                  "path": [
+                    "menuAction"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "items": [
+                  {
+                    "id": "open",
+                    "label": "Open"
+                  },
+                  {
+                    "destructive": true,
+                    "id": "remove",
+                    "label": "Remove",
+                    "separatorBefore": true
+                  }
+                ],
+                "label": "Package actions"
+              },
+              "type": "Menu"
+            },
+            {
+              "events": {
+                "select": {
+                  "kind": "set",
+                  "path": [
+                    "contextAction"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "items": [
+                  {
+                    "id": "inspect",
+                    "label": "Inspect"
+                  },
+                  {
+                    "id": "disable",
+                    "label": "Disable"
+                  }
+                ],
+                "label": "Package context actions"
+              },
+              "slots": {
+                "child": {
+                  "props": {
+                    "text": "Right-click or press Shift+F10"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "ContextMenu"
+            },
+            {
+              "events": {
+                "resize": {
+                  "kind": "set",
+                  "path": [
+                    "split"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "label": "Inspector split",
+                "minimumEnd": 25,
+                "minimumStart": 25,
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "split"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "slots": {
+                "end": {
+                  "props": {
+                    "text": "Inspector pane"
+                  },
+                  "type": "Text"
+                },
+                "start": {
+                  "props": {
+                    "text": "Stage pane"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "SplitPane"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    },
+    "review": {
+      "body": {
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Review screen",
+                "variant": "title"
+              },
+              "type": "Text"
+            },
+            {
+              "events": {
+                "press": {
+                  "kind": "back"
+                }
+              },
+              "props": {
+                "label": "Back"
+              },
+              "type": "Button"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    }
+  },
+  "start": "home",
+  "state": {
+    "accent": {
+      "initial": "#ffae2b",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "channel": {
+      "initial": "stable",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "city": {
+      "initial": "",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "contextAction": {
+      "initial": "",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "copies": {
+      "initial": 2,
+      "schema": {
+        "integer": true,
+        "type": "number"
+      }
+    },
+    "density": {
+      "initial": "compact",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "files": {
+      "initial": [],
+      "schema": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "menuAction": {
+      "initial": "",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "name": {
+      "initial": "",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "initial": "Typed controls",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "opacity": {
+      "initial": 70,
+      "schema": {
+        "type": "number"
+      }
+    },
+    "releaseDate": {
+      "initial": "2026-10-04",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "sections": {
+      "initial": [
+        "details"
+      ],
+      "schema": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "segment": {
+      "initial": "preview",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "split": {
+      "initial": 45,
+      "schema": {
+        "type": "number"
+      }
+    },
+    "submission": {
+      "initial": null,
+      "schema": {
+        "type": "json"
+      }
+    },
+    "tab": {
+      "initial": "preview",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "telemetry": {
+      "initial": false,
+      "schema": {
+        "type": "boolean"
+      }
+    },
+    "terms": {
+      "initial": false,
+      "schema": {
+        "type": "boolean"
+      }
+    }
+  }
+}

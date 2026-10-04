@@ -1,0 +1,13 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.control-widgets",
+  "name": "Control widgets",
+  "version": "1.0.0",
+  "description": "Typed forms, selection, navigation, menus, and desktop interaction controls",
+  "sdk": "^1.0.0",
+  "contributions": { "runtime": "run.json" },
+  "exports": [{ "kind": "runtime", "id": "main", "screens": ["home", "review"] }],
+  "dependencies": [],
+  "assets": []
+}

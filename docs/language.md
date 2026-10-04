@@ -26,12 +26,13 @@ npm run language -- validate examples/runtime-flow/run.json
 npm run language -- validate examples/runtime-flow/manifest.json
 npm run language -- validate examples/layout-widgets/run.json
 npm run language -- validate examples/content-widgets/run.json
+npm run language -- validate examples/control-widgets/run.json
 npm run language -- catalog
 npm run language -- schemas
 npm run language:types
 ```
 
-`examples/runtime-only/document.ts` demonstrates reusable inputs and slots. `examples/runtime-flow/document.ts` demonstrates state, expressions, keyed repetition, sequential/parallel actions, and navigation. The layout and content examples exercise their complete initial widget families, including a package-relative image. The example command validates every example and atomically replaces its `run.json`. Invalid input never overwrites a previous valid file. Declaration files in `.artifacts/sdk-types` derive from the same TypeScript/Zod contracts used by validation. Structural JSON schemas live in `docs/schemas`; use the TypeScript validator as well for cross-reference, type availability, version, parent, and slot checks. The CLI validates built-ins against the foundation catalog; installed descriptors enter through provider activation.
+`examples/runtime-only/document.ts` demonstrates reusable inputs and slots. `examples/runtime-flow/document.ts` demonstrates state, expressions, keyed repetition, sequential/parallel actions, and navigation. The layout and content examples exercise their complete initial widget families, including a package-relative image. `examples/control-widgets/document.ts` references every form, selection, and desktop-interaction contract and provides a short keyboard path through typed form submission and declared navigation. The example command validates every example and atomically replaces its `run.json`. Invalid input never overwrites a previous valid file. Declaration files in `.artifacts/sdk-types` derive from the same TypeScript/Zod contracts used by validation. Structural JSON schemas live in `docs/schemas`; use the TypeScript validator as well for cross-reference, type availability, version, parent, and slot checks. The CLI validates built-ins against the foundation catalog; installed descriptors enter through provider activation.
 
 ## Document
 
