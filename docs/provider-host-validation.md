@@ -17,10 +17,12 @@ No fixture was installed into the live package store and no library/package data
 
 ## Reproduce
 
-1. Run `npm ci`, then `npm run fixture:check` from this repository.
-2. In a working Eagle instance, import `.artifacts/provider-host` as a development plugin using its `manifest.json`.
-3. Launch **Power Eagle Provider Experiment**. The checks run automatically; **Run checks** repeats them.
+1. Run `npm ci`, then `npm run fixture:check` and `npm run fixture:eagle` from this repository.
+2. Launch the normal revised Power Eagle development plugin that uses the root `manifest.json`.
+3. The **Compiled provider host experiment** runs automatically in the working app; **Run provider checks** repeats it.
 4. Inspect its visible report and `.artifacts/provider-host/result.json`. Retain a successful report before completing checkpoint 1.3.
+
+The separately importable `.artifacts/provider-host/manifest.json` remains available when isolation from the main app is useful, but it is no longer required to gather the host evidence.
 
 The fixture deliberately does not use the reference repository or `~/.powereagle`. It has its own Eagle plugin id. Rebuild before importing after code changes.
 

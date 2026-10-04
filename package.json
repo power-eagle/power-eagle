@@ -8,6 +8,7 @@
     "language:types": "tsc -p tsconfig.sdk.json",
     "fixture:build": "node scripts/build-provider-fixture.mjs",
     "fixture:check": "tsc --noEmit -p tsconfig.fixture.json && npm run fixture:build && vitest run --config vitest.fixture.config.ts",
+    "fixture:eagle": "npm run fixture:build && npm run build",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
