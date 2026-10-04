@@ -3,12 +3,14 @@ import * as ReactDOM from 'react-dom';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { createRoot, type Root } from 'react-dom/client';
 import { createProbeLoader, type ProbeProvider } from '../host/install/provider-probe';
-
-type FixtureLocation = 'repository' | 'standalone';
+import { pluginRootFromEagleUrl, type FixtureLocation, type PathResolver } from './provider-experiment-path';
 
 interface HostGlobals {
   require?: NodeRequire;
-  eagle?: { app?: { version?: string; build?: number } };
+  eagle?: {
+    app?: { version?: string; build?: number };
+    onPluginCreate?: (callback: (plugin: { path: string }) => void) => void;
+  };
   __providerProbeReport?: ProviderProbeReport;
 }
 
@@ -29,6 +31,7 @@ export interface ProviderProbeReport {
   platform?: string;
   timestamp?: string;
   fixtureDirectory?: string;
+  pluginPathSource?: 'context' | 'eagleplugin-url';
   packages?: Array<Pick<ProbeProvider, 'revision' | 'dependencyVersion' | 'dependencyPath' | 'shared'>>;
   resultPath?: string;
   error?: string;
@@ -44,8 +47,33 @@ const sharedModules = { react: React, 'react-dom': ReactDOM, 'react/jsx-runtime'
 const tick = () => new Promise<void>(resolve => setTimeout(resolve, 50));
 const errorText = (error: unknown) => error instanceof Error ? error.stack ?? error.message : String(error);
 
+let observedPluginPath: string | undefined;
+let resolvePluginPath: ((path: string) => void) | undefined;
+const pluginPathReady = new Promise<string>(resolve => { resolvePluginPath = resolve; });
+
 function hostGlobals(): HostGlobals {
   return globalThis as unknown as HostGlobals;
+}
+
+function capturePluginPath(): void {
+  const host = hostGlobals();
+  host.eagle?.onPluginCreate?.(plugin => {
+    observedPluginPath = plugin.path;
+    resolvePluginPath?.(plugin.path);
+  });
+}
+
+capturePluginPath();
+
+async function resolvePluginRoot(mode: FixtureLocation, path: PathResolver): Promise<{ root: string; source: 'context' | 'eagleplugin-url' }> {
+  const contextualPath = observedPluginPath ?? await Promise.race([
+    pluginPathReady,
+    new Promise<undefined>(resolve => setTimeout(resolve, 250)),
+  ]);
+  if (contextualPath) return { root: contextualPath, source: 'context' };
+  const urlPath = pluginRootFromEagleUrl(location.href, mode, path);
+  if (urlPath) return { root: urlPath, source: 'eagleplugin-url' };
+  throw new Error('Eagle did not provide PluginContext.path and its plugin URL did not contain a local Windows path.');
 }
 
 async function runProviderProbe(mode: FixtureLocation, widgets: HTMLDivElement, publish: (report: ProviderProbeReport) => void): Promise<ProviderProbeReport> {
@@ -76,12 +104,11 @@ async function runProviderProbe(mode: FixtureLocation, widgets: HTMLDivElement, 
     }
     const fs = host.require('fs') as typeof import('node:fs');
     const path = host.require('path') as typeof import('node:path');
-    const url = host.require('url') as typeof import('node:url');
     const process = host.require('process') as NodeJS.Process;
-    const pageDirectory = path.dirname(url.fileURLToPath(new URL(location.href)));
+    const plugin = await resolvePluginRoot(mode, path);
     const fixtureDirectory = mode === 'standalone'
-      ? pageDirectory
-      : path.resolve(pageDirectory, '..', '.artifacts', 'provider-host');
+      ? plugin.root
+      : path.join(plugin.root, '.artifacts', 'provider-host');
     const packagesDirectory = path.join(fixtureDirectory, 'packages');
     const resultPath = path.join(fixtureDirectory, 'result.json');
     report.runtime = process.versions;
@@ -89,6 +116,7 @@ async function runProviderProbe(mode: FixtureLocation, widgets: HTMLDivElement, 
     report.platform = `${process.platform}/${process.arch}`;
     report.timestamp = new Date().toISOString();
     report.fixtureDirectory = fixtureDirectory;
+    report.pluginPathSource = plugin.source;
     report.resultPath = resultPath;
     save = () => fs.writeFileSync(resultPath, JSON.stringify(report, null, 2));
 
