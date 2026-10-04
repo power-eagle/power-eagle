@@ -1884,6 +1884,180 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "columns": 3,
+          "disabled": false,
+          "gap": 8,
+          "selection": [],
+          "selectionMode": "none"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "scroll": {
+            "properties": {
+              "x": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "y": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "type": "object"
+          },
+          "selectionChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "columns": 2,
+            "label": "Widgets",
+            "selection": [],
+            "selectionMode": "single"
+          },
+          "slots": {
+            "children": [
+              {
+                "key": "one",
+                "props": {
+                  "text": "One"
+                },
+                "type": "Text"
+              },
+              {
+                "key": "two",
+                "props": {
+                  "text": "Two"
+                },
+                "type": "Text"
+              }
+            ],
+            "empty": {
+              "props": {
+                "text": "No widgets"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "GridView"
+        },
+        "properties": {
+          "properties": {
+            "columns": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minimumItemWidth": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "selection": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          },
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "grid"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "columns": 2,
+          "label": "Widgets",
+          "selection": [],
+          "selectionMode": "single"
+        },
+        "slots": {
+          "children": [
+            {
+              "key": "one",
+              "props": {
+                "text": "One"
+              },
+              "type": "Text"
+            },
+            {
+              "key": "two",
+              "props": {
+                "text": "Two"
+              },
+              "type": "Text"
+            }
+          ],
+          "empty": {
+            "props": {
+              "text": "No widgets"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "GridView"
+      },
+      "type": "GridView"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "size": 20,
           "strokeWidth": 2
         },
@@ -2196,6 +2370,158 @@
         "type": "Image"
       },
       "type": "Image"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "gap": 8,
+          "selection": [],
+          "selectionMode": "none"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "scroll": {
+            "properties": {
+              "x": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "y": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "type": "object"
+          },
+          "selectionChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Packages",
+            "selection": [
+              "stable"
+            ],
+            "selectionMode": "single"
+          },
+          "slots": {
+            "children": [
+              {
+                "key": "stable",
+                "props": {
+                  "text": "Stable keyed item"
+                },
+                "type": "Text"
+              }
+            ],
+            "empty": {
+              "props": {
+                "text": "No packages"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "ListView"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          },
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "list"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Packages",
+          "selection": [
+            "stable"
+          ],
+          "selectionMode": "single"
+        },
+        "slots": {
+          "children": [
+            {
+              "key": "stable",
+              "props": {
+                "text": "Stable keyed item"
+              },
+              "type": "Text"
+            }
+          ],
+          "empty": {
+            "props": {
+              "text": "No packages"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "ListView"
+      },
+      "type": "ListView"
     },
     {
       "availability": "active",
@@ -2974,6 +3300,116 @@
         "type": "Row"
       },
       "type": "Row"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "direction": "vertical"
+        },
+        "events": {
+          "scroll": {
+            "properties": {
+              "x": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "y": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "direction": "vertical",
+            "height": 88
+          },
+          "slots": {
+            "children": [
+              {
+                "props": {
+                  "text": "Scrollable content"
+                },
+                "type": "Text"
+              },
+              {
+                "props": {
+                  "text": "More content"
+                },
+                "type": "Text"
+              }
+            ]
+          },
+          "type": "ScrollView"
+        },
+        "properties": {
+          "properties": {
+            "direction": {
+              "type": "enum",
+              "values": [
+                "vertical",
+                "horizontal",
+                "both"
+              ]
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "width": {
+              "minimum": 5e-324,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout",
+          "scroll"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "direction": "vertical",
+          "height": 88
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Scrollable content"
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "text": "More content"
+              },
+              "type": "Text"
+            }
+          ]
+        },
+        "type": "ScrollView"
+      },
+      "type": "ScrollView"
     },
     {
       "availability": "active",
@@ -4316,6 +4752,412 @@
         "type": "Tooltip"
       },
       "type": "Tooltip"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "gap": 8,
+          "overscan": 1,
+          "selection": [],
+          "selectionMode": "none"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "scroll": {
+            "properties": {
+              "x": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "y": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "type": "object"
+          },
+          "selectionChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "columns": 2,
+            "height": 88,
+            "label": "Large widget grid",
+            "rowExtent": 32,
+            "selection": [],
+            "selectionMode": "multiple"
+          },
+          "slots": {
+            "children": [
+              {
+                "key": "one",
+                "props": {
+                  "text": "One"
+                },
+                "type": "Text"
+              },
+              {
+                "key": "two",
+                "props": {
+                  "text": "Two"
+                },
+                "type": "Text"
+              },
+              {
+                "key": "three",
+                "props": {
+                  "text": "Three"
+                },
+                "type": "Text"
+              },
+              {
+                "key": "four",
+                "props": {
+                  "text": "Four"
+                },
+                "type": "Text"
+              }
+            ],
+            "empty": {
+              "props": {
+                "text": "No items"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "VirtualGrid"
+        },
+        "properties": {
+          "properties": {
+            "columns": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "overscan": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "rowExtent": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "selection": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "height",
+            "columns",
+            "rowExtent"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          },
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "grid",
+          "virtual"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "columns": 2,
+          "height": 88,
+          "label": "Large widget grid",
+          "rowExtent": 32,
+          "selection": [],
+          "selectionMode": "multiple"
+        },
+        "slots": {
+          "children": [
+            {
+              "key": "one",
+              "props": {
+                "text": "One"
+              },
+              "type": "Text"
+            },
+            {
+              "key": "two",
+              "props": {
+                "text": "Two"
+              },
+              "type": "Text"
+            },
+            {
+              "key": "three",
+              "props": {
+                "text": "Three"
+              },
+              "type": "Text"
+            },
+            {
+              "key": "four",
+              "props": {
+                "text": "Four"
+              },
+              "type": "Text"
+            }
+          ],
+          "empty": {
+            "props": {
+              "text": "No items"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "VirtualGrid"
+      },
+      "type": "VirtualGrid"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "gap": 8,
+          "overscan": 2,
+          "selection": [],
+          "selectionMode": "none"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "scroll": {
+            "properties": {
+              "x": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "y": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "type": "object"
+          },
+          "selectionChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "height": 88,
+            "itemExtent": 32,
+            "label": "Large package list",
+            "selection": [],
+            "selectionMode": "single"
+          },
+          "slots": {
+            "children": [
+              {
+                "key": "one",
+                "props": {
+                  "text": "Virtual item one"
+                },
+                "type": "Text"
+              },
+              {
+                "key": "two",
+                "props": {
+                  "text": "Virtual item two"
+                },
+                "type": "Text"
+              },
+              {
+                "key": "three",
+                "props": {
+                  "text": "Virtual item three"
+                },
+                "type": "Text"
+              }
+            ],
+            "empty": {
+              "props": {
+                "text": "No items"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "VirtualList"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "itemExtent": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "overscan": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "selection": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "height",
+            "itemExtent"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          },
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "list",
+          "virtual"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "height": 88,
+          "itemExtent": 32,
+          "label": "Large package list",
+          "selection": [],
+          "selectionMode": "single"
+        },
+        "slots": {
+          "children": [
+            {
+              "key": "one",
+              "props": {
+                "text": "Virtual item one"
+              },
+              "type": "Text"
+            },
+            {
+              "key": "two",
+              "props": {
+                "text": "Virtual item two"
+              },
+              "type": "Text"
+            },
+            {
+              "key": "three",
+              "props": {
+                "text": "Virtual item three"
+              },
+              "type": "Text"
+            }
+          ],
+          "empty": {
+            "props": {
+              "text": "No items"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "VirtualList"
+      },
+      "type": "VirtualList"
     },
     {
       "availability": "active",

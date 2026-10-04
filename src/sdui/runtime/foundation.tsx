@@ -1,4 +1,5 @@
 import type { RuntimeCatalog } from './session';
+import { collectionRuntimeWidgets } from './collections';
 import { contentRuntimeWidgets } from './content';
 import { desktopRuntimeWidgets } from './desktop';
 import { formRuntimeWidgets } from './forms';
@@ -11,4 +12,5 @@ export const foundationRuntimeCatalog: RuntimeCatalog = { widgets: {
   ...formRuntimeWidgets,
   ...selectionRuntimeWidgets,
   ...desktopRuntimeWidgets,
+  ...collectionRuntimeWidgets,
 } };

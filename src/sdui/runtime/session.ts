@@ -20,6 +20,7 @@ export interface ResolvedNode {
 export interface WidgetDefinition {
   contract: WidgetContract;
   render: import('./view').WidgetRenderer;
+  deferredSlots?: readonly string[];
 }
 export interface RuntimeCatalog {
   widgets: Readonly<Record<string, WidgetDefinition>>;

@@ -95,11 +95,13 @@ Task 7.4 evidence (2026-10-04): `examples/control-widgets` is an installable run
 
 ## 8. Deliver collections, feedback, and media
 
-- [ ] 8.1 Implement ScrollView, ListView, GridView, VirtualList, and VirtualGrid; verify stable keys/selection, empty states, scrolling, and viewport-limited rendered work for thousands of fixture items.
+- [x] 8.1 Implement ScrollView, ListView, GridView, VirtualList, and VirtualGrid; verify stable keys/selection, empty states, scrolling, and viewport-limited rendered work for thousands of fixture items.
 - [ ] 8.2 Implement ReorderableList, TreeView, DataTable, and PropertyGrid; verify keyboard reorder, hierarchical selection, typed column sorting, retained row identity, and optional typed property editing.
 - [ ] 8.3 Implement ProgressIndicator, Skeleton, EmptyState, ErrorState, Banner, Toast, and Dialog with language feedback actions; verify text-based status, retry transitions, stage-local overlays, modal focus, Escape/close behavior, and focus restoration.
 - [ ] 8.4 Implement ImageGallery, ZoomableImage, AudioPlayer, and VideoPlayer; verify selection, zoom controls, playback/error states, unsupported media, and resource cleanup when a view is replaced.
 - [ ] 8.5 Add schemas/helpers, catalog examples, and behavioral documentation for all types in this checkpoint; verify the gallery and the collection/feedback/media acceptance scenarios before proceeding.
+
+Task 8.1 evidence (2026-10-04): ScrollView, ListView, GridView, VirtualList, and VirtualGrid now publish typed contracts, authoring helpers, working renderers, collection-family catalog entries, runnable examples, empty slots, scroll events, stable child-key selection arrays, activation events, and listbox keyboard behavior. Collection renderers consume the same resolved repeat nodes as ordinary layout widgets, while a registry-declared deferred child slot lets virtual widgets construct React elements only for the visible window without introducing a second item-data language or losing keyed component state. Fixed-extent list and grid windows retain overscan, expose the correct items after scrolling, and preserve controlled selection by child key. Focused tests exercise reordering and empty content, pointer and keyboard selection, activation, scroll payloads, a 5,000-row list bounded to ten rendered items, and a 4,000-tile grid bounded to twenty-eight rendered items. The generated built-in catalog contains 52 active widgets. All 164 repository tests, SDK declaration generation, zero-warning lint, the production build, and strict OpenSpec validation pass.
 
 ## 9. Preserve package installation and storage behavior
 

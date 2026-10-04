@@ -11,6 +11,8 @@ export interface WidgetRenderProps {
   props: Record<string, Json>;
   style: React.CSSProperties;
   slots: Record<string, React.ReactNode>;
+  nodeSlots: Readonly<Record<string, readonly ResolvedNode[]>>;
+  renderNode: (node: ResolvedNode) => React.ReactElement;
   events: Record<string, RuntimeEvent>;
   runtime: WidgetRuntime;
 }
@@ -20,9 +22,14 @@ export function ResolvedView({ node, catalog, runtime }: { node: ResolvedNode; c
   if (node.type === '$fragment') return React.createElement(React.Fragment, null, node.slots.children.map(child => React.createElement(ResolvedView, { key: child.key, node: child, catalog, runtime })));
   const definition = catalog.widgets[node.type];
   if (!definition) throw new Error(`No renderer for ${node.type}`);
-  const slots = Object.fromEntries(Object.entries(node.slots).map(([name, children]) => [name, children.map(child => React.createElement(ResolvedView, { key: child.key, node: child, catalog, runtime }))]));
+  const deferred = new Set(definition.deferredSlots ?? []);
+  const renderNode = (child: ResolvedNode) => React.createElement(ResolvedView, { key: child.key, node: child, catalog, runtime });
+  const slots = Object.fromEntries(Object.entries(node.slots).map(([name, children]) => [
+    name, deferred.has(name) ? null : children.map(renderNode),
+  ]));
   return React.createElement(definition.render as React.FC<WidgetRenderProps>, {
-    key: node.key, node, props: node.props, style: node.style as React.CSSProperties, slots, events: node.events, runtime,
+    key: node.key, node, props: node.props, style: node.style as React.CSSProperties,
+    slots, nodeSlots: node.slots, renderNode, events: node.events, runtime,
   });
 }
 

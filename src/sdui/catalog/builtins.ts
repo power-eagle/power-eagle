@@ -2,7 +2,7 @@ import { foundationCatalog } from '../authoring/foundation';
 import type { Node, RuntimeDocument, WidgetContract } from '../schema/model';
 import type { ValidationCatalog } from '../schema/validate';
 
-export type CatalogFamily = 'layout' | 'content' | 'control' | 'custom';
+export type CatalogFamily = 'layout' | 'content' | 'control' | 'collection' | 'custom';
 export type CatalogAvailability = 'active' | 'off' | 'failed';
 export type CatalogOrigin = { kind: 'builtin' } | { kind: 'package'; package: string; version: string; export: string };
 export interface CatalogMetadata {
@@ -34,6 +34,7 @@ const controlTypes = new Set([
   'Select', 'Autocomplete', 'Slider', 'DatePicker', 'ColorPicker', 'FilePicker',
   'IconButton', 'SegmentedControl', 'Tabs', 'Accordion', 'Menu', 'ContextMenu', 'Breadcrumbs', 'SplitPane',
 ]);
+const collectionTypes = new Set(['ScrollView', 'ListView', 'GridView', 'VirtualList', 'VirtualGrid']);
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export function runnableWidgetExample(type: string, input: Node): Node {
@@ -49,7 +50,7 @@ export function createCatalogEntries(
 ): CatalogEntry[] {
   return Object.entries(catalog.widgets).map(([type, contract]) => {
     const supplied = metadata[type];
-    const family = supplied?.family ?? (layoutTypes.has(type) ? 'layout' : contentTypes.has(type) ? 'content' : controlTypes.has(type) ? 'control' : 'custom');
+    const family = supplied?.family ?? (layoutTypes.has(type) ? 'layout' : contentTypes.has(type) ? 'content' : controlTypes.has(type) ? 'control' : collectionTypes.has(type) ? 'collection' : 'custom');
     return {
       type, family,
       origin: supplied?.origin ?? { kind: 'builtin' },
