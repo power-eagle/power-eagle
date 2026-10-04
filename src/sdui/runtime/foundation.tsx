@@ -5,6 +5,7 @@ import { desktopRuntimeWidgets } from './desktop';
 import { formRuntimeWidgets } from './forms';
 import { feedbackRuntimeWidgets } from './feedback';
 import { layoutRuntimeWidgets } from './layout';
+import { mediaRuntimeWidgets } from './media';
 import { selectionRuntimeWidgets } from './selection';
 
 export const foundationRuntimeCatalog: RuntimeCatalog = { widgets: {
@@ -15,4 +16,5 @@ export const foundationRuntimeCatalog: RuntimeCatalog = { widgets: {
   ...desktopRuntimeWidgets,
   ...collectionRuntimeWidgets,
   ...feedbackRuntimeWidgets,
+  ...mediaRuntimeWidgets,
 } };

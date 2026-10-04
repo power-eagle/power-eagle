@@ -289,6 +289,134 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "autoplay": false,
+          "controls": true,
+          "loop": false,
+          "mimeType": "",
+          "muted": false,
+          "preload": "metadata"
+        },
+        "events": {
+          "ended": {
+            "type": "null"
+          },
+          "error": {
+            "properties": {
+              "code": {
+                "integer": true,
+                "minimum": 0,
+                "type": "number"
+              },
+              "message": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "type": "object"
+          },
+          "pause": {
+            "type": "null"
+          },
+          "play": {
+            "type": "null"
+          },
+          "timeUpdate": {
+            "properties": {
+              "currentTime": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "duration": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "currentTime",
+              "duration"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "controls": true,
+            "label": "Package audio preview",
+            "mimeType": "audio/mpeg",
+            "src": "example-audio.mp3"
+          },
+          "type": "AudioPlayer"
+        },
+        "properties": {
+          "properties": {
+            "autoplay": {
+              "type": "boolean"
+            },
+            "controls": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "loop": {
+              "type": "boolean"
+            },
+            "mimeType": {
+              "type": "string"
+            },
+            "muted": {
+              "type": "boolean"
+            },
+            "preload": {
+              "type": "enum",
+              "values": [
+                "none",
+                "metadata",
+                "auto"
+              ]
+            },
+            "src": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "src",
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "media",
+          "audio",
+          "playback"
+        ]
+      },
+      "family": "media",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "controls": true,
+          "label": "Package audio preview",
+          "mimeType": "audio/mpeg",
+          "src": "example-audio.mp3"
+        },
+        "type": "AudioPlayer"
+      },
+      "type": "AudioPlayer"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "allowCustom": false,
           "disabled": false,
           "maxSuggestions": 8,
@@ -2937,6 +3065,167 @@
         "type": "Image"
       },
       "type": "Image"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "columns": 3,
+          "disabled": false,
+          "emptyText": "No images",
+          "failureText": "Image unavailable",
+          "gap": 8,
+          "selection": ""
+        },
+        "events": {
+          "error": {
+            "properties": {
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "message": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "message"
+            ],
+            "type": "object"
+          },
+          "load": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "selectionChange": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "columns": 2,
+            "items": [
+              {
+                "alt": "First image",
+                "caption": "First",
+                "id": "one",
+                "src": "data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\"/%3E"
+              },
+              {
+                "alt": "Second image",
+                "caption": "Second",
+                "id": "two",
+                "src": "missing-gallery-image.png"
+              }
+            ],
+            "label": "Package images",
+            "selection": "one"
+          },
+          "type": "ImageGallery"
+        },
+        "properties": {
+          "properties": {
+            "columns": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "emptyText": {
+              "type": "string"
+            },
+            "failureText": {
+              "type": "string"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "alt": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "caption": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "src": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "src",
+                  "alt"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "media",
+          "gallery",
+          "image"
+        ]
+      },
+      "family": "media",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "columns": 2,
+          "items": [
+            {
+              "alt": "First image",
+              "caption": "First",
+              "id": "one",
+              "src": "data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\"/%3E"
+            },
+            {
+              "alt": "Second image",
+              "caption": "Second",
+              "id": "two",
+              "src": "missing-gallery-image.png"
+            }
+          ],
+          "label": "Package images",
+          "selection": "one"
+        },
+        "type": "ImageGallery"
+      },
+      "type": "ImageGallery"
     },
     {
       "availability": "active",
@@ -6080,6 +6369,150 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "autoplay": false,
+          "controls": true,
+          "loop": false,
+          "mimeType": "",
+          "muted": false,
+          "poster": "",
+          "preload": "metadata"
+        },
+        "events": {
+          "ended": {
+            "type": "null"
+          },
+          "error": {
+            "properties": {
+              "code": {
+                "integer": true,
+                "minimum": 0,
+                "type": "number"
+              },
+              "message": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "type": "object"
+          },
+          "pause": {
+            "type": "null"
+          },
+          "play": {
+            "type": "null"
+          },
+          "timeUpdate": {
+            "properties": {
+              "currentTime": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "duration": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "currentTime",
+              "duration"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "controls": true,
+            "height": 135,
+            "label": "Package video preview",
+            "mimeType": "video/mp4",
+            "src": "example-video.mp4",
+            "width": 240
+          },
+          "type": "VideoPlayer"
+        },
+        "properties": {
+          "properties": {
+            "autoplay": {
+              "type": "boolean"
+            },
+            "controls": {
+              "type": "boolean"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "loop": {
+              "type": "boolean"
+            },
+            "mimeType": {
+              "type": "string"
+            },
+            "muted": {
+              "type": "boolean"
+            },
+            "poster": {
+              "type": "string"
+            },
+            "preload": {
+              "type": "enum",
+              "values": [
+                "none",
+                "metadata",
+                "auto"
+              ]
+            },
+            "src": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "width": {
+              "minimum": 5e-324,
+              "type": "number"
+            }
+          },
+          "required": [
+            "src",
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "media",
+          "video",
+          "playback"
+        ]
+      },
+      "family": "media",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "controls": true,
+          "height": 135,
+          "label": "Package video preview",
+          "mimeType": "video/mp4",
+          "src": "example-video.mp4",
+          "width": 240
+        },
+        "type": "VideoPlayer"
+      },
+      "type": "VideoPlayer"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "disabled": false,
           "gap": 8,
           "overscan": 1,
@@ -6562,6 +6995,105 @@
         "type": "Wrap"
       },
       "type": "Wrap"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "failureText": "Image unavailable",
+          "fit": "contain",
+          "maximumScale": 4,
+          "minimumScale": 0.25,
+          "step": 0.25
+        },
+        "events": {
+          "error": {
+            "type": "string"
+          },
+          "load": {
+            "type": "null"
+          },
+          "zoom": {
+            "type": "number"
+          }
+        },
+        "example": {
+          "props": {
+            "alt": "Zoomable package preview",
+            "scale": 1,
+            "src": "data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"160\" height=\"90\"/%3E"
+          },
+          "type": "ZoomableImage"
+        },
+        "properties": {
+          "properties": {
+            "alt": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "failureText": {
+              "type": "string"
+            },
+            "fit": {
+              "type": "enum",
+              "values": [
+                "contain",
+                "cover",
+                "none"
+              ]
+            },
+            "maximumScale": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "minimumScale": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "scale": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "src": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "step": {
+              "minimum": 5e-324,
+              "type": "number"
+            }
+          },
+          "required": [
+            "src",
+            "alt",
+            "scale"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "media",
+          "image",
+          "zoom"
+        ]
+      },
+      "family": "media",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "alt": "Zoomable package preview",
+          "scale": 1,
+          "src": "data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"160\" height=\"90\"/%3E"
+        },
+        "type": "ZoomableImage"
+      },
+      "type": "ZoomableImage"
     }
   ],
   "format": "power-eagle/widget-catalog",
