@@ -56,6 +56,21 @@ Reconciliation revokes affected service slots before removing their registration
 
 Provider scopes are separate from runtime view scopes. Service methods receive the calling view's signal and `use` callback, so view replacement releases resources created for that view. The provider scope and unrelated service handles remain active until enablement, reload, or application shutdown removes the provider itself.
 
+## Styling composition
+
+Active styling exports form a catalog separate from widget implementations. A styling export can contribute token values, named variants, and overrides only for the qualified widget targets declared by its manifest descriptor. Loading or selecting a style never registers or replaces a widget renderer. An override for an undeclared target is invalid.
+
+The host composes a widget's effective values in this order:
+
+1. host tokens and host widget style;
+2. selected package themes;
+3. selected view themes;
+4. the node's explicit style.
+
+Every selected package or view theme carries an integer `order`. Values in the same layer apply from lower to higher order, and duplicate orders are rejected, so discovery and filesystem order cannot affect the result. A selected variant applies after that export's targeted override. Later values replace earlier keys; unrelated keys remain in the composed result.
+
+When an optional selection is disabled or unavailable, its layer is absent and lower-layer values become effective. A required styling export is declared as a normal qualified `styling` dependency. Disabling it makes its consumer `failed` with a `dependency-off` cause; attempting to compose a required selection that is absent also produces a `required-style-unavailable` error.
+
 ## Provider SDK factories
 
 Provider source imports the public authoring entry that the package compiler supplies:
