@@ -3,6 +3,7 @@ import type {
   CompiledContribution, CompiledProviderExport, ExecutableExportKind, ProviderSdk, SharedRuntimeModules,
 } from '../../sdui/sdk/provider';
 import { validatePackage, type Diagnostic } from '../../sdui/schema/validate';
+import { satisfies } from 'semver';
 
 export type ExecutableContribution = 'widgets' | 'styling' | 'actions' | 'services';
 
@@ -38,11 +39,23 @@ export interface ProviderLoadOptions {
   sharedModules: SharedRuntimeModules;
 }
 
+export interface PackageHostTarget {
+  platform: string;
+  arch: string;
+  node: string;
+}
+
+export interface PackageDiscoveryOptions {
+  sdkVersion?: string;
+  hostTarget?: PackageHostTarget | false;
+}
+
 interface HostModules {
   fs: typeof import('node:fs');
   path: typeof import('node:path');
   pathToFileURL: typeof import('node:url')['pathToFileURL'];
   createRequire: typeof import('node:module')['createRequire'];
+  process: NodeJS.Process;
 }
 
 const executableKinds: Record<ExecutableContribution, ExecutableExportKind> = {
@@ -63,6 +76,7 @@ function modules(hostRequire: NodeRequire): HostModules {
     path: hostRequire('path') as typeof import('node:path'),
     pathToFileURL: (hostRequire('url') as typeof import('node:url')).pathToFileURL,
     createRequire: (hostRequire('module') as typeof import('node:module')).createRequire,
+    process: hostRequire('process') as NodeJS.Process,
   };
 }
 
@@ -108,7 +122,20 @@ function zodDiagnostics(packageRoot: string, base: string, result: ReturnType<ty
   });
 }
 
-export function discoverContributionPackage(packageRoot: string, hostRequire: NodeRequire, sdkVersion = '1.0.0'): DiscoveredPackage {
+function checkTarget(manifest: PackageManifest, hostTarget: PackageHostTarget | undefined, packageRoot: string, diagnostics: PackageDiagnostic[]): void {
+  if (!manifest.target || !hostTarget) return;
+  if (!manifest.target.platform.includes(hostTarget.platform as typeof manifest.target.platform[number])) {
+    diagnostics.push({ packageRoot, path: '/target/platform', code: 'unsupported-target', message: `Package supports ${manifest.target.platform.join(', ')}, but the host platform is ${hostTarget.platform}` });
+  }
+  if (!manifest.target.arch.includes(hostTarget.arch as typeof manifest.target.arch[number])) {
+    diagnostics.push({ packageRoot, path: '/target/arch', code: 'unsupported-target', message: `Package supports ${manifest.target.arch.join(', ')}, but the host architecture is ${hostTarget.arch}` });
+  }
+  if (!satisfies(hostTarget.node, manifest.target.node)) {
+    diagnostics.push({ packageRoot, path: '/target/node', code: 'unsupported-target', message: `Package requires Node ${manifest.target.node}, but the host provides ${hostTarget.node}` });
+  }
+}
+
+export function discoverContributionPackage(packageRoot: string, hostRequire: NodeRequire, options: PackageDiscoveryOptions = {}): DiscoveredPackage {
   const host = modules(hostRequire);
   const canonicalRoot = host.fs.realpathSync(packageRoot);
   const diagnostics: PackageDiagnostic[] = [];
@@ -118,11 +145,15 @@ export function discoverContributionPackage(packageRoot: string, hostRequire: No
   }
   const manifestValue = readJson(host, manifestPath, canonicalRoot, '/manifest.json', diagnostics);
   if (diagnostics.length) throw new ContributionPackageError(diagnostics);
-  const validated = validatePackage(manifestValue, sdkVersion);
+  const validated = validatePackage(manifestValue, options.sdkVersion ?? '1.0.0');
   if (!validated.success) {
     throw new ContributionPackageError(validated.diagnostics.map(item => ({ ...item, packageRoot: canonicalRoot })));
   }
   const manifest = validated.data;
+  const hostTarget = options.hostTarget === false ? undefined : options.hostTarget ?? {
+    platform: host.process.platform, arch: host.process.arch, node: host.process.versions.node,
+  };
+  checkTarget(manifest, hostTarget, canonicalRoot, diagnostics);
   const entries: DiscoveredPackage['entries'] = {};
   for (const [key, relative] of Object.entries(manifest.contributions) as Array<[keyof typeof manifest.contributions, string]>) {
     const entry = ownedPath(host, canonicalRoot, relative, `/contributions/${key}`, diagnostics);
@@ -160,6 +191,25 @@ export function discoverContributionPackage(packageRoot: string, hostRequire: No
   }
   if (diagnostics.length) throw new ContributionPackageError(diagnostics);
   return { root: canonicalRoot, manifestPath, manifest, entries, assets, runtime };
+}
+
+function cacheEntryOwned(host: Pick<HostModules, 'fs' | 'path'>, root: string, id: string): boolean {
+  const candidate = host.path.resolve(id);
+  if (!within(host.path, root, candidate)) return false;
+  if (!host.fs.existsSync(candidate)) return true;
+  return within(host.path, root, host.fs.realpathSync(candidate));
+}
+
+export function clearContributionPackageCache(discovered: DiscoveredPackage, hostRequire: NodeRequire): string[] {
+  const host = modules(hostRequire);
+  const localRequire = host.createRequire(discovered.manifestPath);
+  const cleared: string[] = [];
+  for (const id of Object.keys(localRequire.cache)) {
+    if (!cacheEntryOwned(host, discovered.root, id)) continue;
+    delete localRequire.cache[id];
+    cleared.push(id);
+  }
+  return cleared;
 }
 
 function canonicalJson(value: unknown): string {
@@ -249,4 +299,9 @@ export function loadCompiledContributions(discovered: DiscoveredPackage, options
     }
   }
   return loaded;
+}
+
+export function reloadCompiledContributions(discovered: DiscoveredPackage, options: ProviderLoadOptions): LoadedContribution[] {
+  clearContributionPackageCache(discovered, options.hostRequire);
+  return loadCompiledContributions(discovered, options);
 }

@@ -1,14 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, mkdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { Text } from '../../sdui/authoring/foundation';
 import type { ExportDescriptor, PackageManifest, RuntimeDocument } from '../../sdui/schema/model';
-import { ContributionPackageError, discoverContributionPackage, loadCompiledContributions } from './contribution-package';
+import {
+  ContributionPackageError, discoverContributionPackage, loadCompiledContributions, reloadCompiledContributions,
+} from './contribution-package';
 
 const hostRequire = createRequire(import.meta.url);
 const sharedModules = { react: React, 'react-dom': ReactDOM, 'react/jsx-runtime': jsxRuntime };
@@ -82,14 +85,28 @@ describe('manifest-first contribution packages', () => {
     expect(existsSync(join(providerOnly.root, 'compiled', markerName))).toBe(false);
   });
 
-  it('loads a declared CommonJS factory with package-relative assets', () => {
-    const fixture = createPackage({ assets: ['assets/marker.txt'] });
-    const discovered = discoverContributionPackage(fixture.root, hostRequire);
+  it('loads a relocated CommonJS factory with a canonical package-relative asset', () => {
+    const descriptor = widgetDescriptor();
+    const fixture = createPackage({
+      assets: ['assets/marker.txt'],
+      provider: `module.exports = sdk => ({
+        format: 'power-eagle/provider', formatVersion: 1, kind: 'widget',
+        exports: [{ descriptor: ${JSON.stringify(descriptor)}, implementation: { packageId: sdk.packageId, marker: sdk.assetUrl('assets/marker.txt') } }]
+      });`,
+    });
+    const relocationRoot = mkdtempSync(join(tmpdir(), 'power-eagle-package-'));
+    roots.push(relocationRoot);
+    const relocated = join(relocationRoot, 'installed');
+    cpSync(fixture.root, relocated, { recursive: true, dereference: true });
+    rmSync(fixture.root, { recursive: true, force: true });
+    const discovered = discoverContributionPackage(relocated, hostRequire);
     const loaded = loadCompiledContributions(discovered, { hostRequire, sharedModules });
 
     expect(loaded).toHaveLength(1);
     expect(loaded[0].exports[0].descriptor).toEqual(fixture.descriptor);
-    expect(loaded[0].exports[0].implementation).toEqual({ packageId: 'example.provider' });
+    const implementation = loaded[0].exports[0].implementation as { packageId: string; marker: string };
+    expect(implementation.packageId).toBe('example.provider');
+    expect(realpathSync(fileURLToPath(implementation.marker))).toBe(realpathSync(join(relocated, 'assets/marker.txt')));
   });
 
   it('rejects missing declared entries before provider execution', () => {
@@ -116,5 +133,70 @@ describe('manifest-first contribution packages', () => {
     } catch (error) {
       expect(diagnostics(error)[0]).toEqual(expect.objectContaining({ path: '/contributions/widgets', code: 'missing-dependency' }));
     }
+  });
+
+  it('rejects traversal and symlink escapes before loading provider code', () => {
+    const traversal = createPackage();
+    traversal.manifest.contributions.widgets = '../outside.cjs';
+    writeFileSync(join(traversal.root, 'manifest.json'), JSON.stringify(traversal.manifest));
+    expect(() => discoverContributionPackage(traversal.root, hostRequire)).toThrow(/contributions\/widgets/);
+
+    const linked = createPackage();
+    const outside = mkdtempSync(join(tmpdir(), 'power-eagle-package-'));
+    roots.push(outside);
+    writeFileSync(join(outside, 'marker.txt'), 'outside');
+    symlinkSync(outside, join(linked.root, 'linked'), 'junction');
+    linked.manifest.assets = ['linked/marker.txt'];
+    writeFileSync(join(linked.root, 'manifest.json'), JSON.stringify(linked.manifest));
+    try {
+      discoverContributionPackage(linked.root, hostRequire);
+      throw new Error('Expected symlink escape rejection');
+    } catch (error) {
+      expect(diagnostics(error)).toEqual(expect.arrayContaining([expect.objectContaining({ path: '/assets/0', code: 'path' })]));
+    }
+  });
+
+  it('reports every unsupported host target before provider loading', () => {
+    const fixture = createPackage();
+    fixture.manifest.target = { platform: ['darwin'], arch: ['arm64'], node: '>=20.0.0' };
+    writeFileSync(join(fixture.root, 'manifest.json'), JSON.stringify(fixture.manifest));
+
+    try {
+      discoverContributionPackage(fixture.root, hostRequire, { hostTarget: { platform: 'win32', arch: 'x64', node: '16.17.1' } });
+      throw new Error('Expected target rejection');
+    } catch (error) {
+      expect(diagnostics(error)).toEqual(expect.arrayContaining([
+        expect.objectContaining({ path: '/target/platform', code: 'unsupported-target' }),
+        expect.objectContaining({ path: '/target/arch', code: 'unsupported-target' }),
+        expect.objectContaining({ path: '/target/node', code: 'unsupported-target' }),
+      ]));
+    }
+  });
+
+  it('reloads only the changed package cache', () => {
+    const descriptor = widgetDescriptor();
+    const provider = (revision: string) => `module.exports = sdk => ({
+      format: 'power-eagle/provider', formatVersion: 1, kind: 'widget',
+      exports: [{ descriptor: ${JSON.stringify(descriptor)}, implementation: { revision: '${revision}', dependency: sdk.require('private-state') } }]
+    });`;
+    const alpha = createPackage({ provider: provider('original') });
+    const beta = createPackage({ provider: provider('unrelated') });
+    for (const fixture of [alpha, beta]) {
+      mkdirSync(join(fixture.root, 'node_modules/private-state'), { recursive: true });
+      writeFileSync(join(fixture.root, 'node_modules/private-state/package.json'), JSON.stringify({ name: 'private-state', version: '1.0.0', main: 'index.cjs' }));
+      writeFileSync(join(fixture.root, 'node_modules/private-state/index.cjs'), 'module.exports = { identity: {} };');
+    }
+    const alphaDiscovered = discoverContributionPackage(alpha.root, hostRequire);
+    const betaDiscovered = discoverContributionPackage(beta.root, hostRequire);
+    const alphaFirst = loadCompiledContributions(alphaDiscovered, { hostRequire, sharedModules })[0].exports[0].implementation as { revision: string; dependency: object };
+    const betaFirst = loadCompiledContributions(betaDiscovered, { hostRequire, sharedModules })[0].exports[0].implementation as { revision: string; dependency: object };
+
+    writeFileSync(join(alpha.root, 'types.cjs'), provider('updated'));
+    const alphaSecond = reloadCompiledContributions(alphaDiscovered, { hostRequire, sharedModules })[0].exports[0].implementation as { revision: string; dependency: object };
+    const betaRequire = createRequire(join(beta.root, 'manifest.json'));
+
+    expect(alphaSecond.revision).toBe('updated');
+    expect(alphaSecond.dependency).not.toBe(alphaFirst.dependency);
+    expect(betaRequire('private-state')).toBe(betaFirst.dependency);
   });
 });

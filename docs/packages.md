@@ -34,6 +34,10 @@ module.exports = sdk => ({
 
 The loader publishes nothing unless every provider export matches the manifest's kind, id, and descriptor exactly. Undeclared, duplicate, omitted, or schema-divergent exports fail the package. A missing private npm dependency identifies the owning package contribution instead of affecting unrelated packages. Kind-specific authoring factories are described below.
 
+Discovery resolves every declared entry and asset from the canonical package root. Lexical traversal, absolute paths, missing files, and symlink or junction escapes fail before provider code runs. `assetUrl` accepts only a declared asset key and returns a URL for its current installed location, so relocating a complete artifact does not retain an authoring-path reference.
+
+When provider code changes, `reloadCompiledContributions` removes cached modules only when their canonical files belong to that package, then reloads its entries. Package-local dependency instances are replaced with the provider while modules owned by other installed packages remain cached.
+
 ## Provider SDK factories
 
 The typed SDK entry under `src/sdui/sdk` exports `defineWidgetProvider`, `defineActionProvider`, `defineServiceProvider`, and `defineStylingProvider`. `npm run language:types` emits their public declarations. Each factory accepts static definitions or a callback that receives the package-scoped SDK:
@@ -47,7 +51,7 @@ The SDK supplies `packageId`, `packageRoot`, package-anchored `require`, declare
 
 `dependencies` is an explicit array of `{package, version, export, kind}` requirements. Ranges follow npm semantic version syntax. Duplicate dependencies on the same qualified identity are invalid. Runtime validation checks the supplied available-export catalog for matching kind/version and requires a widget/call reference to declare its dependency. npm dependencies remain private and do not become public exports.
 
-`assets` is the array of shipped relative asset paths. Optional `target` declares nonempty `platform` (`win32`, `darwin`, `linux`) and `arch` (`x64`, `arm64`) arrays plus a Node `node` version range. Declaring a target is not proof of host support. Runtime compatibility, file existence, and canonical filesystem containment are enforced at the later package-build/loading boundary.
+`assets` is the array of shipped relative asset paths. Optional `target` declares nonempty `platform` (`win32`, `darwin`, `linux`) and `arch` (`x64`, `arm64`) arrays plus a Node `node` version range. Declaring a target is not proof of host support. Discovery compares all declared target dimensions with the actual host before loading code and reports each incompatible platform, architecture, or Node range. File existence and canonical filesystem containment are enforced at the same boundary.
 
 ## Compiled target status
 
@@ -78,7 +82,7 @@ npm run package:build -- path/to/power-eagle.build.json path/to/output
 
 The output contains only the normalized manifest, declared runtime documents and assets, compiled `.cjs` providers, package metadata, and copied production dependencies. It does not contain the provider TypeScript, build configuration, workspace symlinks, or an install script. `package.json` records the exact copied dependency versions plus the manifest SDK and platform target. The resulting directory can be relocated and loaded without the author's checkout, package cache, TypeScript compiler, or a runtime dependency installation.
 
-The isolated experiment is available via `npm run fixture:check`. It has a deliberately minimal experimental manifest and is not a public SDK example. The approach passed in Eagle 4.0.0 on Windows x64 as recorded in [provider-host-validation.md](provider-host-validation.md), and the production manifest-first loader now uses that verified boundary. Native addons, ESM-only libraries, and other platform/runtime combinations remain subject to later compatibility and build checks.
+The isolated experiment is available via `npm run fixture:check`. It has a deliberately minimal experimental manifest and is not a public SDK example. The approach passed in Eagle 4.0.0 on Windows x64 as recorded in [provider-host-validation.md](provider-host-validation.md), and the production manifest-first loader now uses that verified boundary. The currently verified compiled target is Eagle's Windows x64 runtime with Node 16.17.1. Packages that declare a different platform, architecture, or Node range are rejected before their native or JavaScript entry executes.
 
 ## Runtime-only example
 

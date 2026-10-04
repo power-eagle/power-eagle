@@ -208,7 +208,7 @@ export async function buildContributionArtifact(configFile: string, outputDirect
       name: sourcePackage.name ?? manifest.id, private: true, version: manifest.version, type: 'commonjs', dependencies,
       powerEagle: { sdk: manifest.sdk, target: manifest.target ?? null },
     }, null, 2)}\n`);
-    discoverContributionPackage(temporary, createRequire(join(temporary, 'manifest.json')));
+    discoverContributionPackage(temporary, createRequire(join(temporary, 'manifest.json')), { hostTarget: false });
     if (existsSync(output)) {
       await renameWithRetry(output, backup);
       backedUp = true;

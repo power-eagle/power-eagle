@@ -12,6 +12,7 @@ import { buildContributionArtifact } from './provider-package';
 
 const hostRequire = createRequire(import.meta.url);
 const sharedModules = { react: React, 'react-dom': ReactDOM, 'react/jsx-runtime': jsxRuntime };
+const eagleTarget = { platform: 'win32', arch: 'x64', node: '16.17.1' };
 const roots: string[] = [];
 
 afterEach(() => {
@@ -107,7 +108,7 @@ describe('self-contained contribution package builder', () => {
     roots.push(relocated);
     rmSync(item.source, { recursive: true, force: true });
     cpSync(item.output, relocated, { recursive: true, dereference: true });
-    const discovered = discoverContributionPackage(relocated, hostRequire);
+    const discovered = discoverContributionPackage(relocated, hostRequire, { hostTarget: eagleTarget });
     const loaded = loadCompiledContributions(discovered, { hostRequire, sharedModules });
     const implementation = loaded[0].exports[0].implementation as { dependencyVersion: string; dependencyPath: string; label: string; marker: string };
     expect(implementation.dependencyVersion).toBe('2.1.1');
@@ -124,6 +125,6 @@ describe('self-contained contribution package builder', () => {
 
     await expect(buildContributionArtifact(item.config, item.output)).rejects.toThrow();
     expect(readFileSync(join(item.output, 'types.cjs'), 'utf8')).toBe(previous);
-    expect(discoverContributionPackage(item.output, hostRequire).manifest.id).toBe('build.example');
+    expect(discoverContributionPackage(item.output, hostRequire, { hostTarget: eagleTarget }).manifest.id).toBe('build.example');
   });
 });
