@@ -2,9 +2,10 @@ import type { Action, DataSchema, Json, Node, ObjectContract, RuntimeDocument, W
 import { LanguageError, serializableDiagnostics, unwrap, validateRuntime, type ValidationCatalog } from '../schema/validate';
 
 declare const valueType: unique symbol;
+export type Asset = { $asset: string } & { readonly [valueType]?: string };
 export type Binding<T> = ({ $ref: { scope: 'state' | 'input' | 'params' | 'item' | 'event' | 'result' | 'error' | 'action'; path: Array<string | number> } }
   | { $expr: { op: string; args: Json[] } }) & { readonly [valueType]?: T };
-export type Bound<T> = T | Binding<T>;
+export type Bound<T> = T | Binding<T> | (T extends string ? Asset : never);
 export type InferData<S extends DataSchema> =
   S extends { type: 'string' } ? string : S extends { type: 'number' } ? number : S extends { type: 'boolean' } ? boolean :
   S extends { type: 'null' } ? null : S extends { type: 'enum'; values: infer V extends readonly unknown[] } ? V[number] :
@@ -35,7 +36,7 @@ export function back(): Action { return { kind: 'back' }; }
 export function forEach(node: Node, items: Json, key: Json, empty?: Node): Node {
   return empty ? { ...node, repeat: { items, key }, empty } : { ...node, repeat: { items, key } };
 }
-export function asset(path: string): { $asset: string } { return { $asset: path }; }
+export function asset(path: string): Asset { return { $asset: path }; }
 export function defineDocument(document: RuntimeDocument): RuntimeDocument { return document; }
 
 /** Factory types derive from the exact contract published for discovery. */

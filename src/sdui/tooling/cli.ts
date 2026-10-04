@@ -9,6 +9,7 @@ import { emitRuntime, writeAtomic } from './emit';
 import example from '../../../examples/runtime-only/document';
 import flow from '../../../examples/runtime-flow/document';
 import layout from '../../../examples/layout-widgets/document';
+import content from '../../../examples/content-widgets/document';
 
 export async function main(command: string, args: string[]) {
   if (command === 'schemas') {
@@ -17,7 +18,9 @@ export async function main(command: string, args: string[]) {
     }
     console.log('Exported structural JSON schemas. Semantic validation remains required.');
   } else if (command === 'example') {
-    for (const [directory, document] of [['runtime-only', example], ['runtime-flow', flow], ['layout-widgets', layout]] as const) {
+    for (const [directory, document] of [
+      ['runtime-only', example], ['runtime-flow', flow], ['layout-widgets', layout], ['content-widgets', content],
+    ] as const) {
       const manifest = JSON.parse(await readFile(resolve(`examples/${directory}/manifest.json`), 'utf8'));
       unwrap(validatePackage(manifest));
       await emitRuntime(resolve(`examples/${directory}/run.json`), document, foundationCatalog);

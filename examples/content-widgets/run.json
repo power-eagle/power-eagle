@@ -1,0 +1,154 @@
+{
+  "actions": {},
+  "components": {},
+  "dependencies": [],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "screens": {
+    "home": {
+      "body": {
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Content vocabulary",
+                "variant": "title"
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "spans": [
+                  {
+                    "text": "Runtime ",
+                    "tone": "muted"
+                  },
+                  {
+                    "text": "active",
+                    "tone": "primary",
+                    "weight": "semibold"
+                  },
+                  {
+                    "code": true,
+                    "text": " · executable markup stays off"
+                  }
+                ]
+              },
+              "type": "RichText"
+            },
+            {
+              "props": {
+                "text": "example.content-widgets/main",
+                "variant": "code"
+              },
+              "type": "SelectableText"
+            },
+            {
+              "props": {
+                "decorative": false
+              },
+              "type": "Divider"
+            },
+            {
+              "props": {
+                "text": "### Markdown\n\n- **Typed** content\n- [Safe links](https://docs.stac.dev)\n- raw `<script>` markup is filtered"
+              },
+              "type": "Markdown"
+            },
+            {
+              "props": {
+                "code": "const packageState = \"active\";\nconsole.log(packageState);",
+                "label": "provider.ts",
+                "language": "typescript",
+                "lineNumbers": true
+              },
+              "type": "CodeBlock"
+            },
+            {
+              "props": {
+                "gap": 8
+              },
+              "slots": {
+                "children": [
+                  {
+                    "props": {
+                      "text": "widget",
+                      "variant": "outline"
+                    },
+                    "type": "Badge"
+                  },
+                  {
+                    "props": {
+                      "message": "Compiled Lucide icon",
+                      "side": "right"
+                    },
+                    "slots": {
+                      "child": {
+                        "props": {
+                          "name": "sparkles",
+                          "semanticLabel": "Generated"
+                        },
+                        "type": "Icon"
+                      }
+                    },
+                    "type": "Tooltip"
+                  }
+                ]
+              },
+              "type": "Row"
+            },
+            {
+              "props": {
+                "description": "Package-relative images resolve through the runtime asset adapter.",
+                "title": "Local asset"
+              },
+              "slots": {
+                "child": {
+                  "props": {
+                    "height": 160,
+                    "width": 320
+                  },
+                  "slots": {
+                    "child": {
+                      "props": {
+                        "alt": "Blueprint grid with a framed amber signal",
+                        "fit": "cover",
+                        "height": 160,
+                        "src": {
+                          "$asset": "assets/blueprint.svg"
+                        },
+                        "width": 320
+                      },
+                      "type": "Image"
+                    }
+                  },
+                  "type": "SizedBox"
+                },
+                "footer": {
+                  "props": {
+                    "text": "No remote font or image dependency.",
+                    "variant": "meta"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "Card"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    }
+  },
+  "start": "home",
+  "state": {}
+}

@@ -10,8 +10,8 @@ import document from '../../examples/runtime-only/document';
 describe('language foundation preview', () => {
   it('renders both component instances and their slots from the public example', () => {
     const html = renderToStaticMarkup(createElement(App));
-    expect(html).toContain('<p>Count: 0</p>');
-    expect(html).toContain('<p>Declarative widgets</p>');
+    expect(html).toMatch(/data-pe-widget="Text"[^>]*>Count: 0<\/span>/);
+    expect(html).toMatch(/data-pe-widget="Text"[^>]*>Declarative widgets<\/span>/);
     expect(html).toContain('<button type="button"');
     expect(html).toContain('uses scoped state');
   });

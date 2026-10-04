@@ -89,7 +89,7 @@ describe('runtime contract', () => {
       { kind: 'set', path: ['count'], value: 1 },
       { kind: 'navigate', mode: 'push', screen: 'detail', params: { id: 'asset-id' } },
     ] } } };
-    const catalog = { widgets: { ...foundationCatalog.widgets, TestButton: { ...Text.contract, properties: { type: 'object' as const, properties: {}, required: [] }, events: { click: { type: 'null' as const } } } } };
+    const catalog = { widgets: { ...foundationCatalog.widgets, TestButton: { ...Text.contract, properties: { type: 'object' as const, properties: {}, required: [] }, defaults: {}, events: { click: { type: 'null' as const } } } } };
     expect(validateRuntime(input, catalog).success).toBe(true);
     input.screens.home.body.events!.click = { kind: 'navigate', mode: 'push', screen: 'detail', params: { id: 42 } };
     expect(paths(validateRuntime(input, catalog))).toContain('/screens/home/body/events/click/params/id');

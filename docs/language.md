@@ -1,6 +1,6 @@
 # Power Eagle language v1
 
-Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, and view-local navigation are implemented. The release widget catalog, compiled-provider activation, workbench, and AI integration remain later checkpoints.
+Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the initial layout/content catalog are implemented. The forms, collections, workbench, and AI integration remain later checkpoints.
 
 ## Build and inspect
 
@@ -16,7 +16,7 @@ npm run dev
 
 Verified locally with Node 26.8.2. The inherited dependency set still reports npm audit findings; this checkpoint does not claim a release dependency/security audit. The full clean release checks remain in checkpoint 13.
 
-The root app runs `examples/runtime-flow`: increment/reset actions, typed bindings, keyed repeated content, and detail/back navigation. It does not load compiled providers while the Eagle host experiment is blocked.
+The root app runs `examples/runtime-flow`: increment/reset actions, typed bindings, keyed repeated content, and detail/back navigation. Compiled providers load through the package host; the bounded Eagle host probe is documented separately.
 
 ```sh
 npm run language -- example
@@ -24,11 +24,13 @@ npm run language -- validate examples/runtime-only/run.json
 npm run language -- validate examples/runtime-only/manifest.json
 npm run language -- validate examples/runtime-flow/run.json
 npm run language -- validate examples/runtime-flow/manifest.json
+npm run language -- validate examples/layout-widgets/run.json
+npm run language -- validate examples/content-widgets/run.json
 npm run language -- schemas
 npm run language:types
 ```
 
-`examples/runtime-only/document.ts` demonstrates reusable inputs and slots. `examples/runtime-flow/document.ts` demonstrates state, expressions, keyed repetition, sequential/parallel actions, and navigation. The example command validates both and atomically replaces their `run.json` files. Invalid input never overwrites a previous valid file. Declaration files in `.artifacts/sdk-types` derive from the same TypeScript/Zod contracts used by validation. Structural JSON schemas live in `docs/schemas`; use the TypeScript validator as well for cross-reference, type availability, version, parent, and slot checks. The CLI currently validates against the foundation catalog; installed descriptors will enter through the later activation implementation.
+`examples/runtime-only/document.ts` demonstrates reusable inputs and slots. `examples/runtime-flow/document.ts` demonstrates state, expressions, keyed repetition, sequential/parallel actions, and navigation. The layout and content examples exercise their complete initial widget families, including a package-relative image. The example command validates every example and atomically replaces its `run.json`. Invalid input never overwrites a previous valid file. Declaration files in `.artifacts/sdk-types` derive from the same TypeScript/Zod contracts used by validation. Structural JSON schemas live in `docs/schemas`; use the TypeScript validator as well for cross-reference, type availability, version, parent, and slot checks. The CLI validates built-ins against the foundation catalog; installed descriptors enter through provider activation.
 
 ## Document
 
@@ -65,6 +67,14 @@ Bindings are data:
 Scopes are `state`, `input`, `params`, `item`, `event`, `result`, `error`, and `action`. Paths are arrays of property names or nonnegative array indexes. Static references are checked against their declarations; event/result/error/item availability is checked by context. `action.<name>` exposes `{status,result,error}` for a named action, with status `idle`, `loading`, `success`, `error`, or `cancelled`. Reads return data copies. State writes target the nearest declaration, validate the complete updated value, preserve number/boolean/object types, and notify the renderer only after a valid write.
 
 Package assets use `{ "$asset": "assets/icon.svg" }`. Paths are package-relative, use forward slashes, and forbid traversal, absolute paths, and URL syntax. Filesystem existence and canonical/symlink containment checks belong to package loading; a structural schema cannot establish them.
+
+## Content safety policy
+
+Text, SelectableText, RichText spans, and CodeBlock always become DOM text nodes. Their input is never parsed as HTML. RichText permits only its declared tone, weight, italic, decoration, and code-span fields.
+
+Markdown supports CommonMark plus GitHub-style tables, task lists, strikethrough, and autolinks. Raw HTML is discarded. Link destinations are limited to `http`, `https`, `mailto`, and same-document fragments; other protocols and relative navigation are removed. Links open outside the plugin view with opener access disabled. Markdown image syntax renders its alternative description as text and does not fetch the image. Use the Image widget for declared image loading and failure behavior.
+
+Image accepts a resolved package asset or source string, exposes `loading`, `ready`, or `error` through `data-state`, preserves accessible alternative text, and contains a failed load inside its fallback slot or `failureText`. Icon names come from the compiled public allowlist rather than runtime module lookup. Tooltip owns a keyboard-focusable trigger and links it to a `role="tooltip"` description with `aria-describedby`.
 
 Expressions use `{ "$expr": { "op": "add", "args": [1, 2] } }`. Evaluation is closed and never treats strings as code:
 
@@ -113,4 +123,4 @@ Each active screen has an abort signal and LIFO resource disposers. `push` deact
 
 `validateRuntime(input, catalog)` and `validatePackage(input, sdkVersion)` return a success/data result or `{success:false, diagnostics}`. A diagnostic includes `path` (JSON Pointer), `code`, and `message`. `unwrap` throws `LanguageError` containing the same diagnostics. Example: `/screens/home/body/props/text: Expected string`.
 
-Unknown widgets are rejected; there is no fallback renderer. The release catalog must only advertise widgets with implemented behavior. The foundation catalog currently contains working Text, Column, and Button implementations for the language examples; it is not the completed release catalog.
+Unknown widgets are rejected; there is no fallback renderer. The release catalog must only advertise widgets with implemented behavior. The foundation catalog currently contains the working layout and content families plus the provisional Button used by language examples; it is not the completed release catalog.

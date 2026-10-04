@@ -1,0 +1,13 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.content-widgets",
+  "name": "Content widgets",
+  "version": "1.0.0",
+  "description": "Safe text, presentation, image, icon, and tooltip widgets",
+  "sdk": "^1.0.0",
+  "contributions": { "runtime": "run.json" },
+  "exports": [{ "kind": "runtime", "id": "main", "screens": ["home"] }],
+  "dependencies": [],
+  "assets": ["assets/blueprint.svg"]
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="Blueprint grid">
+  <rect width="320" height="160" fill="#121212"/>
+  <path d="M0 16h320M0 32h320M0 48h320M0 64h320M0 80h320M0 96h320M0 112h320M0 128h320M0 144h320M16 0v160M32 0v160M48 0v160M64 0v160M80 0v160M96 0v160M112 0v160M128 0v160M144 0v160M160 0v160M176 0v160M192 0v160M208 0v160M224 0v160M240 0v160M256 0v160M272 0v160M288 0v160M304 0v160" stroke="#181818"/>
+  <path d="M0 48h320M0 96h320M0 144h320M48 0v160M96 0v160M144 0v160M192 0v160M240 0v160M288 0v160" stroke="#2a2a2a"/>
+  <rect x="64" y="40" width="192" height="80" fill="#161616" stroke="#f1f1f1"/>
+  <circle cx="160" cy="80" r="8" fill="#f5a524"/>
+</svg>
