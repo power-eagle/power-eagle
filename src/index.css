@@ -1,14 +1,16 @@
-:root { color-scheme: dark; font: 14px/1.5 system-ui, sans-serif; background: #111214; color: #e5e5e5; }
+@import './components/ui/tokens.css';
+@import './components/ui/components.css';
+
 * { box-sizing: border-box; }
-body { margin: 0; }
-main { max-width: 900px; margin: 0 auto; padding: 32px; }
-header { border-bottom: 1px solid #36383c; padding-bottom: 16px; margin-bottom: 24px; }
-header > span { font-size: 11px; letter-spacing: 2px; color: #b6b7ba; }
-h1 { font-size: 24px; margin: 8px 0; }
-h2 { font-size: 14px; color: #f5a524; margin-bottom: 24px; }
-p { margin: 0; }
-section, details { border: 1px solid #36383c; padding: 24px; margin-bottom: 16px; }
-pre { overflow: auto; font-size: 12px; max-height: 320px; }
-summary { cursor: pointer; }
-summary:focus-visible { outline: 2px solid #f5a524; outline-offset: 4px; }
-aside { color: #b6b7ba; font-size: 12px; }
+
+html, body, #root { min-height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font: 400 14px/20px var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font: inherit; }

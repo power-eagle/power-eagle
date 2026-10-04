@@ -1,0 +1,54 @@
+:root,
+[data-theme="protoflow"] {
+  color-scheme: dark;
+  --background: #121212;
+  --foreground: #f1f1f1;
+  --card: #161616;
+  --card-foreground: var(--foreground);
+  --muted: #1a1a1a;
+  --muted-foreground: #a3a3a3;
+  --secondary: #1a1a1a;
+  --secondary-foreground: var(--foreground);
+  --accent: #1f1f1f;
+  --accent-foreground: var(--foreground);
+  --border: #2d2d2d;
+  --input: #818181;
+  --outline: #f1f1f1;
+  --primary: hsl(37 91% 55%);
+  --primary-foreground: #121212;
+  --destructive: hsl(358 75% 59%);
+  --destructive-foreground: #121212;
+  --ring: var(--primary);
+  --grid-minor: #181818;
+  --grid-major: #2a2a2a;
+  --iris-glow: 0 0 6px 1px rgb(245 165 36 / 55%);
+  --iris-glow-failed: 0 0 6px 1px rgb(229 72 77 / 45%);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-12: 48px;
+  --control-sm: 24px;
+  --control: 32px;
+  --control-lg: 40px;
+  --bar: 36px;
+  --panel-source: 208px;
+  --panel-agent: 272px;
+  --radius: 0;
+  --radius-tag: 2px;
+  --radius-full: 9999px;
+  --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.pe-title { font: 600 18px/28px var(--font-sans); letter-spacing: -0.02em; }
+.pe-wordmark { font: 600 14px/20px var(--font-sans); letter-spacing: -0.02em; }
+.pe-body { font: 400 14px/20px var(--font-sans); }
+.pe-row-name { font: 500 13.5px/20px var(--font-sans); }
+.pe-small { font: 400 12px/16px var(--font-sans); }
+.pe-label { font: 500 10px/16px var(--font-mono); letter-spacing: 0.14em; }
+.pe-kind-tag { font: 500 9.5px/14px var(--font-mono); letter-spacing: 0.08em; }
+.pe-meta { font: 400 10.5px/16px var(--font-mono); }
+.pe-count { font: 400 11px/16px var(--font-mono); }
+.pe-code { font: 400 12px/16px var(--font-mono); }

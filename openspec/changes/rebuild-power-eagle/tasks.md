@@ -65,10 +65,12 @@ Task 5.5 evidence (2026-10-04): the package guide now walks through a qualified 
 
 ## 6. Establish production visual components and basic widgets
 
-- [ ] 6.1 Port the design scaffold's tokens and reusable controls into `src/components/ui`, package IBM Plex fonts/licenses locally, and align full-color token mappings; verify a local component gallery visually matches the dark blueprint reference and has no network font dependency.
+- [x] 6.1 Port the design scaffold's tokens and reusable controls into `src/components/ui`, package IBM Plex fonts/licenses locally, and align full-color token mappings; verify a local component gallery visually matches the dark blueprint reference and has no network font dependency.
 - [ ] 6.2 Implement Row, Column, Stack, Positioned, Wrap, Padding, Align, Center, SizedBox, ConstrainedBox, Expanded, Flexible, Spacer, and AspectRatio with schemas/helpers/examples; verify flex allocation, constraints, overflow, stable child identity, and invalid parent-child diagnostics.
 - [ ] 6.3 Implement Text, RichText, SelectableText, Markdown, CodeBlock, Image, Icon, Badge, Divider, Card, and Tooltip with schemas/helpers/examples; verify non-executing content rendering, image errors, focus-accessible tooltips, and theme application.
 - [ ] 6.4 Publish the catalog reference/gallery for these types and the custom-type documentation template; verify every supported type has a runnable example, public schema, defaults, slots, events, and actual rendering rather than a placeholder.
+
+Task 6.1 evidence (2026-10-04): the design scaffold's full-value dark tokens, blueprint grid, square frame hierarchy, typography roles, and generic controls now live in `src/components/ui`. Typed Button, Input, Badge, Chip, IrisToggle, Switch, Tabs, Separator, Card, SectionLabel, and Panel modules preserve the scaffold's visible focus and active/off/failed text conventions. The local gallery renders those controls in the scaffold's 208px/flexible/272px panel proportions. A 910x750 production screenshot was inspected against the reference and showed aligned grid/frame spacing, local IBM Plex Sans/Mono typography, monochrome selection, and amber/red limited to live/failure signals without horizontal clipping. Tailwind mappings now consume complete CSS color values directly. The production build contains 12 local Latin font files plus separate OFL 1.1 licenses for both families, and a targeted audit finds no Google Fonts or remote CSS import. Typecheck, zero-warning lint, focused component/foundation checks, all 136 repository tests, both public package example builds, the production build, and strict OpenSpec validation pass.
 
 ## 7. Deliver forms and desktop interactions
 
