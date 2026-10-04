@@ -29,6 +29,7 @@ const layoutTypes = new Set([
 const contentTypes = new Set([
   'Text', 'RichText', 'SelectableText', 'Markdown', 'CodeBlock', 'Image', 'Icon', 'Badge', 'Divider', 'Card', 'Tooltip',
 ]);
+const controlTypes = new Set(['Button', 'Form', 'TextField', 'TextArea', 'NumberField', 'Checkbox', 'RadioGroup', 'Switch']);
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export function runnableWidgetExample(type: string, input: Node): Node {
@@ -44,7 +45,7 @@ export function createCatalogEntries(
 ): CatalogEntry[] {
   return Object.entries(catalog.widgets).map(([type, contract]) => {
     const supplied = metadata[type];
-    const family = supplied?.family ?? (layoutTypes.has(type) ? 'layout' : contentTypes.has(type) ? 'content' : type === 'Button' ? 'control' : 'custom');
+    const family = supplied?.family ?? (layoutTypes.has(type) ? 'layout' : contentTypes.has(type) ? 'content' : controlTypes.has(type) ? 'control' : 'custom');
     return {
       type, family,
       origin: supplied?.origin ?? { kind: 'builtin' },

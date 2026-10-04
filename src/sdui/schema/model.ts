@@ -11,7 +11,7 @@ export type Json = z.infer<typeof jsonSchema>;
 
 // A closed, serializable contract vocabulary shared by manifest discovery and validation.
 export type DataSchema =
-  | { type: 'string'; minLength?: number }
+  | { type: 'string'; minLength?: number; maxLength?: number; pattern?: string }
   | { type: 'number'; minimum?: number; maximum?: number; integer?: boolean }
   | { type: 'boolean' | 'null' | 'json' }
   | { type: 'enum'; values: Array<string | number | boolean | null> }
@@ -19,7 +19,12 @@ export type DataSchema =
   | ObjectContract;
 export interface ObjectContract { type: 'object'; properties: Record<string, DataSchema>; required: string[] }
 export const dataSchema: z.ZodType<DataSchema> = z.lazy(() => z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('string'), minLength: z.number().int().nonnegative().optional() }),
+  z.strictObject({
+    type: z.literal('string'),
+    minLength: z.number().int().nonnegative().optional(),
+    maxLength: z.number().int().nonnegative().optional(),
+    pattern: z.string().optional(),
+  }),
   z.strictObject({ type: z.literal('number'), minimum: z.number().optional(), maximum: z.number().optional(), integer: z.boolean().optional() }),
   z.strictObject({ type: z.literal('boolean') }),
   z.strictObject({ type: z.literal('null') }),

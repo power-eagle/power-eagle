@@ -3,6 +3,7 @@ import { unwrap, validateRuntime, type ValidationCatalog } from '../schema/valid
 import { evaluate, ExpressionError, type ValueContext } from '../state/evaluate';
 import { StateScope } from '../state/store';
 import { ActionDispatcher, type RuntimeAdapters } from './actions';
+import { FormController } from './form-controller';
 import { NavigationStack } from './navigation';
 
 export type RuntimeEvent = (payload?: Json) => Promise<Json>;
@@ -36,6 +37,7 @@ export class RuntimeSession {
   readonly globalState: StateScope;
   readonly navigation: NavigationStack;
   readonly actions: ActionDispatcher;
+  readonly forms: FormController;
   readonly catalog: RuntimeCatalog;
   #listeners = new Set<() => void>();
   #version = 0;
@@ -50,7 +52,8 @@ export class RuntimeSession {
     this.catalog = catalog;
     this.globalState = new StateScope('document', this.document.state);
     this.navigation = new NavigationStack(this.document, this.globalState);
-    this.actions = new ActionDispatcher(this.document, this.navigation, adapters, () => this.emit());
+    this.forms = new FormController(adapters.form);
+    this.actions = new ActionDispatcher(this.document, this.navigation, { ...adapters, form: (operation, id, signal) => this.forms.run(operation, id, signal) }, () => this.emit());
     this.globalState.subscribe(() => this.emit());
     this.navigation.subscribe(() => { this.bindScreen(); this.emit(); });
     this.bindScreen();
@@ -88,6 +91,7 @@ export class RuntimeSession {
     this.#instanceSubscriptions.forEach(unsubscribe => unsubscribe());
     this.#instanceSubscriptions.clear();
     this.globalState.dispose();
+    this.forms.clear();
     this.#listeners.clear();
     await this.navigation.dispose();
   }

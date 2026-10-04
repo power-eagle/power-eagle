@@ -72,6 +72,11 @@ export function validateData(schema: DataSchema, value: Json, path = ''): Diagno
     case 'string':
       if (typeof value !== 'string') bad('Expected string');
       else if (value.length < (schema.minLength ?? 0)) bad(`Minimum length is ${schema.minLength}`);
+      else if (schema.maxLength !== undefined && value.length > schema.maxLength) bad(`Maximum length is ${schema.maxLength}`);
+      else if (schema.pattern !== undefined) {
+        try { if (!new RegExp(schema.pattern, 'u').test(value)) bad('String does not match its declared pattern'); }
+        catch { bad('String schema has an invalid regular expression'); }
+      }
       break;
     case 'number':
       if (typeof value !== 'number' || !Number.isFinite(value)) bad('Expected finite number');
@@ -104,6 +109,14 @@ function contractDiagnostics(schema: DataSchema, path: string): Diagnostic[] {
   if (schema.type === 'array') return contractDiagnostics(schema.items, at(path, 'items'));
   if (schema.type === 'number' && schema.minimum !== undefined && schema.maximum !== undefined && schema.minimum > schema.maximum)
     return [{ path, code: 'schema', message: 'Minimum exceeds maximum' }];
+  if (schema.type === 'string') {
+    if (schema.minLength !== undefined && schema.maxLength !== undefined && schema.minLength > schema.maxLength)
+      return [{ path, code: 'schema', message: 'Minimum length exceeds maximum length' }];
+    if (schema.pattern !== undefined) {
+      try { new RegExp(schema.pattern, 'u'); }
+      catch { return [{ path: at(path, 'pattern'), code: 'schema', message: 'Invalid regular expression' }]; }
+    }
+  }
   return [];
 }
 
@@ -163,7 +176,8 @@ export interface ValidationCatalog {
   exports?: Readonly<Record<string, AvailableExport>>;
 }
 const emptyObject: ObjectContract = { type: 'object', properties: {}, required: [] };
-type Scope = { state: Record<string, DataSchema>; input: ObjectContract; params: ObjectContract; event: boolean; result: boolean; error: boolean; item: boolean; action: boolean };
+type ScopeValue = DataSchema | boolean;
+type Scope = { state: Record<string, DataSchema>; input: ObjectContract; params: ObjectContract; event: ScopeValue; result: ScopeValue; error: ScopeValue; item: ScopeValue; action: ScopeValue };
 
 export function validateRuntime(value: unknown, catalog: ValidationCatalog): Validation<RuntimeDocument> {
   const parsed = parse(runtimeSchema, value);
@@ -186,6 +200,24 @@ export function validateRuntime(value: unknown, catalog: ValidationCatalog): Val
     }));
   }
   const globalState = stateSchema(doc.state, '/state');
+  const childSchema = (schema: DataSchema | undefined, part: string | number): DataSchema | undefined =>
+    schema?.type === 'object' ? schema.properties[String(part)] : schema?.type === 'array' && typeof part === 'number' ? schema.items : schema?.type === 'json' ? schema : undefined;
+  function referenceSchema(value: Json, scope: Scope): DataSchema | undefined {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || !('$ref' in value)) return undefined;
+    const reference = value.$ref as { scope: keyof Scope; path: Array<string | number> };
+    let source: DataSchema | undefined;
+    if (reference.scope === 'state') source = { type: 'object', properties: scope.state, required: [] };
+    else if (reference.scope === 'input' || reference.scope === 'params') source = scope[reference.scope];
+    else {
+      const scoped = scope[reference.scope];
+      source = scoped === true ? { type: 'json' } : scoped === false ? undefined : scoped;
+    }
+    for (const part of reference.path) source = childSchema(source, part);
+    return source;
+  }
+  function incompatible(source: DataSchema, target: DataSchema): boolean {
+    return source.type !== 'json' && target.type !== 'json' && source.type !== target.type;
+  }
   function bound(value: Json, path: string, scope: Scope): boolean {
     if (!value || typeof value !== 'object') return false;
     if (Array.isArray(value)) return value.map((child, index) => bound(child, at(path, index), scope)).some(Boolean);
@@ -220,15 +252,9 @@ export function validateRuntime(value: unknown, catalog: ValidationCatalog): Val
       if (!own(schema.properties, key)) add(at(path, key), 'Unknown property', 'unknown-property');
       else if (!bound(item, at(path, key), scope)) diagnostics.push(...validateData(schema.properties[key], item, at(path, key)));
       else if (item && typeof item === 'object' && !Array.isArray(item) && '$ref' in item) {
-        const reference = item.$ref as { scope: keyof Scope; path: Array<string | number> };
-        let source: DataSchema | undefined = reference.scope === 'state'
-          ? { type: 'object', properties: scope.state, required: [] }
-          : ['input', 'params'].includes(reference.scope) ? scope[reference.scope] as ObjectContract : undefined;
-        const childSchema = (schema: DataSchema | undefined, part: string | number): DataSchema | undefined =>
-          schema?.type === 'object' ? schema.properties[String(part)] : schema?.type === 'array' && typeof part === 'number' ? schema.items : undefined;
-        for (const part of reference.path) source = childSchema(source, part);
+        const source = referenceSchema(item, scope);
         const target = schema.properties[key];
-        if (source && source.type !== 'json' && target.type !== 'json' && source.type !== target.type)
+        if (source && incompatible(source, target))
           add(at(path, key), `Binding is ${source.type}, but property requires ${target.type}`, 'binding-type');
       }
     });
@@ -242,6 +268,12 @@ export function validateRuntime(value: unknown, catalog: ValidationCatalog): Val
       if (!own(scope.state, item.path[0])) add(`${path}/path`, 'State target does not exist');
       const dynamic = bound(item.value, `${path}/value`, scope);
       if (!dynamic && item.path.length === 1 && scope.state[String(item.path[0])]) diagnostics.push(...validateData(scope.state[String(item.path[0])], item.value, `${path}/value`));
+      else if (dynamic) {
+        let target: DataSchema | undefined = { type: 'object', properties: scope.state, required: [] };
+        for (const part of item.path) target = childSchema(target, part);
+        const source = referenceSchema(item.value, scope);
+        if (source && target && incompatible(source, target)) add(`${path}/value`, `Binding is ${source.type}, but state target requires ${target.type}`, 'binding-type');
+      }
     }
     if (item.kind === 'if') { bound(item.condition, `${path}/condition`, scope); action(item.then, `${path}/then`, scope, stack); if (item.else) action(item.else, `${path}/else`, scope, stack); }
     if (item.kind === 'sequence' || item.kind === 'parallel') item.steps.forEach((step, index) => action(step, `${path}/steps/${index}`, { ...scope, result: scope.result || (item.kind === 'sequence' && index > 0) }, stack));
@@ -286,7 +318,8 @@ export function validateRuntime(value: unknown, catalog: ValidationCatalog): Val
     properties(contract.properties, { ...contract.defaults, ...item.props }, `${path}/props`, nodeScope);
     Object.entries(item.events ?? {}).forEach(([name, handler]) => {
       if (!own(contract.events, name)) add(`${path}/events/${name}`, 'Unknown widget event');
-      action(handler, `${path}/events/${name}`, { ...nodeScope, event: true });
+      const eventSchema = (contract.events as Record<string, DataSchema>)[name];
+      action(handler, `${path}/events/${name}`, { ...nodeScope, event: eventSchema ?? true });
     });
     Object.entries(contract.slots).forEach(([name, slot]) => { if (slot.required && !own(item.slots ?? {}, name)) add(`${path}/slots/${name}`, 'Missing required slot'); });
     Object.entries(item.slots ?? {}).forEach(([name, content]) => {

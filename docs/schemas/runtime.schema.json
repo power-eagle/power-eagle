@@ -5,10 +5,18 @@
         {
           "additionalProperties": false,
           "properties": {
+            "maxLength": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
             "minLength": {
               "maximum": 9007199254740991,
               "minimum": 0,
               "type": "integer"
+            },
+            "pattern": {
+              "type": "string"
             },
             "type": {
               "const": "string",

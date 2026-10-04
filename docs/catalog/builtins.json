@@ -350,6 +350,89 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "terms",
+            "label": "Accept terms",
+            "required": true,
+            "value": true
+          },
+          "type": "Checkbox"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "boolean"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "terms",
+          "label": "Accept terms",
+          "required": true,
+          "value": true
+        },
+        "type": "Checkbox"
+      },
+      "type": "Checkbox"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "lineNumbers": false,
           "wrap": false
         },
@@ -743,6 +826,114 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "validationMode": "submit"
+        },
+        "events": {
+          "invalid": {
+            "type": "json"
+          },
+          "reset": {
+            "type": "json"
+          },
+          "submit": {
+            "type": "json"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "profile"
+          },
+          "slots": {
+            "children": [
+              {
+                "props": {
+                  "id": "displayName",
+                  "label": "Display name",
+                  "required": true,
+                  "value": "Ada"
+                },
+                "type": "TextField"
+              },
+              {
+                "props": {
+                  "id": "updates",
+                  "label": "Product updates",
+                  "value": true
+                },
+                "type": "Switch"
+              }
+            ]
+          },
+          "type": "Form"
+        },
+        "properties": {
+          "properties": {
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "validationMode": {
+              "type": "enum",
+              "values": [
+                "submit",
+                "change",
+                "always"
+              ]
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "form"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "profile"
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "id": "displayName",
+                "label": "Display name",
+                "required": true,
+                "value": "Ada"
+              },
+              "type": "TextField"
+            },
+            {
+              "props": {
+                "id": "updates",
+                "label": "Product updates",
+                "value": true
+              },
+              "type": "Switch"
+            }
+          ]
+        },
+        "type": "Form"
+      },
+      "type": "Form"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "size": 20,
           "strokeWidth": 2
         },
@@ -967,6 +1158,128 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "integer": false,
+          "readOnly": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "number"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "copies",
+            "integer": true,
+            "label": "Copies",
+            "maximum": 12,
+            "minimum": 1,
+            "step": 1,
+            "value": 2
+          },
+          "type": "NumberField"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "number"
+            },
+            "integer": {
+              "type": "boolean"
+            },
+            "integerMessage": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maximum": {
+              "type": "number"
+            },
+            "maximumMessage": {
+              "type": "string"
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "minimumMessage": {
+              "type": "string"
+            },
+            "placeholder": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "step": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "stepMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "number"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "copies",
+          "integer": true,
+          "label": "Copies",
+          "maximum": 12,
+          "minimum": 1,
+          "step": 1,
+          "value": 2
+        },
+        "type": "NumberField"
+      },
+      "type": "NumberField"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "all": 0
         },
         "events": {},
@@ -1135,6 +1448,134 @@
         "type": "Stack"
       },
       "type": "Positioned"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "density",
+            "label": "Density",
+            "options": [
+              {
+                "label": "Compact",
+                "value": "compact"
+              },
+              {
+                "label": "Comfortable",
+                "value": "comfortable"
+              }
+            ],
+            "value": "compact"
+          },
+          "type": "RadioGroup"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "optionMessage": {
+              "type": "string"
+            },
+            "options": {
+              "items": {
+                "properties": {
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "value": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value",
+            "options"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "choice"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "density",
+          "label": "Density",
+          "options": [
+            {
+              "label": "Compact",
+              "value": "compact"
+            },
+            {
+              "label": "Comfortable",
+              "value": "comfortable"
+            }
+          ],
+          "value": "compact"
+        },
+        "type": "RadioGroup"
+      },
+      "type": "RadioGroup"
     },
     {
       "availability": "active",
@@ -1568,6 +2009,87 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "telemetry",
+            "label": "Anonymous telemetry",
+            "value": false
+          },
+          "type": "Switch"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "boolean"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "telemetry",
+          "label": "Anonymous telemetry",
+          "value": false
+        },
+        "type": "Switch"
+      },
+      "type": "Switch"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "align": "start",
           "variant": "body",
           "wrap": "wrap"
@@ -1643,6 +2165,248 @@
         "type": "Text"
       },
       "type": "Text"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "readOnly": false,
+          "required": false,
+          "rows": 4
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "notes",
+            "label": "Notes",
+            "rows": 3,
+            "value": "Declarative and typed."
+          },
+          "type": "TextArea"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxLength": {
+              "integer": true,
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxLengthMessage": {
+              "type": "string"
+            },
+            "minLength": {
+              "integer": true,
+              "minimum": 0,
+              "type": "number"
+            },
+            "minLengthMessage": {
+              "type": "string"
+            },
+            "pattern": {
+              "type": "string"
+            },
+            "patternMessage": {
+              "type": "string"
+            },
+            "placeholder": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "rows": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "text"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "notes",
+          "label": "Notes",
+          "rows": 3,
+          "value": "Declarative and typed."
+        },
+        "type": "TextArea"
+      },
+      "type": "TextArea"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "inputType": "text",
+          "readOnly": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "name",
+            "label": "Name",
+            "required": true,
+            "value": "Power Eagle"
+          },
+          "type": "TextField"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "string"
+            },
+            "inputType": {
+              "type": "enum",
+              "values": [
+                "text",
+                "email",
+                "password",
+                "search",
+                "tel",
+                "url"
+              ]
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxLength": {
+              "integer": true,
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxLengthMessage": {
+              "type": "string"
+            },
+            "minLength": {
+              "integer": true,
+              "minimum": 0,
+              "type": "number"
+            },
+            "minLengthMessage": {
+              "type": "string"
+            },
+            "pattern": {
+              "type": "string"
+            },
+            "patternMessage": {
+              "type": "string"
+            },
+            "placeholder": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "text"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "name",
+          "label": "Name",
+          "required": true,
+          "value": "Power Eagle"
+        },
+        "type": "TextField"
+      },
+      "type": "TextField"
     },
     {
       "availability": "active",

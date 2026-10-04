@@ -1,6 +1,6 @@
 # Power Eagle language v1
 
-Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the initial layout/content catalog are implemented. The forms, collections, workbench, and AI integration remain later checkpoints.
+Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the layout, content, and initial form catalog are implemented. Selection controls, collections, workbench, and AI integration remain later checkpoints.
 
 ## Build and inspect
 
@@ -57,7 +57,7 @@ A node has `type` plus optional `key`, `props`, `slots`, `events`, `visible`, `s
 
 ## Types and values
 
-Contracts use a closed descriptor vocabulary: `string` (optional `minLength`), `number` (optional `minimum`, `maximum`, `integer`), `boolean`, `null`, `json`, `enum` (`values`), `array` (`items`), and `object` (`properties`, `required`). Object values reject unknown properties; declared required keys must exist in the schema. Numbers are finite and are never coerced from strings.
+Contracts use a closed descriptor vocabulary: `string` (optional `minLength`, `maxLength`, and regular-expression `pattern`), `number` (optional `minimum`, `maximum`, `integer`), `boolean`, `null`, `json`, `enum` (`values`), `array` (`items`), and `object` (`properties`, `required`). Object values reject unknown properties; declared required keys must exist in the schema. Numbers are finite and are never coerced from strings.
 
 Bindings are data:
 
@@ -95,7 +95,7 @@ Validation rejects unknown operators and wrong arity. Runtime type/path failures
 
 ## Authoring
 
-Import from `src/sdui/authoring`. `defineWidget` derives constructor property types from a widget contract; `defineComponent` derives instance inputs from its schema. `defineDocument` checks the document shape, and `compile(document, catalog)` performs validation and returns deterministic sorted-key JSON. `ref<T>` and `expression<T>` construct typed values; the schema validator still checks declared targets. `forEach`, `set`, `sequence`, `parallel`, `navigate`, `back`, `run`, `call`, and `asset` construct serializable nodes/actions. All other action variants can be authored as the exported `Action` union.
+Import from `src/sdui/authoring`. `defineWidget` derives constructor property types from a widget contract; `defineComponent` derives instance inputs from its schema. `defineDocument` checks the document shape, and `compile(document, catalog)` performs validation and returns deterministic sorted-key JSON. `ref<T>` and `expression<T>` construct typed values; the schema validator still checks declared targets. `forEach`, `set`, `sequence`, `parallel`, `navigate`, `back`, `run`, `call`, `form`, and `asset` construct serializable nodes/actions. All other action variants can be authored as the exported `Action` union.
 
 Functions, undefined, symbols, bigints, nonfinite numbers, circular objects, accessors, exotic instances, sparse arrays, and reserved prototype keys fail before serialization. A callback cannot silently disappear from output. JSON parsing followed by `validateRuntime` uses the same rules for built-in, installed, and generated input.
 
@@ -116,7 +116,15 @@ The dispatcher implements these discriminated `kind` values:
 | `form` | `operation` (`validate`, `submit`, `reset`), `id` |
 | `feedback` | `operation` (`toast`, `openDialog`, `closeDialog`), `id`; optional `value` |
 
-Every action may declare `success` and `error` branches. A success branch binds the action result; an error branch binds `{name,message}` plus validation diagnostics when available. Sequences expose each successful result to the next step and stop on unhandled failure. Parallel branches receive the same incoming result, cannot see sibling results, and return results in declaration order. Registered calls validate input before invocation and output afterward. Requests, forms, and feedback go only through injected adapters; missing adapters fail explicitly.
+Every action may declare `success` and `error` branches. A success branch binds the action result; an error branch binds `{name,message}` plus validation diagnostics when available. Sequences expose each successful result to the next step and stop on unhandled failure. Parallel branches receive the same incoming result, cannot see sibling results, and return results in declaration order. Registered calls validate input before invocation and output afterward. Requests and feedback go through injected adapters; missing adapters fail explicitly. Form actions first resolve an active `Form` in the runtime session, with an injected form adapter available for host-owned forms outside the rendered tree.
+
+## Forms and typed fields
+
+`Form` owns a stable identifier, a many-child slot, and `submit`, `invalid`, and `reset` events. `TextField`, `TextArea`, `NumberField`, `Checkbox`, `RadioGroup`, and `Switch` are controlled widgets: their `value` property reads document state and their `change` event writes the next value through a declared action. Text events carry strings, number events carry finite numbers, and checkbox/switch events carry booleans without DOM string coercion.
+
+Submitting through the native form path or `form(id, 'submit')` runs the same validation pass. A valid form sends one object keyed by field id to `submit`. An invalid form associates each message with its control, focuses the first invalid field, sends `{valid, values, errors}` to `invalid`, and does not run `submit`. `form(id, 'validate')` returns that result without submitting. `form(id, 'reset')` clears validation and emits each field's initial typed value through its `change` event before `reset` runs.
+
+Disabled fields cannot change, do not validate, and are omitted from submitted values. Read-only text and number fields cannot change but remain part of the structured values. `validationMode` is `submit`, `change`, or `always`. Fields support an externally supplied `error`; built-in rules cover required values, text length/patterns, numeric bounds/steps/integers, required booleans, and declared radio options.
 
 Each active screen has an abort signal and LIFO resource disposers. `push` deactivates the current screen but retains its typed screen/component state for `back`; returning creates a new activation scope. `replace` disposes and removes the current frame. `reset` disposes the whole stack before creating the target. All modes validate parameters first. Async adapters receive the signal, and results check that the originating scope is still active before a success branch or state write, so late completion cannot mutate a replacement view.
 
