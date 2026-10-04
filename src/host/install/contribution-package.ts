@@ -250,6 +250,7 @@ function providerShape(value: unknown, kind: ExecutableExportKind, expected: Exp
     if (!declared) fail(`/exports/${index}/descriptor/id`, 'export-mismatch', `Undeclared provider export ${descriptor.id}`);
     else if (canonicalJson(declared) !== canonicalJson(descriptor)) fail(`/exports/${index}/descriptor`, 'export-mismatch', `Provider descriptor does not match manifest export ${descriptor.id}`);
     if (providerExport.implementation === undefined) fail(`/exports/${index}/implementation`, 'provider-contract', `Provider export ${descriptor.id} has no implementation`);
+    if (providerExport.activate !== undefined && typeof providerExport.activate !== 'function') fail(`/exports/${index}/activate`, 'provider-contract', `Provider export ${descriptor.id} has an invalid activation hook`);
   });
   expected.forEach(descriptor => {
     if (!seen.has(descriptor.id)) fail('/exports', 'export-mismatch', `Provider omitted manifest export ${descriptor.id}`);

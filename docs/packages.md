@@ -50,6 +50,12 @@ Enablement intent is stored separately in the versioned `power-eagle/enablement`
 
 Reconciliation computes effective status from current intent and the dependency graph. A disabled package or export is `off`; a desired export with a structural or dependency problem is `failed` with the exact cause; a desired valid export whose required exports are active is `active`. If a required export becomes off, enabled consumers fail with that qualified dependency identity. Re-enabling a valid dependency recovers them in the existing dependency order without changing saved preferences. An explicitly off consumer stays off even when its dependencies fail.
 
+Provider definitions may include an `activate` hook beside the descriptor and implementation. The hook receives a provider-lifetime abort signal, a `use` method for owned disposers, and dependency service lookup. Exports compiled from one contribution entry form one activation group: their hooks complete before the group becomes visible, and any hook failure revokes staged services and disposes all resources prepared by that group. Other groups continue activating.
+
+Reconciliation revokes affected service slots before removing their registrations and disposes active exports in reverse dependency order. A service handle belongs to one activation; calls through a handle obtained before disable or replacement fail after revocation, even if the same service is later re-enabled. Repeated toggles create one fresh scope and service slot per activation.
+
+Provider scopes are separate from runtime view scopes. Service methods receive the calling view's signal and `use` callback, so view replacement releases resources created for that view. The provider scope and unrelated service handles remain active until enablement, reload, or application shutdown removes the provider itself.
+
 ## Provider SDK factories
 
 Provider source imports the public authoring entry that the package compiler supplies:

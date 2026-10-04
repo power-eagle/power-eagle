@@ -126,6 +126,10 @@ describe('manifest-first contribution packages', () => {
     expect(() => loadCompiledContributions(discoverContributionPackage(mismatch.root, hostRequire), { hostRequire, sharedModules }))
       .toThrow(/Undeclared provider export other|omitted manifest export switch/);
 
+    const invalidActivation = createPackage({ provider: `module.exports = () => ({ format: 'power-eagle/provider', formatVersion: 1, kind: 'widget', exports: [{ descriptor: ${JSON.stringify(widgetDescriptor())}, implementation: {}, activate: true }] });` });
+    expect(() => loadCompiledContributions(discoverContributionPackage(invalidActivation.root, hostRequire), { hostRequire, sharedModules }))
+      .toThrow(/invalid activation hook/);
+
     const missing = createPackage({ provider: `module.exports = () => require('dependency-that-is-not-installed');` });
     try {
       loadCompiledContributions(discoverContributionPackage(missing.root, hostRequire), { hostRequire, sharedModules });

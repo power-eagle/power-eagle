@@ -37,6 +37,18 @@ export interface InvocationContext {
   use(disposer: () => void | Promise<void>): () => void;
 }
 
+export interface ProviderServiceHandle {
+  invoke(method: string, args: Json, context: InvocationContext): Promise<Json>;
+}
+
+export interface ProviderActivationContext {
+  signal: AbortSignal;
+  use(disposer: () => void | Promise<void>): () => void;
+  service(identity: string): ProviderServiceHandle;
+}
+
+export type ProviderActivation = (context: ProviderActivationContext) => void | (() => void | Promise<void>) | Promise<void | (() => void | Promise<void>)>;
+
 export interface ActionImplementation {
   invoke(args: Json, context: InvocationContext): Json | Promise<Json>;
 }
@@ -54,6 +66,7 @@ export interface StylingImplementation {
 export interface CompiledProviderExport<D extends ExportDescriptor = ExportDescriptor, I = unknown> {
   descriptor: D;
   implementation: I;
+  activate?: ProviderActivation;
 }
 
 export interface CompiledContribution<K extends ExecutableExportKind = ExecutableExportKind> {

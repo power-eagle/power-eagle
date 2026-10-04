@@ -17,6 +17,7 @@ const sdk: ProviderSdk = {
 describe('compiled provider SDK factories', () => {
   it('creates typed widget and styling contributions', () => {
     const render = vi.fn(() => null);
+    const activate = vi.fn();
     const widget: Extract<ExportDescriptor, { kind: 'widget' }> = {
       kind: 'widget', id: 'card', contract: {
         properties: emptyObject, defaults: {}, slots: {}, events: {}, themeHooks: [],
@@ -25,7 +26,7 @@ describe('compiled provider SDK factories', () => {
     };
     const styling: Extract<ExportDescriptor, { kind: 'styling' }> = { kind: 'styling', id: 'dark', tokens: emptyObject, targets: ['example.sdk/card'] };
 
-    expect(defineWidgetProvider([{ descriptor: widget, implementation: { render } }])(sdk)).toMatchObject({ kind: 'widget', exports: [{ descriptor: widget }] });
+    expect(defineWidgetProvider([{ descriptor: widget, implementation: { render }, activate }])(sdk)).toMatchObject({ kind: 'widget', exports: [{ descriptor: widget, activate }] });
     expect(defineStylingProvider(current => [{
       descriptor: styling,
       implementation: { tokens: { asset: current.assetUrl('theme.css') }, variants: {}, overrides: {} },
