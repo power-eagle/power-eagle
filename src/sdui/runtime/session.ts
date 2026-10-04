@@ -5,6 +5,7 @@ import { StateScope } from '../state/store';
 import { ActionDispatcher, type RuntimeAdapters } from './actions';
 import { FormController } from './form-controller';
 import { NavigationStack } from './navigation';
+import type { FileSelectionOptions, RuntimeSelectionAdapter } from './selection-adapter';
 
 export type RuntimeEvent = (payload?: Json) => Promise<Json>;
 export interface ResolvedNode {
@@ -38,6 +39,7 @@ export class RuntimeSession {
   readonly navigation: NavigationStack;
   readonly actions: ActionDispatcher;
   readonly forms: FormController;
+  readonly selection?: RuntimeSelectionAdapter;
   readonly catalog: RuntimeCatalog;
   #listeners = new Set<() => void>();
   #version = 0;
@@ -53,6 +55,15 @@ export class RuntimeSession {
     this.globalState = new StateScope('document', this.document.state);
     this.navigation = new NavigationStack(this.document, this.globalState);
     this.forms = new FormController(adapters.form);
+    if (adapters.selection) {
+      this.selection = async (request: FileSelectionOptions) => {
+        const activation = this.navigation.current.activation;
+        activation.assertActive();
+        const result = await adapters.selection!({ ...request, signal: activation.signal });
+        activation.assertActive();
+        return result;
+      };
+    }
     this.actions = new ActionDispatcher(this.document, this.navigation, { ...adapters, form: (operation, id, signal) => this.forms.run(operation, id, signal) }, () => this.emit());
     this.globalState.subscribe(() => this.emit());
     this.navigation.subscribe(() => { this.bindScreen(); this.emit(); });

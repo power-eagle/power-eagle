@@ -133,23 +133,24 @@ function FormWidget({ props, slots, events, style, runtime }: WidgetRenderProps)
   </FormContext.Provider>;
 }
 
-interface FieldProps {
+export interface FieldProps {
   type: string;
   props: Record<string, Json>;
   events: WidgetRenderProps['events'];
   value: Json;
   initialValue: Json;
   disabled: boolean;
+  runtimeError?: string;
   validate(value: Json): string | undefined;
   focus(): void;
   children(error: string | undefined, describedBy: string | undefined, changed: (value: Json) => void): React.ReactNode;
 }
 
-function Field({ type, props, events, value, initialValue, disabled, validate, focus, children }: FieldProps) {
+export function Field({ type, props, events, value, initialValue, disabled, runtimeError, validate, focus, children }: FieldProps) {
   const form = React.useContext(FormContext);
   const id = text(props.id);
   const description = text(props.description);
-  const explicitError = text(props.error);
+  const explicitError = runtimeError || text(props.error);
   const descriptionId = React.useId();
   const errorId = React.useId();
   const handle = React.useMemo<FieldHandle>(() => ({
@@ -173,7 +174,7 @@ function Field({ type, props, events, value, initialValue, disabled, validate, f
   </div>;
 }
 
-function requiredIssue(props: Record<string, Json>, empty: boolean): string | undefined {
+export function requiredIssue(props: Record<string, Json>, empty: boolean): string | undefined {
   return bool(props.required) && empty ? text(props.requiredMessage, `${text(props.label)} is required.`) : undefined;
 }
 function textIssue(props: Record<string, Json>, candidate: Json): string | undefined {
@@ -246,7 +247,7 @@ function TextAreaWidget({ props, events, style }: WidgetRenderProps) {
   </>}</Field>;
 }
 
-function numberIssue(props: Record<string, Json>, candidate: Json): string | undefined {
+export function numberIssue(props: Record<string, Json>, candidate: Json): string | undefined {
   if (typeof candidate !== 'number' || !Number.isFinite(candidate)) return text(props.requiredMessage, `${text(props.label)} is required.`);
   const minimum = number(props.minimum);
   if (minimum !== undefined && candidate < minimum) return text(props.minimumMessage, `Enter ${minimum} or more.`);

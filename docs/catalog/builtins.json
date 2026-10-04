@@ -136,6 +136,164 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "allowCustom": false,
+          "disabled": false,
+          "maxSuggestions": 8,
+          "readOnly": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          },
+          "select": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "city",
+            "label": "City",
+            "options": [
+              {
+                "label": "Vancouver",
+                "value": "vancouver"
+              },
+              {
+                "label": "Victoria",
+                "value": "victoria"
+              },
+              {
+                "label": "Vernon",
+                "value": "vernon"
+              }
+            ],
+            "placeholder": "Find a city",
+            "value": ""
+          },
+          "type": "Autocomplete"
+        },
+        "properties": {
+          "properties": {
+            "allowCustom": {
+              "type": "boolean"
+            },
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxSuggestions": {
+              "integer": true,
+              "minimum": 0,
+              "type": "number"
+            },
+            "optionMessage": {
+              "type": "string"
+            },
+            "options": {
+              "items": {
+                "properties": {
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "value": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "placeholder": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value",
+            "options"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "selection"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "city",
+          "label": "City",
+          "options": [
+            {
+              "label": "Vancouver",
+              "value": "vancouver"
+            },
+            {
+              "label": "Victoria",
+              "value": "victoria"
+            },
+            {
+              "label": "Vernon",
+              "value": "vernon"
+            }
+          ],
+          "placeholder": "Find a city",
+          "value": ""
+        },
+        "type": "Autocomplete"
+      },
+      "type": "Autocomplete"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "variant": "outline"
         },
         "events": {},
@@ -492,6 +650,94 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "readOnly": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "accent",
+            "label": "Accent color",
+            "value": "#ffae2b"
+          },
+          "type": "ColorPicker"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "formatMessage": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "color"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "accent",
+          "label": "Accent color",
+          "value": "#ffae2b"
+        },
+        "type": "ColorPicker"
+      },
+      "type": "ColorPicker"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "crossAxisAlignment": "stretch",
           "gap": 12,
           "mainAxisAlignment": "start"
@@ -633,6 +879,110 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "readOnly": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "releaseDate",
+            "label": "Release date",
+            "maximum": "2026-12-31",
+            "minimum": "2026-01-01",
+            "value": "2026-10-04"
+          },
+          "type": "DatePicker"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "formatMessage": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maximum": {
+              "type": "string"
+            },
+            "maximumMessage": {
+              "type": "string"
+            },
+            "minimum": {
+              "type": "string"
+            },
+            "minimumMessage": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "date"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "releaseDate",
+          "label": "Release date",
+          "maximum": "2026-12-31",
+          "minimum": "2026-01-01",
+          "value": "2026-10-04"
+        },
+        "type": "DatePicker"
+      },
+      "type": "DatePicker"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "decorative": true,
           "orientation": "horizontal"
         },
@@ -745,6 +1095,178 @@
         "type": "Row"
       },
       "type": "Expanded"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "buttonLabel": "Choose",
+          "disabled": false,
+          "multiple": false,
+          "readOnly": false,
+          "required": false,
+          "selectionType": "file"
+        },
+        "events": {
+          "cancel": {
+            "type": "null"
+          },
+          "change": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "buttonLabel": "Choose files",
+            "filters": [
+              {
+                "extensions": [
+                  "png",
+                  "jpg",
+                  "webp"
+                ],
+                "name": "Images"
+              }
+            ],
+            "id": "source",
+            "label": "Source files",
+            "multiple": true,
+            "value": []
+          },
+          "type": "FilePicker"
+        },
+        "properties": {
+          "properties": {
+            "buttonLabel": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "filters": {
+              "items": {
+                "properties": {
+                  "extensions": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "extensions"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialPath": {
+              "type": "string"
+            },
+            "initialValue": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "multiple": {
+              "type": "boolean"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "selectionType": {
+              "type": "enum",
+              "values": [
+                "file",
+                "directory"
+              ]
+            },
+            "title": {
+              "type": "string"
+            },
+            "value": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "file"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "buttonLabel": "Choose files",
+          "filters": [
+            {
+              "extensions": [
+                "png",
+                "jpg",
+                "webp"
+              ],
+              "name": "Images"
+            }
+          ],
+          "id": "source",
+          "label": "Source files",
+          "multiple": true,
+          "value": []
+        },
+        "type": "FilePicker"
+      },
+      "type": "FilePicker"
     },
     {
       "availability": "active",
@@ -1768,6 +2290,141 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "readOnly": false,
+          "required": false
+        },
+        "events": {
+          "change": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "channel",
+            "label": "Release channel",
+            "options": [
+              {
+                "label": "Stable",
+                "value": "stable"
+              },
+              {
+                "label": "Preview",
+                "value": "preview"
+              }
+            ],
+            "value": "stable"
+          },
+          "type": "Select"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "optionMessage": {
+              "type": "string"
+            },
+            "options": {
+              "items": {
+                "properties": {
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "value": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "placeholder": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value",
+            "options"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "selection"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "channel",
+          "label": "Release channel",
+          "options": [
+            {
+              "label": "Stable",
+              "value": "stable"
+            },
+            {
+              "label": "Preview",
+              "value": "preview"
+            }
+          ],
+          "value": "stable"
+        },
+        "type": "Select"
+      },
+      "type": "Select"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "align": "start",
           "variant": "code",
           "wrap": "preserve"
@@ -1893,6 +2550,124 @@
         "type": "SizedBox"
       },
       "type": "SizedBox"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "readOnly": false,
+          "required": false,
+          "step": 1
+        },
+        "events": {
+          "change": {
+            "type": "number"
+          }
+        },
+        "example": {
+          "props": {
+            "id": "opacity",
+            "label": "Opacity",
+            "maximum": 100,
+            "minimum": 0,
+            "step": 5,
+            "value": 70,
+            "valueLabel": "%"
+          },
+          "type": "Slider"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "error": {
+              "type": "string"
+            },
+            "id": {
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            "initialValue": {
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maximum": {
+              "type": "number"
+            },
+            "maximumMessage": {
+              "type": "string"
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "minimumMessage": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "requiredMessage": {
+              "type": "string"
+            },
+            "step": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "stepMessage": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            },
+            "valueLabel": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label",
+            "value",
+            "minimum",
+            "maximum"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "form",
+          "field",
+          "range"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "id": "opacity",
+          "label": "Opacity",
+          "maximum": 100,
+          "minimum": 0,
+          "step": 5,
+          "value": 70,
+          "valueLabel": "%"
+        },
+        "type": "Slider"
+      },
+      "type": "Slider"
     },
     {
       "availability": "active",

@@ -7,9 +7,10 @@ import { RuntimeView } from '../sdui/runtime/view';
 import { CatalogGallery } from '../components/catalog/catalog-gallery';
 import { DesignSystemGallery } from '../components/ui/gallery';
 import { ProviderExperiment } from './provider-experiment';
+import { eagleSelectionAdapter } from '../host/eagle-selection';
 
 const canonical = compile(example, foundationCatalog);
-const session = new RuntimeSession(example, foundationRuntimeCatalog);
+const session = new RuntimeSession(example, foundationRuntimeCatalog, { selection: eagleSelectionAdapter() });
 export default function App() {
   return <>
     <DesignSystemGallery />

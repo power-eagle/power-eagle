@@ -12,7 +12,8 @@ The current built-in groups are:
 
 - Layout: Align, AspectRatio, Center, Column, ConstrainedBox, Expanded, Flexible, Padding, Positioned, Row, SizedBox, Spacer, Stack, Wrap.
 - Content: Badge, Card, CodeBlock, Divider, Icon, Image, Markdown, RichText, SelectableText, Text, Tooltip.
-- Provisional control: Button. Its final interaction contract is delivered with the controls checkpoint.
+- Form and selection controls: Autocomplete, Checkbox, ColorPicker, DatePicker, FilePicker, Form, NumberField, RadioGroup, Select, Slider, Switch, TextArea, TextField.
+- Provisional control: Button. Its final interaction contract is delivered with the remaining desktop-controls checkpoint.
 
 `origin.kind` is `builtin` for host types and `package` for installed contributions. Package origins also name the owning package, version, and export. `availability` is `active`, `off`, or `failed`; failed entries can carry a raw diagnostic. Catalog discovery must show disabled and failed installed contracts without registering a placeholder renderer as working behavior.
 

@@ -4,10 +4,11 @@ import { foundationRuntimeCatalog } from '../../sdui/runtime/foundation';
 import { RuntimeSession } from '../../sdui/runtime/session';
 import { RuntimeView } from '../../sdui/runtime/view';
 import { Badge } from '../ui';
+import { eagleSelectionAdapter } from '../../host/eagle-selection';
 
 function CatalogExample({ entry }: { entry: CatalogEntry }) {
   const session = useMemo(() => new RuntimeSession(
-    exampleDocument(entry.runnableExample), foundationRuntimeCatalog, {}, path => `./${path}`,
+    exampleDocument(entry.runnableExample), foundationRuntimeCatalog, { selection: eagleSelectionAdapter() }, path => `./${path}`,
   ), [entry]);
   useEffect(() => () => { void session.dispose(); }, [session]);
   return <RuntimeView session={session} />;

@@ -2,6 +2,7 @@ import type { Action, DataSchema, Json, RuntimeDocument } from '../schema/model'
 import { LanguageError, validateData } from '../schema/validate';
 import { evaluate, ExpressionError, type ValueContext } from '../state/evaluate';
 import { DisposedScopeError, type ActivationScope } from './lifecycle';
+import type { HostSelectionAdapter } from './selection-adapter';
 
 export interface CallableAdapter {
   input: DataSchema;
@@ -14,6 +15,7 @@ export interface RuntimeAdapters {
   request?: (input: RequestInput) => Json | Promise<Json>;
   form?: (operation: 'validate' | 'submit' | 'reset', id: string, signal: AbortSignal) => Json | Promise<Json>;
   feedback?: (operation: 'toast' | 'openDialog' | 'closeDialog', id: string, value: Json | undefined, signal: AbortSignal) => Json | Promise<Json>;
+  selection?: HostSelectionAdapter;
 }
 export interface ActionContext extends ValueContext { activation: ActivationScope }
 export interface ActionNavigator {
