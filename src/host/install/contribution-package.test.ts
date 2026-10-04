@@ -139,6 +139,27 @@ describe('manifest-first contribution packages', () => {
     }
   });
 
+  it('checks declared production dependencies without executing provider code', () => {
+    const markerName = 'provider-executed';
+    const fixture = createPackage({
+      provider: `require('fs').writeFileSync(require('path').join(__dirname, '${markerName}'), 'yes'); module.exports = () => ({ format: 'power-eagle/provider', formatVersion: 1, kind: 'widget', exports: [] });`,
+    });
+    writeFileSync(join(fixture.root, 'package.json'), JSON.stringify({
+      name: 'missing-dependency-fixture', private: true, version: '1.0.0',
+      dependencies: { 'dependency-that-is-not-packaged': '^1.0.0' },
+    }));
+
+    try {
+      discoverContributionPackage(fixture.root, hostRequire);
+      throw new Error('Expected static dependency validation to fail');
+    } catch (error) {
+      expect(diagnostics(error)).toEqual(expect.arrayContaining([
+        expect.objectContaining({ path: '/package.json/dependencies/dependency-that-is-not-packaged', code: 'missing-dependency' }),
+      ]));
+    }
+    expect(existsSync(join(fixture.root, markerName))).toBe(false);
+  });
+
   it('rejects traversal and symlink escapes before loading provider code', () => {
     const traversal = createPackage();
     traversal.manifest.contributions.widgets = '../outside.cjs';

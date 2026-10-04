@@ -135,6 +135,52 @@ function checkTarget(manifest: PackageManifest, hostTarget: PackageHostTarget | 
   }
 }
 
+function checkPackagedDependencies(host: HostModules, packageRoot: string, diagnostics: PackageDiagnostic[]): void {
+  const metadataPath = host.path.join(packageRoot, 'package.json');
+  if (!host.fs.existsSync(metadataPath)) return;
+  const value = readJson(host, metadataPath, packageRoot, '/package.json', diagnostics);
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+  const dependencies = (value as { dependencies?: unknown }).dependencies;
+  if (dependencies === undefined) return;
+  if (!dependencies || typeof dependencies !== 'object' || Array.isArray(dependencies)) {
+    diagnostics.push({ packageRoot, path: '/package.json/dependencies', code: 'package-metadata', message: 'Packaged dependencies must be an object' });
+    return;
+  }
+  const localRequire = host.createRequire(metadataPath);
+  for (const [name, range] of Object.entries(dependencies)) {
+    const diagnosticPath = `/package.json/dependencies/${escapePointer(name)}`;
+    if (typeof range !== 'string') {
+      diagnostics.push({ packageRoot, path: diagnosticPath, code: 'package-metadata', message: 'Dependency version must be a string' });
+      continue;
+    }
+    try {
+      const entry = host.fs.realpathSync(localRequire.resolve(name));
+      if (!within(host.path, packageRoot, entry)) throw new Error('resolved outside the acquired package');
+      let cursor = host.path.dirname(entry);
+      let metadata: { name?: string; version?: string } | undefined;
+      while (within(host.path, packageRoot, cursor)) {
+        const candidate = host.path.join(cursor, 'package.json');
+        if (host.fs.existsSync(candidate)) {
+          const parsed = JSON.parse(host.fs.readFileSync(candidate, 'utf8')) as { name?: string; version?: string };
+          if (parsed.name === name) { metadata = parsed; break; }
+        }
+        const parent = host.path.dirname(cursor);
+        if (parent === cursor) break;
+        cursor = parent;
+      }
+      if (!metadata?.version) throw new Error('packaged dependency metadata is missing');
+      if (!satisfies(metadata.version, range)) throw new Error(`packaged version ${metadata.version} does not satisfy ${range}`);
+    } catch (error) {
+      diagnostics.push({
+        packageRoot,
+        path: diagnosticPath,
+        code: 'missing-dependency',
+        message: `Production dependency ${name} is not self-contained: ${errorMessage(error)}`,
+      });
+    }
+  }
+}
+
 export function discoverContributionPackage(packageRoot: string, hostRequire: NodeRequire, options: PackageDiscoveryOptions = {}): DiscoveredPackage {
   const host = modules(hostRequire);
   const canonicalRoot = host.fs.realpathSync(packageRoot);
@@ -154,6 +200,7 @@ export function discoverContributionPackage(packageRoot: string, hostRequire: No
     platform: host.process.platform, arch: host.process.arch, node: host.process.versions.node,
   };
   checkTarget(manifest, hostTarget, canonicalRoot, diagnostics);
+  checkPackagedDependencies(host, canonicalRoot, diagnostics);
   const entries: DiscoveredPackage['entries'] = {};
   for (const [key, relative] of Object.entries(manifest.contributions) as Array<[keyof typeof manifest.contributions, string]>) {
     const entry = ownedPath(host, canonicalRoot, relative, `/contributions/${key}`, diagnostics);
