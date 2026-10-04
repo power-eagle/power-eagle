@@ -56,6 +56,40 @@ Reconciliation revokes affected service slots before removing their registration
 
 Provider scopes are separate from runtime view scopes. Service methods receive the calling view's signal and `use` callback, so view replacement releases resources created for that view. The provider scope and unrelated service handles remain active until enablement, reload, or application shutdown removes the provider itself.
 
+## Activation walkthrough
+
+Suppose `dashboard/main` calls `clock/clock`. The dashboard runtime declares the public dependency in `run.json`:
+
+```json
+{
+  "package": "clock",
+  "version": "^1.0.0",
+  "export": "clock",
+  "kind": "service"
+}
+```
+
+With both packages enabled, the graph places `clock/clock` before `dashboard/main`. The service reports `used by 1` with `dashboard` as its direct consuming package; the runtime itself is `unused` unless another package declares it. Calling the service does not change these counts.
+
+Disabling the service writes user intent independently of graph status:
+
+```json
+{
+  "format": "power-eagle/enablement",
+  "formatVersion": 1,
+  "packages": {},
+  "exports": {
+    "clock/clock": false
+  }
+}
+```
+
+After reconciliation, `clock/clock` is `off` and `dashboard/main` is `failed` with cause `dependency-off: clock/clock`. Reopening the workbench reads the same preference. Re-enabling the service leaves the dashboard's preference untouched, activates the service first, and then recovers the dashboard.
+
+Reloading changed provider code replaces the affected activation group. Active dependents are disposed before the old provider; its handles are revoked; the new provider activates before its enabled dependents return. A failed replacement publishes none of that group's staged registrations and disposes resources prepared during the attempt. Unrelated package registrations and dependency instances stay active.
+
+The executable scenarios in [`features/contribution-activation.feature`](../features/contribution-activation.feature) cover dependency order and cycle isolation, persisted toggles, revocation and recovery, view/provider lifetimes, activation rollback, changed registrations, declared usage, and deterministic styling.
+
 ## Styling composition
 
 Active styling exports form a catalog separate from widget implementations. A styling export can contribute token values, named variants, and overrides only for the qualified widget targets declared by its manifest descriptor. Loading or selecting a style never registers or replaces a widget renderer. An override for an undeclared target is invalid.
