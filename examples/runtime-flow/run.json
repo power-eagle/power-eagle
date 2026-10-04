@@ -1,0 +1,355 @@
+{
+  "actions": {
+    "increment": {
+      "kind": "sequence",
+      "steps": [
+        {
+          "kind": "set",
+          "path": [
+            "count"
+          ],
+          "value": {
+            "$expr": {
+              "args": [
+                {
+                  "$ref": {
+                    "path": [
+                      "count"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                1
+              ],
+              "op": "add"
+            }
+          }
+        },
+        {
+          "kind": "set",
+          "path": [
+            "message"
+          ],
+          "value": {
+            "$expr": {
+              "args": [
+                "Sequence result: {0}",
+                {
+                  "$ref": {
+                    "path": [],
+                    "scope": "result"
+                  }
+                }
+              ],
+              "op": "format"
+            }
+          }
+        }
+      ]
+    },
+    "reset": {
+      "kind": "parallel",
+      "steps": [
+        {
+          "kind": "set",
+          "path": [
+            "count"
+          ],
+          "value": 0
+        },
+        {
+          "kind": "set",
+          "path": [
+            "message"
+          ],
+          "value": "Reset in parallel"
+        }
+      ]
+    }
+  },
+  "components": {},
+  "dependencies": [],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "screens": {
+    "detail": {
+      "body": {
+        "props": {},
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": {
+                  "$expr": {
+                    "args": [
+                      "Opened at count {0}",
+                      {
+                        "$ref": {
+                          "path": [
+                            "fromCount"
+                          ],
+                          "scope": "params"
+                        }
+                      }
+                    ],
+                    "op": "format"
+                  }
+                }
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "text": {
+                  "$ref": {
+                    "path": [
+                      "note"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "Text"
+            },
+            {
+              "events": {
+                "press": {
+                  "kind": "back"
+                }
+              },
+              "props": {
+                "label": "Back"
+              },
+              "type": "Button"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {
+          "fromCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fromCount"
+        ],
+        "type": "object"
+      },
+      "state": {
+        "note": {
+          "initial": "Screen-local state is restored after back.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "home": {
+      "body": {
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": {
+                  "$expr": {
+                    "args": [
+                      "Count: {0}",
+                      {
+                        "$ref": {
+                          "path": [
+                            "count"
+                          ],
+                          "scope": "state"
+                        }
+                      }
+                    ],
+                    "op": "format"
+                  }
+                }
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "text": {
+                  "$ref": {
+                    "path": [
+                      "message"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "text": {
+                  "$expr": {
+                    "args": [
+                      "Increment status: {0}",
+                      {
+                        "$ref": {
+                          "path": [
+                            "increment",
+                            "status"
+                          ],
+                          "scope": "action"
+                        }
+                      }
+                    ],
+                    "op": "format"
+                  }
+                }
+              },
+              "type": "Text"
+            },
+            {
+              "events": {
+                "press": {
+                  "action": "increment",
+                  "kind": "run"
+                }
+              },
+              "props": {
+                "label": "Increment"
+              },
+              "type": "Button"
+            },
+            {
+              "events": {
+                "press": {
+                  "action": "reset",
+                  "kind": "run"
+                }
+              },
+              "props": {
+                "label": "Reset"
+              },
+              "type": "Button"
+            },
+            {
+              "empty": {
+                "props": {
+                  "text": "Nothing here"
+                },
+                "type": "Text"
+              },
+              "props": {
+                "text": {
+                  "$ref": {
+                    "path": [
+                      "label"
+                    ],
+                    "scope": "item"
+                  }
+                }
+              },
+              "repeat": {
+                "items": {
+                  "$ref": {
+                    "path": [
+                      "items"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "key": {
+                  "$ref": {
+                    "path": [
+                      "id"
+                    ],
+                    "scope": "item"
+                  }
+                }
+              },
+              "type": "Text"
+            },
+            {
+              "events": {
+                "press": {
+                  "kind": "navigate",
+                  "mode": "push",
+                  "params": {
+                    "fromCount": {
+                      "$ref": {
+                        "path": [
+                          "count"
+                        ],
+                        "scope": "state"
+                      }
+                    }
+                  },
+                  "screen": "detail"
+                }
+              },
+              "props": {
+                "label": "Open details"
+              },
+              "type": "Button"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    }
+  },
+  "start": "home",
+  "state": {
+    "count": {
+      "initial": 0,
+      "schema": {
+        "integer": true,
+        "minimum": 0,
+        "type": "number"
+      }
+    },
+    "items": {
+      "initial": [
+        {
+          "id": "widgets",
+          "label": "Declarative widgets"
+        },
+        {
+          "id": "packages",
+          "label": "Composable packages"
+        }
+      ],
+      "schema": {
+        "items": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      }
+    },
+    "message": {
+      "initial": "Ready",
+      "schema": {
+        "type": "string"
+      }
+    }
+  }
+}

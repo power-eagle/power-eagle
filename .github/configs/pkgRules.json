@@ -1,8 +1,0 @@
-{
-    "includes" : [
-        "dist",
-        "manifest.json",
-        "logo.png",
-        "_locales"
-    ]
-}

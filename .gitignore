@@ -26,3 +26,4 @@ dist-ssr
 /.cc-history
 /.codegraph
 coverage/
+.artifacts/

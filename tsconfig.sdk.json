@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": ".artifacts/sdk-types",
+    "rootDir": "src/sdui"
+  },
+  "include": ["src/sdui/schema/**/*.ts", "src/sdui/authoring/**/*.ts"],
+  "exclude": ["**/*.test.ts"]
+}

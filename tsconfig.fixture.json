@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "allowSyntheticDefaultImports": true },
+  "include": ["src/host/install/provider-probe.ts", "src/host/install/provider-probe.test.ts", "src/app/provider-host.tsx", "examples/provider-host/provider.tsx"]
+}

@@ -1,7 +1,7 @@
 {
-    "manifest": {
-      "app": {
-        "name": "Power Eagle"
-      }
+  "manifest": {
+    "app": {
+      "name": "Power Eagle"
     }
   }
+}

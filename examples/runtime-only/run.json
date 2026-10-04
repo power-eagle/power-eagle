@@ -1,0 +1,112 @@
+{
+  "actions": {},
+  "components": {
+    "Note": {
+      "body": {
+        "props": {},
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": {
+                  "$ref": {
+                    "path": [
+                      "title"
+                    ],
+                    "scope": "input"
+                  }
+                }
+              },
+              "type": "Text"
+            },
+            {
+              "type": "slot:content"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "inputs": {
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "type": "object"
+      },
+      "slots": {
+        "content": {
+          "cardinality": "one",
+          "required": true
+        }
+      },
+      "state": {
+        "count": {
+          "initial": 0,
+          "schema": {
+            "integer": true,
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "dependencies": [],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "screens": {
+    "home": {
+      "body": {
+        "props": {
+          "gap": 24
+        },
+        "slots": {
+          "children": [
+            {
+              "key": "first",
+              "props": {
+                "title": "Power Eagle"
+              },
+              "slots": {
+                "content": {
+                  "props": {
+                    "text": "A new declarative language."
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "component:Note"
+            },
+            {
+              "key": "second",
+              "props": {
+                "title": "Composable packages"
+              },
+              "slots": {
+                "content": {
+                  "props": {
+                    "text": "Runtime, widgets, styling, actions, and services can be mixed."
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "component:Note"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    }
+  },
+  "start": "home",
+  "state": {}
+}

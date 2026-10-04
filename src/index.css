@@ -1,96 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  color-scheme: light;
-  --background: 210 40% 98%;
-  --foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --ring: 215 20.2% 65.1%;
-  --radius: 0.75rem;
-}
-
-/* The iris scheme: cool blue-black cockpit ground, eagle-iris amber accent,
-   semantic red kept separate from the accent. */
-.dark {
-  color-scheme: dark;
-  --background: 210 20% 8%;
-  --foreground: 216 12% 92%;
-  --muted: 210 19% 14%;
-  --muted-foreground: 213 11% 59%;
-  --card: 213 19% 11%;
-  --card-foreground: 216 12% 92%;
-  --border: 210 19% 17%;
-  --input: 210 19% 17%;
-  --primary: 37 91% 55%;
-  --primary-foreground: 210 20% 8%;
-  --secondary: 212 20% 14%;
-  --secondary-foreground: 216 12% 92%;
-  --destructive: 358 75% 59%;
-  --destructive-foreground: 216 12% 92%;
-  --accent: 212 20% 14%;
-  --accent-foreground: 216 12% 92%;
-  --ring: 37 91% 55%;
-  --radius: 0.5rem;
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(148, 163, 184, 0.14), transparent 28%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  color: var(--foreground);
-  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
-}
-
-.dark body {
-  background: hsl(210 25% 5%);
-  color: hsl(var(--foreground));
-}
-
-#root {
-  min-height: 100vh;
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-.dark * {
-  scrollbar-color: hsl(217.2 32.6% 24%) transparent;
-}
-
-::selection {
-  background: rgba(15, 23, 42, 0.12);
-}
-
-.dark ::selection {
-  background: hsl(217.2 32.6% 24% / 0.7);
-}
+:root { color-scheme: dark; font: 14px/1.5 system-ui, sans-serif; background: #111214; color: #e5e5e5; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 900px; margin: 0 auto; padding: 32px; }
+header { border-bottom: 1px solid #36383c; padding-bottom: 16px; margin-bottom: 24px; }
+header > span { font-size: 11px; letter-spacing: 2px; color: #b6b7ba; }
+h1 { font-size: 24px; margin: 8px 0; }
+h2 { font-size: 14px; color: #f5a524; margin-bottom: 24px; }
+p { margin: 0; }
+section, details { border: 1px solid #36383c; padding: 24px; margin-bottom: 16px; }
+pre { overflow: auto; font-size: 12px; max-height: 320px; }
+summary { cursor: pointer; }
+summary:focus-visible { outline: 2px solid #f5a524; outline-offset: 4px; }
+aside { color: #b6b7ba; font-size: 12px; }

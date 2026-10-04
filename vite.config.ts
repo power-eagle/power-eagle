@@ -1,6 +1,5 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import path from "node:path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,14 +7,10 @@ export default defineConfig({
   build: {
     outDir: "./dist",
   },
-  resolve: {
-    alias: {
-      "peagle/state": path.resolve(__dirname, "src/core/runtime/state-module.ts"),
-    },
-  },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "features/**/*.steps.ts"],
+    include: ["src/**/*.test.{ts,tsx}", "features/**/*.steps.ts"],
+    exclude: ["src/host/install/provider-probe.test.ts"],
   },
   plugins: [react()],
 });

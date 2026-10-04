@@ -1,0 +1,56 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
+operations:
+  archive:
+    guidance:
+      - |
+        After an OpenSpec change is successfully archived, run `pspec state clear --change <archived-change-name>` from that change's owning repository. Run it only after archive success; do not clear temporal values when archive fails or is cancelled. Report cleanup failure separately from archive success and do not claim the values were cleared. Persistent `config.toml` values remain unchanged.
+
+        <!-- pspec:managed -->
+        ^@builtin/archive-temporary-state/operations.archive.guidance/flush-temporary-change-state
+  apply:
+    guidance:
+      - |
+        Checkpoint incrementally after a coherent slice is implemented and its relevant checks pass, rather than waiting for the entire change. Use boundaries such as a verified utility contract, an integrated behavior, or a complete resource bundle; do not manufacture checkpoints for trivial edits or run the full test suite at every checkpoint without a reason.
+
+        When committing is authorized, inspect the diff, stage only the checkpoint's explicit paths or hunks, preserve unrelated work, and create a focused commit before starting dependent work. Follow the applicable commit-authoring guidance supplied for the session. If commits are not authorized, report the verified checkpoint and proposed commit instead of committing. Report unavailable or failed verification honestly; partial evidence is not whole-change completion.
+
+        <!-- pspec:managed -->
+        ^@builtin/incremental-checkpoints/operations.apply.guidance/1
+rules:
+  tasks:
+    - |
+      Organize authorized implementation into meaningful, dependency-ordered checkpoints. Each checkpoint should deliver a coherent, independently reviewable slice with its relevant verification, before work proceeds to the next slice. Do not split implementation from verification into knowingly broken intermediate states or require a checkpoint for every edit.
+
+      <!-- pspec:managed -->
+      ^@builtin/incremental-checkpoints/rules.tasks/1
