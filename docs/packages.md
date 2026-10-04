@@ -46,6 +46,10 @@ The graph calculates a stable dependency-first activation order by qualified ide
 
 Each export also records sorted, distinct package identities that directly declare it. This includes consumers whose own status is failed, because `used by` describes the declared graph rather than observed calls or current activation.
 
+Enablement intent is stored separately in the versioned `power-eagle/enablement` version `1` record. Missing package or export keys default to enabled. Package preferences and qualified export preferences remain independent: disabling a package suppresses all its exports without rewriting individual choices, so those choices return unchanged after a reload and package re-enable. Browser persistence uses the separate `power-eagle.enablement.v1` storage key.
+
+Reconciliation computes effective status from current intent and the dependency graph. A disabled package or export is `off`; a desired export with a structural or dependency problem is `failed` with the exact cause; a desired valid export whose required exports are active is `active`. If a required export becomes off, enabled consumers fail with that qualified dependency identity. Re-enabling a valid dependency recovers them in the existing dependency order without changing saved preferences. An explicitly off consumer stays off even when its dependencies fail.
+
 ## Provider SDK factories
 
 Provider source imports the public authoring entry that the package compiler supplies:
