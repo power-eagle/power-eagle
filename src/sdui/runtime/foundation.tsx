@@ -1,14 +1,12 @@
-import { Button, Column, Text } from '../authoring/foundation';
+import { Button, Text } from '../authoring/foundation';
 import type { RuntimeCatalog } from './session';
+import { layoutRuntimeWidgets } from './layout';
 
 export const foundationRuntimeCatalog: RuntimeCatalog = { widgets: {
+  ...layoutRuntimeWidgets,
   Text: {
     contract: Text.contract,
     render: ({ props, style }) => <p style={style}>{String(props.text)}</p>,
-  },
-  Column: {
-    contract: Column.contract,
-    render: ({ props, style, slots }) => <div style={{ ...style, display: 'flex', flexDirection: 'column', gap: Number(props.gap ?? 12) }}>{slots.children}</div>,
   },
   Button: {
     contract: Button.contract,

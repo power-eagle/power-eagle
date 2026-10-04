@@ -1,0 +1,13 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.layout-widgets",
+  "name": "Layout widgets",
+  "version": "1.0.0",
+  "description": "Flutter-inspired web layout vocabulary",
+  "sdk": "^1.0.0",
+  "contributions": { "runtime": "run.json" },
+  "exports": [{ "kind": "runtime", "id": "main", "screens": ["home"] }],
+  "dependencies": [],
+  "assets": []
+}

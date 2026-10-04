@@ -43,7 +43,10 @@ export function defineWidget<const C extends WidgetContract>(type: string, contr
   type Slots = { [K in keyof C['slots']]?: C['slots'][K]['cardinality'] extends 'many' ? Node[] : Node };
   return {
     type, contract,
-    node(props: InferData<C['properties']>, options: { key?: string; slots?: Slots; events?: Partial<Record<keyof C['events'], Action>> } = {}): Node {
+    node(props: InferData<C['properties']>, options: {
+      key?: string; slots?: Slots; events?: Partial<Record<keyof C['events'], Action>>;
+      style?: Record<string, Json>; visible?: Json;
+    } = {}): Node {
       return { type, props: props as Record<string, Json>, ...options } as Node;
     },
   };

@@ -1,0 +1,297 @@
+{
+  "actions": {},
+  "components": {},
+  "dependencies": [],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "screens": {
+    "home": {
+      "body": {
+        "props": {
+          "crossAxisAlignment": "stretch",
+          "gap": 16
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Layout vocabulary"
+              },
+              "type": "Text"
+            },
+            {
+              "props": {
+                "gap": 8
+              },
+              "slots": {
+                "children": [
+                  {
+                    "props": {
+                      "horizontal": 8,
+                      "vertical": 4
+                    },
+                    "slots": {
+                      "child": {
+                        "props": {
+                          "text": "fixed"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "style": {
+                      "border": "1px solid var(--input)"
+                    },
+                    "type": "Padding"
+                  },
+                  {
+                    "props": {
+                      "flex": 2
+                    },
+                    "slots": {
+                      "child": {
+                        "props": {
+                          "horizontal": 8,
+                          "vertical": 4
+                        },
+                        "slots": {
+                          "child": {
+                            "props": {
+                              "text": "expanded ×2"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "style": {
+                          "border": "1px solid var(--input)"
+                        },
+                        "type": "Padding"
+                      }
+                    },
+                    "type": "Expanded"
+                  },
+                  {
+                    "props": {
+                      "flex": 1
+                    },
+                    "type": "Spacer"
+                  },
+                  {
+                    "props": {
+                      "fit": "loose",
+                      "flex": 1
+                    },
+                    "slots": {
+                      "child": {
+                        "props": {
+                          "horizontal": 8,
+                          "vertical": 4
+                        },
+                        "slots": {
+                          "child": {
+                            "props": {
+                              "text": "flexible"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "style": {
+                          "border": "1px solid var(--input)"
+                        },
+                        "type": "Padding"
+                      }
+                    },
+                    "type": "Flexible"
+                  }
+                ]
+              },
+              "type": "Row"
+            },
+            {
+              "props": {
+                "alignment": "spaceBetween",
+                "gap": 8,
+                "runGap": 8
+              },
+              "slots": {
+                "children": [
+                  {
+                    "props": {
+                      "height": 32,
+                      "width": 92
+                    },
+                    "slots": {
+                      "child": {
+                        "props": {},
+                        "slots": {
+                          "child": {
+                            "props": {
+                              "text": "92 × 32"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Center"
+                      }
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "props": {
+                      "height": 32,
+                      "width": 116
+                    },
+                    "slots": {
+                      "child": {
+                        "props": {},
+                        "slots": {
+                          "child": {
+                            "props": {
+                              "text": "116 × 32"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Center"
+                      }
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "props": {
+                      "height": 32,
+                      "width": 140
+                    },
+                    "slots": {
+                      "child": {
+                        "props": {},
+                        "slots": {
+                          "child": {
+                            "props": {
+                              "text": "140 × 32"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Center"
+                      }
+                    },
+                    "type": "SizedBox"
+                  }
+                ]
+              },
+              "type": "Wrap"
+            },
+            {
+              "props": {
+                "maxHeight": 240,
+                "maxWidth": 520,
+                "minHeight": 160,
+                "minWidth": 240
+              },
+              "slots": {
+                "child": {
+                  "props": {
+                    "height": 180
+                  },
+                  "slots": {
+                    "child": {
+                      "props": {
+                        "alignment": "bottomRight",
+                        "overflow": "hidden"
+                      },
+                      "slots": {
+                        "children": [
+                          {
+                            "props": {
+                              "alignment": "center"
+                            },
+                            "slots": {
+                              "child": {
+                                "props": {
+                                  "aspectRatio": 1.7777777778
+                                },
+                                "slots": {
+                                  "child": {
+                                    "props": {},
+                                    "slots": {
+                                      "child": {
+                                        "props": {
+                                          "text": "16:9"
+                                        },
+                                        "type": "Text"
+                                      }
+                                    },
+                                    "type": "Center"
+                                  }
+                                },
+                                "type": "AspectRatio"
+                              }
+                            },
+                            "type": "Align"
+                          },
+                          {
+                            "props": {
+                              "left": 12,
+                              "top": 12
+                            },
+                            "slots": {
+                              "child": {
+                                "props": {
+                                  "horizontal": 8,
+                                  "vertical": 4
+                                },
+                                "slots": {
+                                  "child": {
+                                    "props": {
+                                      "text": "positioned"
+                                    },
+                                    "type": "Text"
+                                  }
+                                },
+                                "style": {
+                                  "border": "1px solid var(--input)"
+                                },
+                                "type": "Padding"
+                              }
+                            },
+                            "type": "Positioned"
+                          },
+                          {
+                            "props": {
+                              "all": 12
+                            },
+                            "slots": {
+                              "child": {
+                                "props": {
+                                  "text": "bottom right"
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Padding"
+                          }
+                        ]
+                      },
+                      "type": "Stack"
+                    }
+                  },
+                  "type": "SizedBox"
+                }
+              },
+              "type": "ConstrainedBox"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    }
+  },
+  "start": "home",
+  "state": {}
+}
