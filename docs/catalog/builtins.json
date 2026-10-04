@@ -1308,6 +1308,238 @@
       "contract": {
         "defaults": {
           "disabled": false,
+          "rowKey": "id",
+          "selection": [],
+          "selectionMode": "none",
+          "sortColumn": "",
+          "sortDirection": "ascending"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "selectionChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sortChange": {
+            "properties": {
+              "column": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "direction": {
+                "type": "enum",
+                "values": [
+                  "ascending",
+                  "descending"
+                ]
+              }
+            },
+            "required": [
+              "column",
+              "direction"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "columns": [
+              {
+                "key": "name",
+                "label": "Name",
+                "sortable": true,
+                "type": "string"
+              },
+              {
+                "key": "active",
+                "label": "Active",
+                "type": "boolean"
+              }
+            ],
+            "label": "Packages",
+            "rows": [
+              {
+                "active": true,
+                "id": "core",
+                "name": "Core"
+              },
+              {
+                "active": false,
+                "id": "tools",
+                "name": "Tools"
+              }
+            ],
+            "selection": [
+              "core"
+            ],
+            "selectionMode": "single",
+            "sortColumn": "name",
+            "sortDirection": "ascending"
+          },
+          "type": "DataTable"
+        },
+        "properties": {
+          "properties": {
+            "columns": {
+              "items": {
+                "properties": {
+                  "align": {
+                    "type": "enum",
+                    "values": [
+                      "start",
+                      "center",
+                      "end"
+                    ]
+                  },
+                  "key": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sortable": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "enum",
+                    "values": [
+                      "string",
+                      "number",
+                      "boolean",
+                      "date"
+                    ]
+                  }
+                },
+                "required": [
+                  "key",
+                  "label",
+                  "type"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "rowKey": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "rows": {
+              "items": {
+                "type": "json"
+              },
+              "type": "array"
+            },
+            "selection": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            },
+            "sortColumn": {
+              "type": "string"
+            },
+            "sortDirection": {
+              "type": "enum",
+              "values": [
+                "ascending",
+                "descending"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "rows",
+            "columns"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "table"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "columns": [
+            {
+              "key": "name",
+              "label": "Name",
+              "sortable": true,
+              "type": "string"
+            },
+            {
+              "key": "active",
+              "label": "Active",
+              "type": "boolean"
+            }
+          ],
+          "label": "Packages",
+          "rows": [
+            {
+              "active": true,
+              "id": "core",
+              "name": "Core"
+            },
+            {
+              "active": false,
+              "id": "tools",
+              "name": "Tools"
+            }
+          ],
+          "selection": [
+            "core"
+          ],
+          "selectionMode": "single",
+          "sortColumn": "name",
+          "sortDirection": "ascending"
+        },
+        "type": "DataTable"
+      },
+      "type": "DataTable"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
           "readOnly": false,
           "required": false
         },
@@ -2990,6 +3222,186 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "columns": 1,
+          "disabled": false
+        },
+        "events": {
+          "change": {
+            "properties": {
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "value": {
+                "type": "json"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "items": [
+              {
+                "editable": true,
+                "editor": "text",
+                "id": "name",
+                "label": "Name",
+                "value": "Power Eagle"
+              },
+              {
+                "editable": true,
+                "editor": "boolean",
+                "id": "active",
+                "label": "Active",
+                "value": true
+              },
+              {
+                "id": "version",
+                "label": "Version",
+                "value": "1.0.0"
+              }
+            ],
+            "label": "Package properties"
+          },
+          "type": "PropertyGrid"
+        },
+        "properties": {
+          "properties": {
+            "columns": {
+              "type": "enum",
+              "values": [
+                1,
+                2
+              ]
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "editable": {
+                    "type": "boolean"
+                  },
+                  "editor": {
+                    "type": "enum",
+                    "values": [
+                      "text",
+                      "number",
+                      "boolean",
+                      "select",
+                      "date",
+                      "color"
+                    ]
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "options": {
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "label"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "value": {
+                    "type": "json"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "value"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "propertyGrid",
+          "field"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "items": [
+            {
+              "editable": true,
+              "editor": "text",
+              "id": "name",
+              "label": "Name",
+              "value": "Power Eagle"
+            },
+            {
+              "editable": true,
+              "editor": "boolean",
+              "id": "active",
+              "label": "Active",
+              "value": true
+            },
+            {
+              "id": "version",
+              "label": "Version",
+              "value": "1.0.0"
+            }
+          ],
+          "label": "Package properties"
+        },
+        "type": "PropertyGrid"
+      },
+      "type": "PropertyGrid"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "disabled": false,
           "required": false
         },
@@ -3113,6 +3525,176 @@
         "type": "RadioGroup"
       },
       "type": "RadioGroup"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "gap": 8,
+          "selection": [],
+          "selectionMode": "none"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "reorder": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "scroll": {
+            "properties": {
+              "x": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "y": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "type": "object"
+          },
+          "selectionChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Priority order",
+            "selection": [],
+            "selectionMode": "single"
+          },
+          "slots": {
+            "children": [
+              {
+                "key": "first",
+                "props": {
+                  "text": "First task"
+                },
+                "type": "Text"
+              },
+              {
+                "key": "second",
+                "props": {
+                  "text": "Second task"
+                },
+                "type": "Text"
+              }
+            ],
+            "empty": {
+              "props": {
+                "text": "No tasks"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "ReorderableList"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          },
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "list",
+          "reorder"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Priority order",
+          "selection": [],
+          "selectionMode": "single"
+        },
+        "slots": {
+          "children": [
+            {
+              "key": "first",
+              "props": {
+                "text": "First task"
+              },
+              "type": "Text"
+            },
+            {
+              "key": "second",
+              "props": {
+                "text": "Second task"
+              },
+              "type": "Text"
+            }
+          ],
+          "empty": {
+            "props": {
+              "text": "No tasks"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "ReorderableList"
+      },
+      "type": "ReorderableList"
     },
     {
       "availability": "active",
@@ -4752,6 +5334,177 @@
         "type": "Tooltip"
       },
       "type": "Tooltip"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
+          "expanded": [],
+          "selection": [],
+          "selectionMode": "single"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expandedChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "selectionChange": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "expanded": [
+              "root"
+            ],
+            "items": [
+              {
+                "id": "root",
+                "label": "Package"
+              },
+              {
+                "id": "runtime",
+                "label": "Runtime",
+                "parentId": "root"
+              },
+              {
+                "id": "styling",
+                "label": "Styling",
+                "parentId": "root"
+              }
+            ],
+            "label": "Package tree",
+            "selection": [
+              "runtime"
+            ]
+          },
+          "type": "TreeView"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "expanded": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "disabled": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "parentId": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "empty": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "collection",
+          "tree"
+        ]
+      },
+      "family": "collection",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "expanded": [
+            "root"
+          ],
+          "items": [
+            {
+              "id": "root",
+              "label": "Package"
+            },
+            {
+              "id": "runtime",
+              "label": "Runtime",
+              "parentId": "root"
+            },
+            {
+              "id": "styling",
+              "label": "Styling",
+              "parentId": "root"
+            }
+          ],
+          "label": "Package tree",
+          "selection": [
+            "runtime"
+          ]
+        },
+        "type": "TreeView"
+      },
+      "type": "TreeView"
     },
     {
       "availability": "active",

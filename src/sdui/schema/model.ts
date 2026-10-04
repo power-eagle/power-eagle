@@ -6,8 +6,8 @@ export const relativePath = z.string().min(1).refine(value =>
   !value.includes('\\') && !value.includes(':') && !value.includes('?') && !value.includes('#') &&
   !value.includes('\0') && value.split('/').every(part => part !== '' && part !== '.' && part !== '..'),
   'Expected a package-relative path without traversal, backslashes, or URL syntax');
-export const jsonSchema = z.json();
-export type Json = z.infer<typeof jsonSchema>;
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+export const jsonSchema: z.ZodType<Json> = z.json();
 
 // A closed, serializable contract vocabulary shared by manifest discovery and validation.
 export type DataSchema =

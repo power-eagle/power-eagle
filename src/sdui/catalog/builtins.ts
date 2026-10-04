@@ -34,7 +34,9 @@ const controlTypes = new Set([
   'Select', 'Autocomplete', 'Slider', 'DatePicker', 'ColorPicker', 'FilePicker',
   'IconButton', 'SegmentedControl', 'Tabs', 'Accordion', 'Menu', 'ContextMenu', 'Breadcrumbs', 'SplitPane',
 ]);
-const collectionTypes = new Set(['ScrollView', 'ListView', 'GridView', 'VirtualList', 'VirtualGrid']);
+const collectionTypes = new Set([
+  'ScrollView', 'ListView', 'GridView', 'VirtualList', 'VirtualGrid', 'ReorderableList', 'TreeView', 'DataTable', 'PropertyGrid',
+]);
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export function runnableWidgetExample(type: string, input: Node): Node {
