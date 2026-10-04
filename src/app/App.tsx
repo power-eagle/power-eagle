@@ -4,6 +4,7 @@ import { foundationCatalog } from '../sdui/authoring/foundation';
 import { foundationRuntimeCatalog } from '../sdui/runtime/foundation';
 import { RuntimeSession } from '../sdui/runtime/session';
 import { RuntimeView } from '../sdui/runtime/view';
+import { CatalogGallery } from '../components/catalog/catalog-gallery';
 import { DesignSystemGallery } from '../components/ui/gallery';
 import { ProviderExperiment } from './provider-experiment';
 
@@ -21,7 +22,8 @@ export default function App() {
           <details><summary>Canonical runtime document</summary><pre>{canonical}</pre></details>
         </div>
       </div>
-      <aside>This runtime uses scoped state, bindings, components, actions, and navigation. The production visual catalog is being added in verified groups.</aside>
+      <aside>This runtime uses scoped state, bindings, components, actions, and navigation. The active built-in contracts and runnable examples follow below.</aside>
     </section>
+    <CatalogGallery />
   </>;
 }

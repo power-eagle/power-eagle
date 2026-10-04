@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { z } from 'zod';
 import { canonical } from '../authoring';
 import { foundationCatalog } from '../authoring/foundation';
+import { builtinCatalogDocument } from '../catalog/builtins';
 import { packageSchema, runtimeSchema } from '../schema/model';
 import { unwrap, validatePackage, validateRuntime } from '../schema/validate';
 import { emitRuntime, writeAtomic } from './emit';
@@ -17,6 +18,9 @@ export async function main(command: string, args: string[]) {
       await writeAtomic(resolve(`docs/schemas/${name}.schema.json`), canonical(z.toJSONSchema(schema)));
     }
     console.log('Exported structural JSON schemas. Semantic validation remains required.');
+  } else if (command === 'catalog') {
+    await writeAtomic(resolve('docs/catalog/builtins.json'), canonical(builtinCatalogDocument));
+    console.log('Exported docs/catalog/builtins.json');
   } else if (command === 'example') {
     for (const [directory, document] of [
       ['runtime-only', example], ['runtime-flow', flow], ['layout-widgets', layout], ['content-widgets', content],
@@ -31,5 +35,5 @@ export async function main(command: string, args: string[]) {
     const result = input.format === 'power-eagle/package' ? validatePackage(input) : validateRuntime(input, foundationCatalog);
     unwrap<unknown>(result);
     console.log(`Valid: ${args[0]}`);
-  } else throw new Error('Usage: npm run language -- schemas|example|validate <file>');
+  } else throw new Error('Usage: npm run language -- schemas|catalog|example|validate <file>');
 }

@@ -26,6 +26,7 @@ npm run language -- validate examples/runtime-flow/run.json
 npm run language -- validate examples/runtime-flow/manifest.json
 npm run language -- validate examples/layout-widgets/run.json
 npm run language -- validate examples/content-widgets/run.json
+npm run language -- catalog
 npm run language -- schemas
 npm run language:types
 ```

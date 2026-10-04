@@ -1,0 +1,1808 @@
+{
+  "entries": [
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "alignment": "center"
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "alignment": "bottomRight"
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Aligned"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Align"
+        },
+        "properties": {
+          "properties": {
+            "alignment": {
+              "type": "enum",
+              "values": [
+                "topLeft",
+                "topCenter",
+                "topRight",
+                "centerLeft",
+                "center",
+                "centerRight",
+                "bottomLeft",
+                "bottomCenter",
+                "bottomRight"
+              ]
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "alignment": "bottomRight"
+        },
+        "slots": {
+          "child": {
+            "props": {
+              "text": "Aligned"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Align"
+      },
+      "type": "Align"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {},
+        "events": {},
+        "example": {
+          "props": {
+            "aspectRatio": 1.7777777778
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "16:9"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "AspectRatio"
+        },
+        "properties": {
+          "properties": {
+            "aspectRatio": {
+              "minimum": 0.01,
+              "type": "number"
+            }
+          },
+          "required": [
+            "aspectRatio"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "aspectRatio": 1.7777777778
+        },
+        "slots": {
+          "child": {
+            "props": {
+              "text": "16:9"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AspectRatio"
+      },
+      "type": "AspectRatio"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "variant": "outline"
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "text": "widget",
+            "variant": "outline"
+          },
+          "type": "Badge"
+        },
+        "properties": {
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "variant": {
+              "type": "enum",
+              "values": [
+                "default",
+                "secondary",
+                "destructive",
+                "outline"
+              ]
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "badge"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "text": "widget",
+          "variant": "outline"
+        },
+        "type": "Badge"
+      },
+      "type": "Badge"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false
+        },
+        "events": {
+          "press": {
+            "type": "null"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Continue"
+          },
+          "type": "Button"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "label": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "control",
+          "primary"
+        ]
+      },
+      "family": "control",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Continue"
+        },
+        "type": "Button"
+      },
+      "type": "Button"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {},
+        "events": {},
+        "example": {
+          "props": {
+            "title": "Package"
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Composable content"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Card"
+        },
+        "properties": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          },
+          "footer": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "card"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "title": "Package"
+        },
+        "slots": {
+          "child": {
+            "props": {
+              "text": "Composable content"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Card"
+      },
+      "type": "Card"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {},
+        "events": {},
+        "example": {
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Centered"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Center"
+        },
+        "properties": {
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "slots": {
+          "child": {
+            "props": {
+              "text": "Centered"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Center"
+      },
+      "type": "Center"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "lineNumbers": false,
+          "wrap": false
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "code": "const ready = true;",
+            "language": "typescript",
+            "lineNumbers": true
+          },
+          "type": "CodeBlock"
+        },
+        "properties": {
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            },
+            "lineNumbers": {
+              "type": "boolean"
+            },
+            "wrap": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "text",
+          "code"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "code": "const ready = true;",
+          "language": "typescript",
+          "lineNumbers": true
+        },
+        "type": "CodeBlock"
+      },
+      "type": "CodeBlock"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "crossAxisAlignment": "stretch",
+          "gap": 12,
+          "mainAxisAlignment": "start"
+        },
+        "events": {},
+        "example": {
+          "slots": {
+            "children": []
+          },
+          "type": "Column"
+        },
+        "properties": {
+          "properties": {
+            "crossAxisAlignment": {
+              "type": "enum",
+              "values": [
+                "start",
+                "end",
+                "center",
+                "stretch",
+                "baseline"
+              ]
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "mainAxisAlignment": {
+              "type": "enum",
+              "values": [
+                "start",
+                "end",
+                "center",
+                "spaceBetween",
+                "spaceAround",
+                "spaceEvenly"
+              ]
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "slots": {
+          "children": []
+        },
+        "type": "Column"
+      },
+      "type": "Column"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {},
+        "events": {},
+        "example": {
+          "props": {
+            "maxWidth": 240,
+            "minWidth": 80
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Constrained"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "ConstrainedBox"
+        },
+        "properties": {
+          "properties": {
+            "maxHeight": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxWidth": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "minHeight": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "minWidth": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "maxWidth": 240,
+          "minWidth": 80
+        },
+        "slots": {
+          "child": {
+            "props": {
+              "text": "Constrained"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "ConstrainedBox"
+      },
+      "type": "ConstrainedBox"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "decorative": true,
+          "orientation": "horizontal"
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "decorative": false,
+            "orientation": "horizontal"
+          },
+          "type": "Divider"
+        },
+        "properties": {
+          "properties": {
+            "decorative": {
+              "type": "boolean"
+            },
+            "orientation": {
+              "type": "enum",
+              "values": [
+                "horizontal",
+                "vertical"
+              ]
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "divider"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "decorative": false,
+          "orientation": "horizontal"
+        },
+        "type": "Divider"
+      },
+      "type": "Divider"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "flex": 1
+        },
+        "events": {},
+        "example": {
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Expanded"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Expanded"
+        },
+        "parents": [
+          "Row",
+          "Column"
+        ],
+        "properties": {
+          "properties": {
+            "flex": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {},
+        "slots": {
+          "children": [
+            {
+              "slots": {
+                "child": {
+                  "props": {
+                    "text": "Expanded"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "Expanded"
+            }
+          ]
+        },
+        "type": "Row"
+      },
+      "type": "Expanded"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "fit": "loose",
+          "flex": 1
+        },
+        "events": {},
+        "example": {
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Flexible"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Flexible"
+        },
+        "parents": [
+          "Row",
+          "Column"
+        ],
+        "properties": {
+          "properties": {
+            "fit": {
+              "type": "enum",
+              "values": [
+                "tight",
+                "loose"
+              ]
+            },
+            "flex": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {},
+        "slots": {
+          "children": [
+            {
+              "slots": {
+                "child": {
+                  "props": {
+                    "text": "Flexible"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "Flexible"
+            }
+          ]
+        },
+        "type": "Row"
+      },
+      "type": "Flexible"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "size": 20,
+          "strokeWidth": 2
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "name": "sparkles",
+            "semanticLabel": "Generated",
+            "size": 20
+          },
+          "type": "Icon"
+        },
+        "properties": {
+          "properties": {
+            "name": {
+              "type": "enum",
+              "values": [
+                "image",
+                "file",
+                "folder",
+                "search",
+                "settings",
+                "info",
+                "alert",
+                "check",
+                "close",
+                "plus",
+                "minus",
+                "chevronDown",
+                "chevronRight",
+                "copy",
+                "download",
+                "upload",
+                "externalLink",
+                "code",
+                "sparkles"
+              ]
+            },
+            "semanticLabel": {
+              "type": "string"
+            },
+            "size": {
+              "maximum": 96,
+              "minimum": 8,
+              "type": "number"
+            },
+            "strokeWidth": {
+              "maximum": 4,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "icon"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "name": "sparkles",
+          "semanticLabel": "Generated",
+          "size": 20
+        },
+        "type": "Icon"
+      },
+      "type": "Icon"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "failureText": "Image unavailable",
+          "fit": "contain",
+          "loading": "lazy"
+        },
+        "events": {
+          "error": {
+            "properties": {
+              "src": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "src"
+            ],
+            "type": "object"
+          },
+          "load": {
+            "type": "null"
+          }
+        },
+        "example": {
+          "props": {
+            "alt": "Preview",
+            "fit": "cover",
+            "src": "assets/preview.png"
+          },
+          "type": "Image"
+        },
+        "properties": {
+          "properties": {
+            "alt": {
+              "type": "string"
+            },
+            "failureText": {
+              "type": "string"
+            },
+            "fit": {
+              "type": "enum",
+              "values": [
+                "fill",
+                "contain",
+                "cover",
+                "none",
+                "scaleDown"
+              ]
+            },
+            "height": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "loading": {
+              "type": "enum",
+              "values": [
+                "eager",
+                "lazy"
+              ]
+            },
+            "src": {
+              "type": "string"
+            },
+            "width": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "src",
+            "alt"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "failure": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "image"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "alt": "Preview",
+          "fit": "cover",
+          "src": "assets/preview.png"
+        },
+        "type": "Image"
+      },
+      "type": "Image"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "allowLinks": true
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "text": "## Safe Markdown\n\nRaw HTML is filtered; **formatting** remains."
+          },
+          "type": "Markdown"
+        },
+        "properties": {
+          "properties": {
+            "allowLinks": {
+              "type": "boolean"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "text",
+          "markdown"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "text": "## Safe Markdown\n\nRaw HTML is filtered; **formatting** remains."
+        },
+        "type": "Markdown"
+      },
+      "type": "Markdown"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "all": 0
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "all": 12
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Padded"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Padding"
+        },
+        "properties": {
+          "properties": {
+            "all": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "bottom": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "horizontal": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "left": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "right": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "top": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "vertical": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "all": 12
+        },
+        "slots": {
+          "child": {
+            "props": {
+              "text": "Padded"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Padding"
+      },
+      "type": "Padding"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {},
+        "events": {},
+        "example": {
+          "props": {
+            "left": 0,
+            "top": 0
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Positioned"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Positioned"
+        },
+        "parents": [
+          "Stack"
+        ],
+        "properties": {
+          "properties": {
+            "bottom": {
+              "type": "number"
+            },
+            "height": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "left": {
+              "type": "number"
+            },
+            "right": {
+              "type": "number"
+            },
+            "top": {
+              "type": "number"
+            },
+            "width": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {},
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "left": 0,
+                "top": 0
+              },
+              "slots": {
+                "child": {
+                  "props": {
+                    "text": "Positioned"
+                  },
+                  "type": "Text"
+                }
+              },
+              "type": "Positioned"
+            }
+          ]
+        },
+        "type": "Stack"
+      },
+      "type": "Positioned"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "align": "start"
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "spans": [
+              {
+                "text": "Status: "
+              },
+              {
+                "text": "active",
+                "tone": "primary",
+                "weight": "semibold"
+              }
+            ]
+          },
+          "type": "RichText"
+        },
+        "properties": {
+          "properties": {
+            "align": {
+              "type": "enum",
+              "values": [
+                "start",
+                "center",
+                "end",
+                "justify"
+              ]
+            },
+            "maxLines": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "semanticLabel": {
+              "type": "string"
+            },
+            "spans": {
+              "items": {
+                "properties": {
+                  "code": {
+                    "type": "boolean"
+                  },
+                  "decoration": {
+                    "type": "enum",
+                    "values": [
+                      "none",
+                      "underline",
+                      "lineThrough"
+                    ]
+                  },
+                  "italic": {
+                    "type": "boolean"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "tone": {
+                    "type": "enum",
+                    "values": [
+                      "default",
+                      "muted",
+                      "primary",
+                      "destructive"
+                    ]
+                  },
+                  "weight": {
+                    "type": "enum",
+                    "values": [
+                      "normal",
+                      "medium",
+                      "semibold"
+                    ]
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "spans"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "text",
+          "richText"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "spans": [
+            {
+              "text": "Status: "
+            },
+            {
+              "text": "active",
+              "tone": "primary",
+              "weight": "semibold"
+            }
+          ]
+        },
+        "type": "RichText"
+      },
+      "type": "RichText"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "crossAxisAlignment": "center",
+          "gap": 0,
+          "mainAxisAlignment": "start"
+        },
+        "events": {},
+        "example": {
+          "slots": {
+            "children": []
+          },
+          "type": "Row"
+        },
+        "properties": {
+          "properties": {
+            "crossAxisAlignment": {
+              "type": "enum",
+              "values": [
+                "start",
+                "end",
+                "center",
+                "stretch",
+                "baseline"
+              ]
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "mainAxisAlignment": {
+              "type": "enum",
+              "values": [
+                "start",
+                "end",
+                "center",
+                "spaceBetween",
+                "spaceAround",
+                "spaceEvenly"
+              ]
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "slots": {
+          "children": []
+        },
+        "type": "Row"
+      },
+      "type": "Row"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "align": "start",
+          "variant": "code",
+          "wrap": "preserve"
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "text": "example.package/widget"
+          },
+          "type": "SelectableText"
+        },
+        "properties": {
+          "properties": {
+            "align": {
+              "type": "enum",
+              "values": [
+                "start",
+                "center",
+                "end",
+                "justify"
+              ]
+            },
+            "maxLines": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "semanticLabel": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "variant": {
+              "type": "enum",
+              "values": [
+                "body",
+                "title",
+                "rowName",
+                "small",
+                "label",
+                "meta",
+                "code"
+              ]
+            },
+            "wrap": {
+              "type": "enum",
+              "values": [
+                "wrap",
+                "nowrap",
+                "preserve"
+              ]
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "text",
+          "selectable"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "text": "example.package/widget"
+        },
+        "type": "SelectableText"
+      },
+      "type": "SelectableText"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {},
+        "events": {},
+        "example": {
+          "props": {
+            "height": 40,
+            "width": 120
+          },
+          "type": "SizedBox"
+        },
+        "properties": {
+          "properties": {
+            "height": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "width": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": false
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "height": 40,
+          "width": 120
+        },
+        "type": "SizedBox"
+      },
+      "type": "SizedBox"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "flex": 1
+        },
+        "events": {},
+        "example": {
+          "type": "Spacer"
+        },
+        "parents": [
+          "Row",
+          "Column"
+        ],
+        "properties": {
+          "properties": {
+            "flex": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {},
+        "slots": {
+          "children": [
+            {
+              "type": "Spacer"
+            }
+          ]
+        },
+        "type": "Row"
+      },
+      "type": "Spacer"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "alignment": "topLeft",
+          "overflow": "hidden"
+        },
+        "events": {},
+        "example": {
+          "slots": {
+            "children": []
+          },
+          "type": "Stack"
+        },
+        "properties": {
+          "properties": {
+            "alignment": {
+              "type": "enum",
+              "values": [
+                "topLeft",
+                "topCenter",
+                "topRight",
+                "centerLeft",
+                "center",
+                "centerRight",
+                "bottomLeft",
+                "bottomCenter",
+                "bottomRight"
+              ]
+            },
+            "overflow": {
+              "type": "enum",
+              "values": [
+                "visible",
+                "hidden",
+                "auto"
+              ]
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "slots": {
+          "children": []
+        },
+        "type": "Stack"
+      },
+      "type": "Stack"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "align": "start",
+          "variant": "body",
+          "wrap": "wrap"
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "text": "Plain declarative text"
+          },
+          "type": "Text"
+        },
+        "properties": {
+          "properties": {
+            "align": {
+              "type": "enum",
+              "values": [
+                "start",
+                "center",
+                "end",
+                "justify"
+              ]
+            },
+            "maxLines": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "semanticLabel": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "variant": {
+              "type": "enum",
+              "values": [
+                "body",
+                "title",
+                "rowName",
+                "small",
+                "label",
+                "meta",
+                "code"
+              ]
+            },
+            "wrap": {
+              "type": "enum",
+              "values": [
+                "wrap",
+                "nowrap",
+                "preserve"
+              ]
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "text"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "text": "Plain declarative text"
+        },
+        "type": "Text"
+      },
+      "type": "Text"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "delay": 200,
+          "side": "top"
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "message": "Inspect package"
+          },
+          "slots": {
+            "child": {
+              "props": {
+                "text": "Focus or hover"
+              },
+              "type": "Text"
+            }
+          },
+          "type": "Tooltip"
+        },
+        "properties": {
+          "properties": {
+            "delay": {
+              "integer": true,
+              "minimum": 0,
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            },
+            "side": {
+              "type": "enum",
+              "values": [
+                "top",
+                "right",
+                "bottom",
+                "left"
+              ]
+            }
+          },
+          "required": [
+            "message"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "child": {
+            "cardinality": "one",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "tooltip"
+        ]
+      },
+      "family": "content",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "message": "Inspect package"
+        },
+        "slots": {
+          "child": {
+            "props": {
+              "text": "Focus or hover"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "Tooltip"
+      },
+      "type": "Tooltip"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "alignment": "start",
+          "crossAxisAlignment": "center",
+          "direction": "row",
+          "gap": 8,
+          "runGap": 8
+        },
+        "events": {},
+        "example": {
+          "slots": {
+            "children": []
+          },
+          "type": "Wrap"
+        },
+        "properties": {
+          "properties": {
+            "alignment": {
+              "type": "enum",
+              "values": [
+                "start",
+                "end",
+                "center",
+                "spaceBetween",
+                "spaceAround",
+                "spaceEvenly"
+              ]
+            },
+            "crossAxisAlignment": {
+              "type": "enum",
+              "values": [
+                "start",
+                "end",
+                "center",
+                "stretch",
+                "baseline"
+              ]
+            },
+            "direction": {
+              "type": "enum",
+              "values": [
+                "row",
+                "column"
+              ]
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "runGap": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "slots": {
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "layout"
+        ]
+      },
+      "family": "layout",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "slots": {
+          "children": []
+        },
+        "type": "Wrap"
+      },
+      "type": "Wrap"
+    }
+  ],
+  "format": "power-eagle/widget-catalog",
+  "formatVersion": 1
+}
