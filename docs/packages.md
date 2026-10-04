@@ -51,7 +51,32 @@ The SDK supplies `packageId`, `packageRoot`, package-anchored `require`, declare
 
 ## Compiled target status
 
-The candidate provider build compiles TS/TSX to CommonJS, bundles transitive UI code, maps React/ReactDOM/JSX imports to the host, and ships remaining production dependencies in a package-local `node_modules`. It must not need the author's checkout, package cache, or runtime dependency installation.
+The provider build compiles TS/TSX to CommonJS for Chrome 108 and Node 16.17, bundles ordinary imports (including ESM-only libraries), maps React/ReactDOM/JSX imports to the host, and ships explicitly external production dependencies in a package-local `node_modules`. A build configuration selects the manifest, provider sources, and dependencies that must remain external:
+
+```json
+{
+  "format": "power-eagle/build",
+  "formatVersion": 1,
+  "manifest": "manifest.json",
+  "providers": {
+    "widgets": "src/types.tsx",
+    "styling": "src/styling.ts",
+    "actions": "src/actions.ts",
+    "services": "src/services.ts"
+  },
+  "externalDependencies": ["some-private-library"]
+}
+```
+
+Every provider source is optional and must correspond to the matching manifest contribution. Dependencies in `externalDependencies` must also appear in the source package's production `dependencies`; the builder resolves them from the source package and copies their production trees without package-manager links. Omit an imported library from this list to bundle it into the compiled provider, which is the normal choice for ESM-only libraries. React, ReactDOM, and JSX runtime imports always remain host supplied.
+
+Build a staged, validated artifact with:
+
+```sh
+npm run package:build -- path/to/power-eagle.build.json path/to/output
+```
+
+The output contains only the normalized manifest, declared runtime documents and assets, compiled `.cjs` providers, package metadata, and copied production dependencies. It does not contain the provider TypeScript, build configuration, workspace symlinks, or an install script. `package.json` records the exact copied dependency versions plus the manifest SDK and platform target. The resulting directory can be relocated and loaded without the author's checkout, package cache, TypeScript compiler, or a runtime dependency installation.
 
 The isolated experiment is available via `npm run fixture:check`. It has a deliberately minimal experimental manifest and is not a public SDK example. The approach passed in Eagle 4.0.0 on Windows x64 as recorded in [provider-host-validation.md](provider-host-validation.md), and the production manifest-first loader now uses that verified boundary. Native addons, ESM-only libraries, and other platform/runtime combinations remain subject to later compatibility and build checks.
 
