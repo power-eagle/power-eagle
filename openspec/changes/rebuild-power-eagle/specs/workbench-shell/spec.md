@@ -29,15 +29,19 @@ The workbench SHALL maintain a single selection identifying a package, runtime s
 - **THEN** its exports and off state appear without enabling or executing them
 
 ### Requirement: Source tree and package controls
-Sources SHALL group built-ins, each installation source, and generated packages and expose each package's declared contribution categories. Package rows SHALL show version and active/off/failed state, with a new badge for packages generated in the current session. Selecting a runtime SHALL offer its view; selecting a provider contribution SHALL show its exports. Source registration and installation SHALL be reachable from the source footer with unambiguous operation controls and validation.
+Sources SHALL group built-ins, canonical sources from Power Eagle's scoped Saucepan view, generated packages, and unscoped artifacts staged for the current session, and SHALL expose each package's declared contribution categories. Package rows SHALL show version, persistence mode, and active/off/failed state, with a new badge for packages generated in the current session. Selecting a runtime SHALL offer its view; selecting a provider contribution SHALL show its exports. Recipe acquisition SHALL be reachable from the source footer with unambiguous persistent and session-only controls and validation.
 
 #### Scenario: Select a mixed package
 - **WHEN** a package contains runtime, widgets, and styling contributions
 - **THEN** the tree exposes all three and the stage can switch between a runnable view and contribution inspection
 
-#### Scenario: Install from the footer
-- **WHEN** a user chooses install, enters a supported package identifier, and the install succeeds
-- **THEN** the appropriate source group refreshes and reports the new package without navigating to an old installation tab
+#### Scenario: Acquire from the footer
+- **WHEN** a user supplies a supported recipe, chooses persistent acquisition, and the operation succeeds
+- **THEN** the appropriate canonical source group refreshes from Power Eagle's scoped view without navigating to an old installation tab
+
+#### Scenario: Stage an unscoped artifact
+- **WHEN** a user chooses session-only acquisition and validation succeeds
+- **THEN** Sources marks the artifact as session-only and does not claim it will return after restart
 
 ### Requirement: Stage states and activation inspector
 Stage SHALL display preview or activation inspection as appropriate and distinguish empty, loading, ready, off, and error conditions with explanatory text. Activation inspection SHALL expose named exports, schemas or concise descriptions, enablement, dependency usage, and failures. Package failures SHALL show the raw error and an appropriate recovery action rather than only a red indicator.

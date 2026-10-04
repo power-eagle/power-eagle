@@ -20,7 +20,7 @@ Documentation establishes feasibility, not successful execution in the installed
 
 **Goals:**
 
-- Preserve existing source responsibilities and storage/distribution organization while replacing all authoring/runtime contracts.
+- Preserve existing source responsibilities while replacing the legacy storage/distribution organization and all authoring/runtime contracts.
 - Separate serializable UI descriptions from compiled implementations, following Stac's model/registry/parser/action separation. Supply typed authoring and reusable components without exposing React internals in runtime JSON.
 - Make contribution ownership, dependency resolution, disabled exports, and teardown observable and deterministic.
 - Give built-ins, installed packages, and generated documents the same validation and activation semantics.
@@ -34,7 +34,7 @@ Documentation establishes feasibility, not successful execution in the installed
 
 ## Decisions
 
-### 1. Preserve source and storage boundaries
+### 1. Preserve source boundaries and reset legacy data
 
 Retain these ownership boundaries; add focused subdirectories rather than flattening or moving everything into a new `packages/` workspace:
 
@@ -48,9 +48,11 @@ Retain these ownership boundaries; add focused subdirectories rather than flatte
 | `src/components/ui` | Production design-system components |
 | `docs`, `examples`, `features` | Public authoring contracts, installable examples, BDD scenarios |
 
-Keep `~/.powereagle/bin`, `saucepan.toml`, `.saucepan/index.json`, Saucepan-resolved GitHub/customgit directories, and local packages referenced in place. Use Saucepan's `path` output rather than duplicating path formulas. Preserve `conversations/<id>/v<N>/` and its index location with a new explicit record format; unsupported records are reported without executing or overwriting them. New enablement keys are versioned separately from legacy keys.
+On the first revised launch, resolve the exact legacy root as `<home>/.powereagle`, reject unsafe or unexpected deletion targets, remove that Power Eagle-owned tree recursively, remove obsolete Power Eagle browser-storage keys, and recreate the root with a versioned new-format sentinel. The sentinel makes the reset idempotent so later launches retain new data. The reset includes legacy conversations, theme state, cached binaries, workspace configuration/indexes, managed clones, and generated package data inside the legacy root. It never removes an external local source referenced by the old app and never removes the shared user-level `~/.saucepan` store, which may serve other applications. Tests use injected temporary home/storage roots and never exercise deletion against live user data.
 
-Alternative: a new monorepo and relocated user-data root. Rejected because both layouts were explicitly requested to survive. Retained storage is not retained payload compatibility.
+Store new Power Eagle-owned state under the sentinel-marked `~/.powereagle` root with explicit format identities. New conversations and generated packages start empty; no legacy record is inspected, converted, or retained. Source acquisition uses Saucepan's current shared central store at `~/.saucepan`; its executable defaults to `~/.saucepan/bin/saucepan[.exe]` with an explicit path override.
+
+Alternative: preserve or migrate legacy Power Eagle storage. Rejected because the requested clean break includes deletion of all data owned inside the old root. Deleting `~/.saucepan` or referenced external directories is also rejected because those locations are not exclusively owned by Power Eagle.
 
 ### 2. One new document language with typed authoring
 
@@ -100,6 +102,16 @@ Native addons need an explicitly supported runtime/OS/architecture build. Record
 
 Alternative: all providers compiled into Power Eagle. Rejected because installed packages must be able to add implementations. Fully bundled providers alone also do not meet the requested optional `node_modules` model.
 
+### 4a. Current Saucepan central-store integration
+
+Target Saucepan 0.6's declarative recipe and central-store protocol rather than the removed workspace/TOML/bucket commands. Power Eagle calls the independently installed executable directly with argument arrays and temporary JSON request files through Eagle's injected Node bridge. It does not import the upstream TypeScript SDK at runtime because that SDK requires Node 20 while the verified Eagle host provides Node 16.17.1. The adapter must remain asynchronous, avoid a shell, preserve structured stdout/stderr diagnostics, clean temporary files, and let built-ins operate when Saucepan is absent or its store is unavailable.
+
+Use a registered `power-eagle` app and stable marker for durable package acquisition, filtered views, artifact path resolution, history, and configuration. Also support acquisition with all caller flags omitted. That unscoped path is appropriate for session-only preview or validation: it returns the acquired artifact and directory without registering an app or adding a touch to Power Eagle's persistent view. Because `view`, `path`, `history`, `snapshot`, `mirror`, `configure`, and `verify` remain app-scoped, anything expected to reappear in Sources after restart must use the scoped path.
+
+Read source grouping from the acquired/view artifact's canonical `source_id` and full `source` descriptor. Git, URL, and local recipes share the same flow; current Saucepan copies local inputs into central storage, so Power Eagle must not assume local packages remain in place. Never read or rewrite `index.json.enc` directly, reconstruct central content paths, or add a second package index. Production encryption and credentials remain Saucepan concerns; Power Eagle adds no separate encryption layer and does not treat scoping as mandatory for every acquisition.
+
+Alternative: bundle the Node 20 SDK or preserve the old binary downloader and `saucepan.toml` workspace. Rejected because neither matches the verified Eagle runtime or current Saucepan protocol.
+
 ### 5. Transactional registries and explicit enablement
 
 Load module descriptors, validate named exports/dependencies, determine a topological activation order, then activate providers and publish a coherent registry snapshot. Top-level module loading and registration must be declarative; side effects belong to activation hooks that return disposers. Reject dependency cycles and duplicate qualified identities; never select a winner by incidental directory order. Unrelated packages continue operating when one package fails.
@@ -122,13 +134,13 @@ Alternative: a large list of registered placeholder renderers. Rejected: catalog
 
 ### 7. One workbench state and new-format AI versions
 
-The shell owns one selection containing package id, runtime export/screen or contribution/export, and optional conversation/version identity. Source clicks and AI version selection update that same state. The source tree groups built-ins, actual registered installation sources, and generated packages; Saucepan's broad source type alone is insufficient to distinguish multiple buckets, so retain source identity in discovery metadata or a host-owned companion record without modifying Saucepan's index schema.
+The shell owns one selection containing package id, runtime export/screen or contribution/export, and optional conversation/version identity. Source clicks and AI version selection update that same state. The source tree groups built-ins, packages in Power Eagle's scoped Saucepan view, generated packages, and any unscoped artifact staged for the current session. Group acquired packages by Saucepan's canonical source id and source descriptor; no host-owned duplicate package index is required.
 
 Adapt the design's three panels, collapsible rails, independent scrolling, activation inspector, statuses, and single primary Send action. At the existing 910x750 window, use the scaffold's 208px sources and 272px agent proportions and a flexible stage. At smaller widths preserve an operable stage through explicit/minimum-width or rail behavior; do not silently introduce a new mobile shell.
 
 The initial Agent generates/refines canonical runtime JSON against the active registry and schemas. Human authors use the primary TypeScript DSL; both paths validate into the same document model. This avoids adding an unproven compiler/dependency installer to a conversation turn. Custom installed types/actions are supplied to the model as schemas and examples. A proposed new implementation absent from the registry is reported as requiring a separately built provider package.
 
-Persist new-format conversation records with a format version, immutable successful version payloads, source/base-version identity, and monotonic version allocation. Record generation, validation, and activation failures, including failures before a package is written. Selecting an older version changes the refinement base; new versions never overwrite it. Deleting a turn does not reuse its version number. Unsupported historical records are reported without execution/conversion; new records must not overwrite them. New generated versions use the same package catalog/activation path and appear under `ai generated`.
+Persist only new-format conversation records with a format version, immutable successful version payloads, source/base-version identity, and monotonic version allocation. Record generation, validation, and activation failures, including failures before a package is written. Selecting an older version changes the refinement base; new versions never overwrite it. Deleting a turn does not reuse its version number. Legacy conversations are removed by the one-time reset and are neither loaded nor migrated. New generated versions use the same package catalog/activation path and appear under `ai generated`.
 
 Alternative: directly execute generated TS/CJS or retain old ESM conversation execution. Rejected for this change because compiled providers have a separate build contract, while legacy execution is explicitly excluded.
 
@@ -145,7 +157,7 @@ Retain the root Eagle manifest's role, `dist/index.html` entry, icon, localizati
 - Shared React or module caching is misconfigured -> exercise hook-based widgets, transitive UI dependencies, two dependency versions, and reload/cleanup in the host experiment.
 - Native addons and package-manager links reduce portability -> ship self-contained production dependencies and declare supported runtime/platform builds.
 - Broad catalog increases scope -> verify complete widget families incrementally; no placeholder types count toward completion.
-- Old data lives at retained locations -> version records, preserve unsupported content, and use disposable storage for tests rather than live `~/.powereagle`.
+- Legacy reset targets the wrong location or repeats -> resolve and compare the exact home-relative path, require the new-format sentinel for subsequent launches, and exercise deletion only with disposable storage roots in tests.
 - Shell styling leaks into dependency widgets or vice versa -> scope package CSS/assets to the stage and expose explicit SDK style hooks.
 
 ## Migration Plan
@@ -153,5 +165,5 @@ Retain the root Eagle manifest's role, `dist/index.html` entry, icon, localizati
 1. Preserve the reference and design repositories unchanged. Implement only in the revised target and retain unrelated existing edits/deletions.
 2. Complete the isolated Eagle loader experiment and record evidence before relying on package-local modules or shared React.
 3. Build new schemas/authoring, packages/activation, complete widget groups, host tools, shell, and AI in the checkpoint order in `tasks.md`.
-4. Validate with fresh temporary installation/conversation roots and new-format examples. Surface old formats as unsupported; do not migrate or delete them.
-5. Build and inspect the distributable Eagle plugin, then exercise the packaged application in Eagle. Rollback is reinstalling a previous application release with preserved user data, not adding an old runtime inside the new application.
+4. Validate the one-time legacy reset, new state sentinel, scoped and unscoped Saucepan paths, fresh conversation storage, and new-format examples with disposable roots.
+5. Build and inspect the distributable Eagle plugin, then exercise the packaged application in Eagle. Rollback is reinstalling a previous application release; deleted legacy Power Eagle data is intentionally not recoverable through the new application.

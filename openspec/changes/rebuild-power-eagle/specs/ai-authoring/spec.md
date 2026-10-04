@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Generate and refine new-format runtime documents through Eagle's AI integration while preserving version history, exposing failures, and using the installed language vocabulary.
+Generate and refine new-format runtime documents through Eagle's AI integration with clean versioned history, exposed failures, and the installed language vocabulary.
 
 ## ADDED Requirements
 
@@ -36,15 +36,15 @@ A conversation SHALL support a first generated version and subsequent versions b
 - **THEN** the next version records version 1 as its base and both existing versions remain unchanged
 
 ### Requirement: Persistent noncolliding history
-New-format conversations SHALL persist under the retained conversations directory and version-directory organization with explicit format identity, monotonic version allocation, turn status, instruction, and base-version identity. Reload SHALL restore compatible conversations and their available versions. Removing a turn from visible history MUST NOT cause its version id or existing payload path to be reused. Unsupported historical records SHALL be reported and preserved without executing or converting their code.
+New-format conversations SHALL persist under the versioned clean Power Eagle state root with explicit format identity, monotonic version allocation, turn status, instruction, and base-version identity. Reload SHALL restore compatible new-format conversations and their available versions. Removing a turn from visible history MUST NOT cause its version id or existing payload path to be reused. Legacy conversation records SHALL be removed by the one-time data reset and MUST NOT be loaded, migrated, or converted.
 
 #### Scenario: Delete and create a new turn
 - **WHEN** the latest turn is deleted and another turn is submitted
 - **THEN** the new turn receives a never-used higher version id and does not overwrite an existing version directory
 
-#### Scenario: Preserve old history
-- **WHEN** conversation storage includes a legacy executable version record
-- **THEN** the workbench identifies it as unsupported and leaves its files intact while allowing new-format conversations
+#### Scenario: Start after a legacy reset
+- **WHEN** the revised application opens after legacy conversation data existed
+- **THEN** Agent begins with empty new-format history and no legacy executable record is available to load
 
 ### Requirement: Source and stage integration
 Successful generated packages SHALL appear under `ai generated` and use normal package/activation semantics. Agent version selection SHALL update the shared shell selection. A user SHALL be able to create/select conversations, select stored versions, delete failed turns, and see whether a version is on stage.
