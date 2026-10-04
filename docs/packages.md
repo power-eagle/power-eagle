@@ -32,7 +32,18 @@ module.exports = sdk => ({
 });
 ```
 
-The loader publishes nothing unless every provider export matches the manifest's kind, id, and descriptor exactly. Undeclared, duplicate, omitted, or schema-divergent exports fail the package. A missing private npm dependency identifies the owning package contribution instead of affecting unrelated packages. Kind-specific authoring factories are added in the next SDK checkpoint.
+The loader publishes nothing unless every provider export matches the manifest's kind, id, and descriptor exactly. Undeclared, duplicate, omitted, or schema-divergent exports fail the package. A missing private npm dependency identifies the owning package contribution instead of affecting unrelated packages. Kind-specific authoring factories are described below.
+
+## Provider SDK factories
+
+The typed SDK entry under `src/sdui/sdk` exports `defineWidgetProvider`, `defineActionProvider`, `defineServiceProvider`, and `defineStylingProvider`. `npm run language:types` emits their public declarations. Each factory accepts static definitions or a callback that receives the package-scoped SDK:
+
+- widget implementations provide a React renderer for resolved properties, slots, styles, and events;
+- action implementations provide one typed asynchronous invoker;
+- service implementations provide named method invokers;
+- styling implementations provide serializable token, variant, and targeted-override maps.
+
+The SDK supplies `packageId`, `packageRoot`, package-anchored `require`, declared `assetUrl`, and host-owned `react`, `react-dom`, and `react/jsx-runtime` modules. Compiled providers must use those shared modules; shipping another React instance into the stage is outside the contract. The production loader refuses to start providers when the required shared modules are absent.
 
 `dependencies` is an explicit array of `{package, version, export, kind}` requirements. Ranges follow npm semantic version syntax. Duplicate dependencies on the same qualified identity are invalid. Runtime validation checks the supplied available-export catalog for matching kind/version and requires a widget/call reference to declare its dependency. npm dependencies remain private and do not become public exports.
 

@@ -3,11 +3,15 @@ import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:
 import { createRequire } from 'node:module';
 import { join, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as jsxRuntime from 'react/jsx-runtime';
 import { Text } from '../../sdui/authoring/foundation';
 import type { ExportDescriptor, PackageManifest, RuntimeDocument } from '../../sdui/schema/model';
 import { ContributionPackageError, discoverContributionPackage, loadCompiledContributions } from './contribution-package';
 
 const hostRequire = createRequire(import.meta.url);
+const sharedModules = { react: React, 'react-dom': ReactDOM, 'react/jsx-runtime': jsxRuntime };
 const roots: string[] = [];
 afterEach(() => {
   for (const root of roots.splice(0)) {
@@ -81,7 +85,7 @@ describe('manifest-first contribution packages', () => {
   it('loads a declared CommonJS factory with package-relative assets', () => {
     const fixture = createPackage({ assets: ['assets/marker.txt'] });
     const discovered = discoverContributionPackage(fixture.root, hostRequire);
-    const loaded = loadCompiledContributions(discovered, { hostRequire, sharedModules: { react: {} } });
+    const loaded = loadCompiledContributions(discovered, { hostRequire, sharedModules });
 
     expect(loaded).toHaveLength(1);
     expect(loaded[0].exports[0].descriptor).toEqual(fixture.descriptor);
@@ -102,12 +106,12 @@ describe('manifest-first contribution packages', () => {
 
   it('rejects descriptor mismatches and reports missing private dependencies', () => {
     const mismatch = createPackage({ provider: `module.exports = () => ({ format: 'power-eagle/provider', formatVersion: 1, kind: 'widget', exports: [{ descriptor: ${JSON.stringify(widgetDescriptor('other'))}, implementation: {} }] });` });
-    expect(() => loadCompiledContributions(discoverContributionPackage(mismatch.root, hostRequire), { hostRequire, sharedModules: {} }))
+    expect(() => loadCompiledContributions(discoverContributionPackage(mismatch.root, hostRequire), { hostRequire, sharedModules }))
       .toThrow(/Undeclared provider export other|omitted manifest export switch/);
 
     const missing = createPackage({ provider: `module.exports = () => require('dependency-that-is-not-installed');` });
     try {
-      loadCompiledContributions(discoverContributionPackage(missing.root, hostRequire), { hostRequire, sharedModules: {} });
+      loadCompiledContributions(discoverContributionPackage(missing.root, hostRequire), { hostRequire, sharedModules });
       throw new Error('Expected provider load to fail');
     } catch (error) {
       expect(diagnostics(error)[0]).toEqual(expect.objectContaining({ path: '/contributions/widgets', code: 'missing-dependency' }));

@@ -1,8 +1,10 @@
 import { runtimeSchema, type ExportDescriptor, type PackageManifest, type RuntimeDocument } from '../../sdui/schema/model';
+import type {
+  CompiledContribution, CompiledProviderExport, ExecutableExportKind, ProviderSdk, SharedRuntimeModules,
+} from '../../sdui/sdk/provider';
 import { validatePackage, type Diagnostic } from '../../sdui/schema/validate';
 
 export type ExecutableContribution = 'widgets' | 'styling' | 'actions' | 'services';
-export type ExecutableExportKind = 'widget' | 'styling' | 'action' | 'service';
 
 export interface PackageDiagnostic extends Diagnostic {
   packageRoot: string;
@@ -24,26 +26,6 @@ export interface DiscoveredPackage {
   runtime?: RuntimeDocument;
 }
 
-export interface ProviderSdk {
-  packageId: string;
-  packageRoot: string;
-  require: NodeRequire;
-  sharedModules: Readonly<Record<string, unknown>>;
-  assetUrl(relativePath: string): string;
-}
-
-export interface CompiledProviderExport {
-  descriptor: ExportDescriptor;
-  implementation: unknown;
-}
-
-export interface CompiledContribution {
-  format: 'power-eagle/provider';
-  formatVersion: 1;
-  kind: ExecutableExportKind;
-  exports: CompiledProviderExport[];
-}
-
 export interface LoadedContribution {
   entry: string;
   contribution: ExecutableContribution;
@@ -53,7 +35,7 @@ export interface LoadedContribution {
 
 export interface ProviderLoadOptions {
   hostRequire: NodeRequire;
-  sharedModules: Readonly<Record<string, unknown>>;
+  sharedModules: SharedRuntimeModules;
 }
 
 interface HostModules {
@@ -230,6 +212,11 @@ export function loadCompiledContributions(discovered: DiscoveredPackage, options
   const host = modules(options.hostRequire);
   const localRequire = host.createRequire(discovered.manifestPath);
   const loaded: LoadedContribution[] = [];
+  for (const id of ['react', 'react-dom', 'react/jsx-runtime'] as const) {
+    if (!options.sharedModules[id]) {
+      throw new ContributionPackageError([{ packageRoot: discovered.root, path: '/host/sharedModules', code: 'host-contract', message: `Missing shared runtime module ${id}` }]);
+    }
+  }
   for (const contribution of executableEntries) {
     const entry = discovered.entries[contribution];
     if (!entry) continue;
