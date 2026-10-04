@@ -499,6 +499,83 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "actionLabel": "",
+          "dismissible": false,
+          "message": "",
+          "tone": "info"
+        },
+        "events": {
+          "action": {
+            "type": "null"
+          },
+          "dismiss": {
+            "type": "null"
+          }
+        },
+        "example": {
+          "props": {
+            "actionLabel": "Reload",
+            "message": "Reload to use the new provider.",
+            "title": "Package updated",
+            "tone": "success"
+          },
+          "type": "Banner"
+        },
+        "properties": {
+          "properties": {
+            "actionLabel": {
+              "type": "string"
+            },
+            "dismissible": {
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "tone": {
+              "type": "enum",
+              "values": [
+                "info",
+                "success",
+                "warning",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "feedback",
+          "banner"
+        ]
+      },
+      "family": "feedback",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "actionLabel": "Reload",
+          "message": "Reload to use the new provider.",
+          "title": "Package updated",
+          "tone": "success"
+        },
+        "type": "Banner"
+      },
+      "type": "Banner"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "disabled": false
         },
         "events": {
@@ -1643,6 +1720,144 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "closeOnEscape": true,
+          "description": "",
+          "dismissible": true,
+          "modal": true,
+          "open": false
+        },
+        "events": {
+          "close": {
+            "properties": {
+              "reason": {
+                "type": "enum",
+                "values": [
+                  "button",
+                  "escape",
+                  "backdrop",
+                  "timeout",
+                  "action"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "description": "Review the package before continuing.",
+            "id": "catalog-dialog",
+            "open": true,
+            "title": "Install package?"
+          },
+          "slots": {
+            "actions": [
+              {
+                "props": {
+                  "label": "Install"
+                },
+                "type": "Button"
+              }
+            ],
+            "children": [
+              {
+                "props": {
+                  "text": "example.package/widgets"
+                },
+                "type": "Text"
+              }
+            ]
+          },
+          "type": "Dialog"
+        },
+        "properties": {
+          "properties": {
+            "closeOnEscape": {
+              "type": "boolean"
+            },
+            "description": {
+              "type": "string"
+            },
+            "dismissible": {
+              "type": "boolean"
+            },
+            "id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "modal": {
+              "type": "boolean"
+            },
+            "open": {
+              "type": "boolean"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ],
+          "type": "object"
+        },
+        "slots": {
+          "actions": {
+            "cardinality": "many",
+            "required": false
+          },
+          "children": {
+            "cardinality": "many",
+            "required": true
+          }
+        },
+        "themeHooks": [
+          "feedback",
+          "dialog",
+          "overlay"
+        ]
+      },
+      "family": "feedback",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "description": "Review the package before continuing.",
+          "id": "catalog-dialog",
+          "open": true,
+          "title": "Install package?"
+        },
+        "slots": {
+          "actions": [
+            {
+              "props": {
+                "label": "Install"
+              },
+              "type": "Button"
+            }
+          ],
+          "children": [
+            {
+              "props": {
+                "text": "example.package/widgets"
+              },
+              "type": "Text"
+            }
+          ]
+        },
+        "type": "Dialog"
+      },
+      "type": "Dialog"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "decorative": true,
           "orientation": "horizontal"
         },
@@ -1687,6 +1902,126 @@
         "type": "Divider"
       },
       "type": "Divider"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "actionLabel": "",
+          "message": ""
+        },
+        "events": {
+          "action": {
+            "type": "null"
+          }
+        },
+        "example": {
+          "props": {
+            "actionLabel": "Install package",
+            "message": "Install a package to begin.",
+            "title": "No packages"
+          },
+          "type": "EmptyState"
+        },
+        "properties": {
+          "properties": {
+            "actionLabel": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "feedback",
+          "empty"
+        ]
+      },
+      "family": "feedback",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "actionLabel": "Install package",
+          "message": "Install a package to begin.",
+          "title": "No packages"
+        },
+        "type": "EmptyState"
+      },
+      "type": "EmptyState"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "message": "",
+          "retryLabel": "Retry",
+          "retrying": false
+        },
+        "events": {
+          "retry": {
+            "type": "null"
+          }
+        },
+        "example": {
+          "props": {
+            "message": "The provider could not be loaded.",
+            "retryLabel": "Retry",
+            "title": "Package failed"
+          },
+          "type": "ErrorState"
+        },
+        "properties": {
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "retryLabel": {
+              "type": "string"
+            },
+            "retrying": {
+              "type": "boolean"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "feedback",
+          "error"
+        ]
+      },
+      "family": "feedback",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "message": "The provider could not be loaded.",
+          "retryLabel": "Retry",
+          "title": "Package failed"
+        },
+        "type": "ErrorState"
+      },
+      "type": "ErrorState"
     },
     {
       "availability": "active",
@@ -3222,6 +3557,76 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "indeterminate": false,
+          "status": "",
+          "tone": "info",
+          "value": 0
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "label": "Installing package",
+            "status": "3 of 5 files",
+            "value": 60
+          },
+          "type": "ProgressIndicator"
+        },
+        "properties": {
+          "properties": {
+            "indeterminate": {
+              "type": "boolean"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "tone": {
+              "type": "enum",
+              "values": [
+                "info",
+                "success",
+                "warning",
+                "error"
+              ]
+            },
+            "value": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "feedback",
+          "progress"
+        ]
+      },
+      "family": "feedback",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Installing package",
+          "status": "3 of 5 files",
+          "value": 60
+        },
+        "type": "ProgressIndicator"
+      },
+      "type": "ProgressIndicator"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "columns": 1,
           "disabled": false
         },
@@ -4362,6 +4767,70 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "animated": true,
+          "lines": 1
+        },
+        "events": {},
+        "example": {
+          "props": {
+            "animated": true,
+            "label": "Loading package details",
+            "lines": 3
+          },
+          "type": "Skeleton"
+        },
+        "properties": {
+          "properties": {
+            "animated": {
+              "type": "boolean"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "lines": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "width": {
+              "minimum": 5e-324,
+              "type": "number"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "feedback",
+          "skeleton"
+        ]
+      },
+      "family": "feedback",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "animated": true,
+          "label": "Loading package details",
+          "lines": 3
+        },
+        "type": "Skeleton"
+      },
+      "type": "Skeleton"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "disabled": false,
           "readOnly": false,
           "required": false,
@@ -5257,6 +5726,107 @@
         "type": "TextField"
       },
       "type": "TextField"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "dismissible": true,
+          "duration": 5000,
+          "open": false,
+          "tone": "info"
+        },
+        "events": {
+          "action": {
+            "type": "null"
+          },
+          "close": {
+            "properties": {
+              "reason": {
+                "type": "enum",
+                "values": [
+                  "button",
+                  "escape",
+                  "backdrop",
+                  "timeout",
+                  "action"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "duration": 0,
+            "id": "catalog-toast",
+            "message": "Package installed",
+            "open": true,
+            "tone": "success"
+          },
+          "type": "Toast"
+        },
+        "properties": {
+          "properties": {
+            "dismissible": {
+              "type": "boolean"
+            },
+            "duration": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "message": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "open": {
+              "type": "boolean"
+            },
+            "tone": {
+              "type": "enum",
+              "values": [
+                "info",
+                "success",
+                "warning",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "message"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "feedback",
+          "toast",
+          "overlay"
+        ]
+      },
+      "family": "feedback",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "duration": 0,
+          "id": "catalog-toast",
+          "message": "Package installed",
+          "open": true,
+          "tone": "success"
+        },
+        "type": "Toast"
+      },
+      "type": "Toast"
     },
     {
       "availability": "active",

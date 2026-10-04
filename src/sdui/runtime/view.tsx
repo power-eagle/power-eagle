@@ -2,9 +2,10 @@ import * as React from 'react';
 import type { Json } from '../schema/model';
 import type { ResolvedNode, RuntimeCatalog, RuntimeEvent, RuntimeSession } from './session';
 import type { FormController } from './form-controller';
+import type { FeedbackController } from './feedback-controller';
 import type { RuntimeSelectionAdapter } from './selection-adapter';
 
-export interface WidgetRuntime { forms: FormController; selection?: RuntimeSelectionAdapter }
+export interface WidgetRuntime { forms: FormController; feedback: FeedbackController; selection?: RuntimeSelectionAdapter }
 
 export interface WidgetRenderProps {
   node: ResolvedNode;
@@ -36,5 +37,7 @@ export function ResolvedView({ node, catalog, runtime }: { node: ResolvedNode; c
 export function RuntimeView({ session }: { session: RuntimeSession }): React.ReactElement | null {
   React.useSyncExternalStore(session.subscribe, session.snapshot, session.snapshot);
   const node = session.resolve();
-  return node ? <ResolvedView node={node} catalog={session.catalog} runtime={{ forms: session.forms, selection: session.selection }} /> : null;
+  return node ? <div className="pe-runtime-stage" data-pe-runtime-stage="">
+    <ResolvedView node={node} catalog={session.catalog} runtime={{ forms: session.forms, feedback: session.feedback, selection: session.selection }} />
+  </div> : null;
 }

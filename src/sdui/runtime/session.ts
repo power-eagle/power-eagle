@@ -4,6 +4,7 @@ import { evaluate, ExpressionError, type ValueContext } from '../state/evaluate'
 import { StateScope } from '../state/store';
 import { ActionDispatcher, type RuntimeAdapters } from './actions';
 import { FormController } from './form-controller';
+import { FeedbackController } from './feedback-controller';
 import { NavigationStack } from './navigation';
 import type { FileSelectionOptions, RuntimeSelectionAdapter } from './selection-adapter';
 
@@ -40,6 +41,7 @@ export class RuntimeSession {
   readonly navigation: NavigationStack;
   readonly actions: ActionDispatcher;
   readonly forms: FormController;
+  readonly feedback: FeedbackController;
   readonly selection?: RuntimeSelectionAdapter;
   readonly catalog: RuntimeCatalog;
   #listeners = new Set<() => void>();
@@ -56,6 +58,7 @@ export class RuntimeSession {
     this.globalState = new StateScope('document', this.document.state);
     this.navigation = new NavigationStack(this.document, this.globalState);
     this.forms = new FormController(adapters.form);
+    this.feedback = new FeedbackController(() => this.emit());
     if (adapters.selection) {
       this.selection = async (request: FileSelectionOptions) => {
         const activation = this.navigation.current.activation;
@@ -65,7 +68,11 @@ export class RuntimeSession {
         return result;
       };
     }
-    this.actions = new ActionDispatcher(this.document, this.navigation, { ...adapters, form: (operation, id, signal) => this.forms.run(operation, id, signal) }, () => this.emit());
+    this.actions = new ActionDispatcher(this.document, this.navigation, {
+      ...adapters,
+      form: (operation, id, signal) => this.forms.run(operation, id, signal),
+      feedback: (operation, id, value, signal) => this.feedback.apply(operation, id, value, signal),
+    }, () => this.emit());
     this.globalState.subscribe(() => this.emit());
     this.navigation.subscribe(() => { this.bindScreen(); this.emit(); });
     this.bindScreen();
@@ -104,6 +111,7 @@ export class RuntimeSession {
     this.#instanceSubscriptions.clear();
     this.globalState.dispose();
     this.forms.clear();
+    this.feedback.dispose();
     this.#listeners.clear();
     await this.navigation.dispose();
   }

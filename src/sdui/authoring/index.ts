@@ -33,6 +33,9 @@ export function call(target: string, args: Json, method?: string): Action {
 }
 export function run(action: string): Action { return { kind: 'run', action }; }
 export function form(id: string, operation: 'validate' | 'submit' | 'reset' = 'submit'): Action { return { kind: 'form', operation, id }; }
+export function feedback(operation: 'toast' | 'openDialog' | 'closeDialog', id: string, value?: Json): Action {
+  return value === undefined ? { kind: 'feedback', operation, id } : { kind: 'feedback', operation, id, value };
+}
 export function back(): Action { return { kind: 'back' }; }
 export function forEach(node: Node, items: Json, key: Json, empty?: Node): Node {
   return empty ? { ...node, repeat: { items, key }, empty } : { ...node, repeat: { items, key } };
