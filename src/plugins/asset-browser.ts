@@ -78,7 +78,9 @@ export const assetBrowserDocument = defineDocument({
           confirm: run('select'),
           retry: run('load'),
         } }),
-        Text.node({ text: ref('state', 'message'), variant: 'small' }),
+        Text.node({ text: ref('state', 'message'), variant: 'small' }, {
+          visible: expression('ne', ref('state', 'status'), 'error'),
+        }),
       ] } }),
     },
   },

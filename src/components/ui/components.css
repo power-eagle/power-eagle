@@ -341,6 +341,10 @@
 .pe-asset-copy span { color: var(--muted-foreground); font: 400 10px/14px var(--font-mono); }
 .pe-asset-state { display: grid; min-height: 112px; gap: var(--space-2); padding: var(--space-4); place-items: center; color: var(--muted-foreground); text-align: center; }
 .pe-asset-state-error { color: var(--destructive); }
+.pe-asset-error-details { width: 100%; min-width: 0; color: var(--muted-foreground); text-align: left; }
+.pe-asset-error-details summary { cursor: pointer; }
+.pe-asset-error-details summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.pe-asset-error-details pre { margin: var(--space-2) 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 400 11px/16px var(--font-mono); }
 .pe-asset-picker footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); border-top: 1px solid var(--input); padding: var(--space-2); color: var(--muted-foreground); font: 400 10px/16px var(--font-mono); }
 .pe-asset-picker-actions { display: flex; gap: var(--space-2); }
 

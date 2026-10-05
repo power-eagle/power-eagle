@@ -107,7 +107,11 @@ function AssetSurface({ widget, props, events, style }: WidgetRenderProps & { wi
   };
   const content = status === 'loading' ? <div className="pe-asset-state" role="status">Loading Eagle assets</div>
     : status === 'error' ? <div className="pe-asset-state pe-asset-state-error" role="alert">
-      <span>{text(props.errorText, 'Unable to load Eagle assets')}</span>
+      <span>Unable to load Eagle assets</span>
+      <details className="pe-asset-error-details">
+        <summary>Error details</summary>
+        <pre>{text(props.errorText, 'The host did not return asset data.')}</pre>
+      </details>
       <UiButton type="button" variant="outline" size="sm" onClick={() => void events.retry?.(null)}>Retry</UiButton>
     </div>
       : !items.length ? <div className="pe-asset-state">{text(props.emptyText, 'No Eagle assets')}</div>

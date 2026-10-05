@@ -21,6 +21,8 @@ The adapter exposes these operation groups:
 
 The plugin API is the primary boundary for library content. [Eagle's Item API](https://developer.eagle.cool/plugin-api/api/item) requires callers to modify returned items and call `save()`; [the Folder API](https://developer.eagle.cool/plugin-api/api/folder) follows the same rule. Power Eagle never edits `metadata.json`, `index.json`, or another library metadata file directly.
 
+Asset records normalize unavailable, non-finite, or negative dimensions and modification timestamps to `0`. Dimensions of zero display as unavailable; they are not measured sizes. Missing or invalid star ratings become `0` (unrated); valid integer ratings from 0 through 5 are preserved. This normalization only affects the inert runtime record and never writes to the Eagle Item. The picker preserves unexpected load diagnostics under Error details with a Retry control.
+
 The plugin API can inspect the current library but has no recent-history or switch method. The retained local Web API bridge therefore handles those two operations. It reads the developer token once from `application/info`, sends literal JSON with `fetch`, validates the response envelope, and reports HTTP, transport, and protocol failures. General runtime HTTP requests use a separate adapter and do not inherit Eagle's local token.
 
 ## Errors and cancellation

@@ -65,16 +65,16 @@ interface EagleItemLike {
   id: string;
   name: string;
   ext: string;
-  width: number;
-  height: number;
+  width?: number | null;
+  height?: number | null;
   url: string;
   annotation: string;
   tags: string[];
   folders: string[];
-  star: number;
+  star?: number | null;
   fileURL: string;
   thumbnailURL: string;
-  modifiedAt: number;
+  modifiedAt?: number | null;
   save(): Promise<boolean>;
 }
 
@@ -151,11 +151,18 @@ function required<T>(value: T | undefined, capability: 'eagle' | 'clipboard' | '
   return value;
 }
 
+// Zero is the runtime's unavailable-dimension/timestamp and unrated sentinel.
+// Host records can omit these values, especially for non-image files.
+const nonnegativeMetadata = (value: unknown): number =>
+  typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
+
 function assetRecord(item: EagleItemLike): AssetRecord {
   return {
-    id: item.id, name: item.name, extension: item.ext, width: item.width, height: item.height,
+    id: item.id, name: item.name, extension: item.ext,
+    width: nonnegativeMetadata(item.width), height: nonnegativeMetadata(item.height),
     url: item.url, annotation: item.annotation, tags: [...item.tags], folderIds: [...item.folders],
-    rating: item.star, fileUrl: item.fileURL, thumbnailUrl: item.thumbnailURL, modifiedAt: item.modifiedAt,
+    rating: typeof item.star === 'number' && Number.isInteger(item.star) && item.star >= 0 && item.star <= 5 ? item.star : 0,
+    fileUrl: item.fileURL, thumbnailUrl: item.thumbnailURL, modifiedAt: nonnegativeMetadata(item.modifiedAt),
   };
 }
 

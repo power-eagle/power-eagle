@@ -81,7 +81,12 @@ describe('Eagle asset widgets', () => {
     render(<RuntimeView session={session} />);
 
     await session.run('load');
-    expect(await screen.findAllByText('Eagle asset query failed')).toHaveLength(2);
+    expect(await screen.findAllByText('Eagle asset query failed')).toHaveLength(1);
+    expect(screen.getByRole('alert').textContent).toContain('Unable to load Eagle assets');
+    const details = screen.getByText('Error details').closest('details')!;
+    expect(details.open).toBe(false);
+    await user.click(screen.getByText('Error details'));
+    expect(details.open).toBe(true);
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(await screen.findByText('No Eagle assets')).toBeTruthy();

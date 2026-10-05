@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import type { HostFilesystem } from './install/fs-bridge';
 import type { EaglePluginHost } from './eagle-capabilities';
 import { createEagleCapabilities, observeEagleCapabilities } from './eagle-capabilities';
+import { openBuiltinTool } from '../plugins/builtin-tool';
+import { assetBrowserTool } from '../plugins/asset-browser';
 
 function filesystem(kinds: Record<string, ReturnType<HostFilesystem['kind']> | Error> = {}): HostFilesystem {
   return {
@@ -48,6 +50,30 @@ function webApi(history: string[] = []) {
 }
 
 describe('typed Eagle capabilities', () => {
+  it('loads mixed assets with missing or invalid numeric metadata through the runtime contract', async () => {
+    const records = [
+      item({ id: 'document', ext: 'pdf', width: undefined, height: null, star: undefined }),
+      item({ id: 'unknown', width: NaN, height: Infinity, star: NaN, modifiedAt: undefined }),
+      item({ id: 'invalid', width: -1, height: '480', star: 6, modifiedAt: -1 }),
+      item({ id: 'rated', width: 320, height: 180, star: 3, modifiedAt: 42 }),
+    ];
+    const eagle = host();
+    eagle.item!.get = vi.fn(async () => records);
+    const capabilities = createEagleCapabilities({ host: eagle, filesystem: filesystem(), webApi: webApi() });
+    const session = await openBuiltinTool(assetBrowserTool, capabilities);
+    try {
+      expect(session.globalState.read(['status'])).toBe('ready');
+      expect(session.globalState.read(['assets'])).toEqual([
+        expect.objectContaining({ id: 'document', width: 0, height: 0, rating: 0 }),
+        expect.objectContaining({ id: 'unknown', width: 0, height: 0, rating: 0, modifiedAt: 0 }),
+        expect.objectContaining({ id: 'invalid', width: 0, height: 0, rating: 0, modifiedAt: 0 }),
+        expect.objectContaining({ id: 'rated', width: 320, height: 180, rating: 3, modifiedAt: 42 }),
+      ]);
+      expect(records[0].width).toBeUndefined();
+      for (const record of records) expect(record.save).not.toHaveBeenCalled();
+    } finally { await session.dispose(); }
+  });
+
   it('maps Eagle objects to inert records and saves metadata through the Item API', async () => {
     const eagle = host();
     const capabilities = createEagleCapabilities({ host: eagle, filesystem: filesystem(), webApi: webApi() });
