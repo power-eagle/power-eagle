@@ -28,6 +28,7 @@ export interface WorkbenchShellProps {
   stage: ReactNode;
   sources?: ReactNode;
   sourceActions?: ReactNode;
+  agent?: ReactNode;
   sourceHint?: string;
   stageTitle?: string;
   stageCaption?: string;
@@ -45,7 +46,7 @@ function compactWindow(): boolean { return typeof window !== 'undefined' && wind
 export function WorkbenchShell({
   stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
   stageMode = 'live view', stageStatus = 'active',
-  themeStyle, themeIdentity = 'blueprint', themeControl, sourceActions,
+  themeStyle, themeIdentity = 'blueprint', themeControl, sourceActions, agent,
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
   const [agentCollapsed, setAgentCollapsed] = useState(compactWindow);
@@ -123,7 +124,7 @@ export function WorkbenchShell({
           index="03" label="Agent" hint="idle"
           className="pe-panel-agent" collapsed={agentCollapsed}
           onToggleCollapsed={() => setAgentCollapsed(value => !value)}
-          footer={<form className="pe-agent-composer" onSubmit={event => event.preventDefault()}>
+          footer={agent ? undefined : <form className="pe-agent-composer" onSubmit={event => event.preventDefault()}>
             <label htmlFor="agent-draft">Describe an extension</label>
             <textarea
               id="agent-draft" placeholder="What should Power Eagle build?"
@@ -132,11 +133,11 @@ export function WorkbenchShell({
             <div><span className="pe-meta">eagle agent</span><Button type="submit" disabled>Send</Button></div>
           </form>}
         >
-          <div className="pe-agent-empty">
+          {agent ?? <div className="pe-agent-empty">
             <SectionLabel>conversation</SectionLabel>
             <p>No conversation yet.</p>
             <small>Generated runtime versions will appear here and share the Stage selection.</small>
-          </div>
+          </div>}
         </Panel>
       </div>
     </div>

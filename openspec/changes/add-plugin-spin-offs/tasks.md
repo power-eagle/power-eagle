@@ -31,9 +31,9 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 
 ## 5. Bind real Agent authoring to plugin instances
 
-- [ ] 5.1 Implement instance-owned conversation persistence, drafts, selected bases, monotonic immutable revisions, and fresh clone history using the same contracts as rebuild tasks 12.1–12.4; verify original/clone separation, restoration after selection/reload, provenance, older-version refinement, and deletion without version-ID reuse.
-- [ ] 5.2 Integrate registry-aware model calls and canonical runtime validation into the selected plugin's Agent context; test successful blank-plugin generation, custom provider references, unsupported implementation requests, invalid output, model errors, and failed saves retaining the last usable revision. Document provider-only editing limits; no generated executable code is run.
-- [ ] 5.3 Protect asynchronous ownership during plugin/version changes and namespace handoff; test background completion stays with its captured instance/base, does not steal selection or claim priority, and publishes one new revision to the existing plugin row. Checkpoint the integrated Agent slice and update only genuinely completed rebuild tasks.
+- [x] 5.1 Implement instance-owned conversation persistence, drafts, selected bases, monotonic immutable revisions, and fresh clone history using the same contracts as rebuild tasks 12.1–12.4; verify original/clone separation, restoration after selection/reload, provenance, older-version refinement, and deletion without version-ID reuse.
+- [x] 5.2 Integrate registry-aware model calls and canonical runtime validation into the selected plugin's Agent context; test successful blank-plugin generation, custom provider references, unsupported implementation requests, invalid output, model errors, and failed saves retaining the last usable revision. Document provider-only editing limits; no generated executable code is run.
+- [x] 5.3 Protect asynchronous ownership during plugin/version changes and namespace handoff; test background completion stays with its captured instance/base, does not steal selection or claim priority, and publishes one new revision to the existing plugin row. Checkpoint the integrated Agent slice and update only genuinely completed rebuild tasks.
 
 ## 6. Verify the integrated workflow
 

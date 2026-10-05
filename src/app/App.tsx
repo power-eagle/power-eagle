@@ -9,8 +9,10 @@ import { RuntimeStage } from './runtime-stage';
 import { useWorkbenchTheme } from './workbench-theme';
 import { openPluginCatalog } from './plugin-catalog';
 import { usePluginCreation } from './plugin-creation';
+import { PluginAgent, type RuntimeModel } from '../host/workspaces/agent';
+import { PluginAgentPanel } from './plugin-agent';
 
-export default function App({ capabilities: suppliedCapabilities, catalog: suppliedCatalog }: { capabilities?: EagleCapabilities; catalog?: PluginCatalog } = {}) {
+export default function App({ capabilities: suppliedCapabilities, catalog: suppliedCatalog, model }: { capabilities?: EagleCapabilities; catalog?: PluginCatalog; model?: RuntimeModel } = {}) {
   const [capabilities] = useState(() => suppliedCapabilities ?? createEagleCapabilities());
   const [catalog, setCatalog] = useState(suppliedCatalog);
   const [error, setError] = useState('');
@@ -26,27 +28,29 @@ export default function App({ capabilities: suppliedCapabilities, catalog: suppl
   }, [capabilities, suppliedCatalog]);
   if (error) return <div role="alert"><h1>Plugin workspaces could not open</h1><p>{error}</p><p>Your stored artifacts have been retained. Correct the reported storage or format problem and reopen Power Eagle.</p></div>;
   if (!catalog) return <p role="status">Opening plugin workspaces…</p>;
-  return <CatalogWorkbench catalog={catalog} />;
+  return <CatalogWorkbench catalog={catalog} model={model} />;
 }
 
-export function CatalogWorkbench({ catalog }: { catalog: PluginCatalog }) {
+export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; model?: RuntimeModel }) {
   const snapshot = useSyncExternalStore(catalog.subscribe, catalog.snapshot, catalog.snapshot);
   const [selection, setSelection] = useState<WorkbenchSelection>();
   const [filter, setFilter] = useState('');
   const [error, setError] = useState('');
+  const [agent] = useState(() => new PluginAgent(catalog, model));
+  useEffect(() => { void agent.recoverInterrupted().catch(reason => setError(String(reason))); }, [agent]);
   const { registry } = snapshot;
   const theme = useWorkbenchTheme(registry, catalog.controller, snapshot.entries);
   const packages: WorkbenchPackage[] = snapshot.entries.map(({ instance, discovered }) => ({
     instanceId: instance.instanceId, sourceId: instance.origin.sourceId, sourceLabel: instance.origin.kind,
     sourceKind: instance.origin.kind === 'built-in' ? 'built-in' : instance.origin.kind === 'agent' ? 'generated' : 'installed',
-    persistence: instance.origin.kind === 'built-in' ? 'built-in' : 'generated',
+    persistence: instance.origin.kind === 'built-in' ? 'built-in' : 'persistent',
     manifest: { ...discovered.manifest, name: instance.name }, status: snapshot.claims.get(instance.instanceId)!.status,
     desired: snapshot.claims.get(instance.instanceId)!.desired,
     exportPreferences: Object.fromEntries(discovered.manifest.exports.map(item => [item.id, catalog.preferences.exportEnabled(instance.instanceId, item.id)])),
     version: instance.currentRevision,
   }));
   const selected = packages.find(record => record.instanceId === selection?.instanceId) ?? packages[0];
-  const current = selection?.instanceId === selected?.instanceId ? selection : selected ? defaultSelection(selected) : undefined;
+  const current = selection?.instanceId === selected?.instanceId && selection?.version === selected?.version ? selection : selected ? defaultSelection(selected) : undefined;
   const entry = snapshot.entries.find(item => item.instance.instanceId === selected?.instanceId);
   const claim = entry && snapshot.claims.get(entry.instance.instanceId);
   const creation = usePluginCreation(catalog, entry, instance => {
@@ -74,7 +78,12 @@ export function CatalogWorkbench({ catalog }: { catalog: PluginCatalog }) {
   if (!selected || !current || !entry || !claim) return <p>No plugins available.</p>;
   const ownRegistry = claim.status === 'off' ? {
     ...registry, packages: new Map(registry.packages).set(selected.manifest.id, { packageId: selected.manifest.id, desired: claim.desired, effectiveStatus: 'off' as const, exports: [], reason: { code: 'package-off' as const, message: claim.reason ?? 'Plugin is disabled' } }),
-    exports: registry.exports.filter(item => item.packageId !== selected.manifest.id),
+    exports: [...registry.exports.filter(item => item.packageId !== selected.manifest.id), ...entry.discovered.manifest.exports.map(descriptor => ({
+      identity: `${selected.manifest.id}/${descriptor.id}`, packageId: selected.manifest.id, packageVersion: selected.manifest.version,
+      source: entry.discovered.root, descriptor, dependencies: [], directConsumers: [], status: 'resolved' as const, diagnostics: [],
+      desiredPackage: claim.desired, desiredExport: catalog.preferences.exportEnabled(entry.instance.instanceId, descriptor.id),
+      effectiveStatus: 'off' as const, ...(!claim.desired ? { reason: { code: 'package-off' as const, message: 'Plugin is disabled' } } : {}),
+    }))],
   } : registry;
   return <WorkbenchShell
     themeStyle={theme.style} themeIdentity={theme.effective || 'blueprint'}
@@ -98,6 +107,7 @@ export function CatalogWorkbench({ catalog }: { catalog: PluginCatalog }) {
     </>}
     sourceHint={String(packages.length)}
     sourceActions={creation.actions}
+    agent={<PluginAgentPanel key={entry.instance.instanceId} agent={agent} entry={entry} />}
     stage={showRuntime ? <RuntimeStage key={catalog.runtimeKey(`${selected.manifest.id}/${current.exportId}`)} source={entry.discovered}
       activation={catalog} screen={current.screen} onScreenChange={onScreenChange} /> : <>
       {claim.reason ? <p role="status">{claim.reason}</p> : null}
@@ -105,7 +115,6 @@ export function CatalogWorkbench({ catalog }: { catalog: PluginCatalog }) {
         <button type="button" disabled={Boolean(filter.trim())} onClick={() => report(catalog.move(entry.instance.instanceId, claim.owner!))}>Move above owner</button></div> : null}
       <ActivationInspector record={selected} selection={current} registry={ownRegistry}
         onTogglePackage={togglePackage} onToggleExport={toggleExport} />
-      {!claim.desired ? <button type="button" onClick={() => togglePackage(selected.instanceId!, true)}>Enable package</button> : null}
     </>}
     stageTitle={selected.manifest.name} stageMode={showRuntime ? 'live view' : 'activation'}
     stageStatus={claim.status} stageCaption={[entry.instance.origin.kind, `revision ${entry.instance.currentRevision}`, showRuntime ? current.screen : current.contribution].filter(Boolean).join(' · ')}

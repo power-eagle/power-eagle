@@ -32,11 +32,33 @@ export const pluginInstanceSchema = z.strictObject({
 export type PluginInstance = z.infer<typeof pluginInstanceSchema>;
 export type PluginRevision = z.infer<typeof pluginRevisionSchema>;
 
+export const conversationSchema = z.strictObject({
+  format: z.literal('power-eagle/conversation'), formatVersion: z.literal(1), instanceId: identifier,
+  draft: z.string(), selectedBase: revisionId,
+  context: z.strictObject({ eagle: z.boolean(), web: z.boolean() }),
+  nextTurnId: revisionId,
+  turns: z.array(z.strictObject({
+    id: revisionId, base: revisionId, instruction: z.string(), createdAt: z.string().datetime(),
+    status: z.enum(['pending', 'success', 'failed']), revision: revisionId.optional(), error: z.string().optional(), hidden: z.boolean().optional(),
+  })),
+});
+export type PluginConversation = z.infer<typeof conversationSchema>;
+
 export const workspaceCatalogSchema = z.strictObject({
   format: z.literal('power-eagle/workspace-catalog'), formatVersion: z.literal(1),
   order: z.array(identifier), instances: z.array(pluginInstanceSchema),
+  conversations: z.record(identifier, conversationSchema).default({}),
 }).superRefine((catalog, context) => {
   const ids = catalog.instances.map(item => item.instanceId);
+  for (const [id, conversation] of Object.entries(catalog.conversations)) {
+    const instance = catalog.instances.find(item => item.instanceId === id);
+    if (!instance || conversation.instanceId !== id || !instance.revisions.some(item => item.id === conversation.selectedBase)
+      || new Set(conversation.turns.map(item => item.id)).size !== conversation.turns.length
+      || conversation.turns.some(turn => turn.id >= conversation.nextTurnId || !instance.revisions.some(item => item.id === turn.base)
+        || (turn.revision !== undefined && !instance.revisions.some(item => item.id === turn.revision)))) {
+      context.addIssue({ code: 'custom', message: 'Conversation identity, turn IDs or revision ownership are invalid' });
+    }
+  }
   if (new Set(ids).size !== ids.length || new Set(catalog.order).size !== catalog.order.length
     || catalog.order.length !== ids.length || catalog.order.some(id => !ids.includes(id))) {
     context.addIssue({ code: 'custom', message: 'Catalog order must contain every unique instance exactly once' });

@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { createRequire } from 'node:module';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { WorkspaceStore } from '../host/workspaces/store';
+import { WorkspaceStore, blankDocument } from '../host/workspaces/store';
 import { PluginCatalog } from '../host/workspaces/catalog';
 import { InstancePreferences } from '../host/workspaces/preferences';
 import { sharedModules } from './plugin-catalog';
@@ -79,5 +79,30 @@ it('contains failed creation and cancels copying before publication', async () =
   await user.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(screen.queryByRole('form', { name: 'Blank plugin' })).toBeNull();
   expect(catalog.snapshot().entries).toHaveLength(2);
+});
+
+it('keeps background Agent output with its plugin and restores drafts and selected revisions', async () => {
+  const user = userEvent.setup();
+  let finish!: (value: string) => void;
+  const model = vi.fn(() => new Promise<string>(resolve => { finish = resolve; }));
+  render(<App catalog={catalog} model={model} />);
+  await user.type(screen.getByRole('textbox', { name: 'Describe this plugin' }), 'Make a greeting');
+  await user.click(screen.getByRole('button', { name: 'Send' }));
+  await waitFor(() => expect(model).toHaveBeenCalledOnce());
+  await user.click(screen.getByRole('button', { name: 'Select package Second' }));
+  await user.type(screen.getByRole('textbox', { name: 'Describe this plugin' }), 'Second draft');
+  const output = blankDocument(); output.screens.home.body = { type: 'Text', props: { text: 'Hello from Original' } };
+  await act(async () => finish(JSON.stringify(output)));
+  await waitFor(() => expect(catalog.snapshot().entries[0].instance.currentRevision).toBe(2));
+  expect(screen.getByRole('button', { name: 'Select package Second' }).getAttribute('aria-current')).toBe('page');
+  expect((screen.getByRole('textbox', { name: 'Describe this plugin' }) as HTMLTextAreaElement).value).toBe('Second draft');
+  expect(screen.queryByText('Hello from Original')).toBeNull();
+  await user.click(screen.getByRole('button', { name: 'Select package Original' }));
+  expect(await screen.findByText('Hello from Original')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'v2' }).getAttribute('aria-pressed')).toBe('true');
+  await user.click(screen.getByRole('button', { name: 'v1' }));
+  await waitFor(() => expect(screen.queryByText('Hello from Original')).toBeNull());
+  await user.click(screen.getByRole('button', { name: 'Select package Second' }));
+  expect((screen.getByRole('textbox', { name: 'Describe this plugin' }) as HTMLTextAreaElement).value).toBe('Second draft');
 });
 

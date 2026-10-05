@@ -28,3 +28,20 @@ button, input, textarea, select { font: inherit; }
 .pe-plugin-conflict { display: grid; gap: 8px; margin-bottom: 16px; }
 .pe-plugin-conflict button { justify-self: start; padding: 8px; border: 1px solid var(--primary); }
 .pe-plugin-menu, .pe-plugin-order, .pe-plugin-create label { user-select: none; }
+
+.pe-agent-context { height: 100%; min-height: 360px; display: flex; flex-direction: column; gap: 12px; padding: 14px; }
+.pe-agent-context > header { display: grid; gap: 6px; overflow-wrap: anywhere; }
+.pe-agent-context small { color: var(--muted-foreground); font-size: 11px; }
+.pe-agent-versions { display: flex; flex-wrap: wrap; gap: 6px; }
+.pe-agent-versions button { padding: 4px 8px; border: var(--line-width) solid var(--border); border-radius: var(--radius); }
+.pe-agent-versions button[aria-pressed=true] { border-color: var(--primary); background: var(--accent); }
+.pe-agent-history { flex: 1; min-height: 80px; overflow: auto; overflow-wrap: anywhere; font-size: 13px; }
+.pe-agent-history article { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.pe-agent-history article p { white-space: pre-wrap; }
+.pe-agent-history button { margin-top: 6px; font-size: 11px; color: var(--muted-foreground); }
+.pe-agent-context .pe-agent-composer { padding: 0; }
+.pe-agent-context-controls { display: flex; gap: 10px; font-size: 11px; }
+.pe-agent-context-controls label { display: flex; align-items: center; gap: 5px; user-select: none; }
+.pe-agent-context-controls input { accent-color: var(--primary); }
+.pe-agent-context [role=alert] { color: var(--destructive); overflow-wrap: anywhere; }
+.pe-agent-versions, .pe-plugin-menu { user-select: none; }

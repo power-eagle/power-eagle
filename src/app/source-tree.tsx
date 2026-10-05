@@ -39,7 +39,9 @@ function ExportChoices({ record, contribution, selection, onSelect, registry, on
   return <div className="pe-workbench-exports">
     {descriptors.map(descriptor => {
       const identityValue = `${record.manifest.id}/${descriptor.id}`;
-      const state = registry?.exports.find(item => item.identity === identityValue);
+      const effective = registry?.exports.find(item => item.identity === identityValue);
+      const state = { identity: identityValue, desiredExport: record.exportPreferences?.[descriptor.id] ?? effective?.desiredExport ?? true,
+        effectiveStatus: record.status === 'active' ? effective?.effectiveStatus ?? 'off' : record.status };
       return <div className="pe-workbench-export" key={descriptor.id} data-status={state?.effectiveStatus}>
         {state && onToggleExport ? <SourceToggle name={`export ${state.identity}`}
           enabled={record.exportPreferences?.[descriptor.id] ?? state.desiredExport} status={state.effectiveStatus}

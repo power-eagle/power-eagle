@@ -128,7 +128,7 @@ describe('workbench activation stage', () => {
 
     await user.click(screen.getByRole('switch', { name: 'Disable package Runtime flow' }));
     expect(screen.getByRole('region', { name: 'Runtime flow activation' })).toBeTruthy();
-    expect(screen.getByText('Plugin is disabled')).toBeTruthy();
+    expect(screen.getAllByText('Plugin is disabled').length).toBeGreaterThan(0);
     expect(JSON.parse(window.localStorage.getItem('power-eagle.instances.v1') ?? '{}')).toMatchObject({
       format: 'power-eagle/instance-preferences', formatVersion: 1, instances: { 'builtin.example.runtime-flow': false },
     });

@@ -24,6 +24,12 @@ export function RuntimeStage({ source, activation, screen, onScreenChange }: {
     const open = async () => {
       current = createArtifactSession(source, activation.snapshot().registry, activation.controller, {
         selection: eagleSelectionAdapter(),
+        request: async input => {
+          const response = await fetch(input.url, { method: input.method, headers: input.headers,
+            body: input.body === undefined ? undefined : JSON.stringify(input.body), signal: input.signal });
+          if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          return response.json();
+        },
       }, relative => {
         const asset = source.assets[relative];
         if (!asset || !activation.loadOptions) throw new Error(`Unavailable package asset ${relative}`);

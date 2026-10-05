@@ -938,6 +938,13 @@
       "const": 1,
       "type": "number"
     },
+    "initialize": {
+      "items": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$",
+        "type": "string"
+      },
+      "type": "array"
+    },
     "screens": {
       "additionalProperties": {
         "additionalProperties": false,

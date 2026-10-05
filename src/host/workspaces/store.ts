@@ -4,9 +4,13 @@ import { unwrap, validateRuntime, type ValidationCatalog } from '../../sdui/sche
 import { discoverContributionPackage } from '../install/contribution-package';
 import { POWER_EAGLE_STATE_SENTINEL } from '../install/state-reset';
 import { snapshotArtifact, type CopyOptions } from './artifact-copy';
-import { newPluginInstance, parseWorkspaceCatalog, type PluginInstance, type WorkspaceCatalog } from './model';
+import { newPluginInstance, parseWorkspaceCatalog, type PluginConversation, type PluginInstance, type WorkspaceCatalog } from './model';
 
-export const emptyCatalog = (): WorkspaceCatalog => ({ format: 'power-eagle/workspace-catalog', formatVersion: 1, order: [], instances: [] });
+export const emptyCatalog = (): WorkspaceCatalog => ({ format: 'power-eagle/workspace-catalog', formatVersion: 1, order: [], instances: [], conversations: {} });
+export const newConversation = (instance: PluginInstance): PluginConversation => ({
+  format: 'power-eagle/conversation', formatVersion: 1, instanceId: instance.instanceId, draft: '', selectedBase: instance.currentRevision,
+  context: { eagle: true, web: false }, nextTurnId: 1, turns: [],
+});
 export function blankDocument(): RuntimeDocument {
   return { format: 'power-eagle/runtime', formatVersion: 1, start: 'home', state: {}, actions: {}, components: {}, dependencies: [],
     screens: { home: { params: { type: 'object', properties: {}, required: [] }, state: {}, body: { type: 'Column', props: {}, slots: { children: [] } } } } };
@@ -59,10 +63,20 @@ export class WorkspaceStore {
   }
   async transaction<T>(operation: (catalog: WorkspaceCatalog) => Promise<T>): Promise<T> {
     const lock = this.bounded('.lock');
+    const process = this.hostRequire('node:process') as typeof import('node:process');
+    if (this.fs.existsSync(lock)) {
+      try {
+        const held = JSON.parse(this.fs.readFileSync(lock, 'utf8')) as { pid?: number };
+        if (Number.isSafeInteger(held.pid) && held.pid! > 0) {
+          try { process.kill(held.pid!, 0); }
+          catch (error) { if ((error as NodeJS.ErrnoException).code === 'ESRCH') this.fs.unlinkSync(lock); }
+        }
+      } catch { /* An unreadable or concurrently written lock remains busy. */ }
+    }
     let fd: number;
     try { fd = this.fs.openSync(lock, 'wx'); }
     catch { throw new Error('Plugin storage is busy. Retry after the other operation finishes.'); }
-    try { return await operation(this.read()); }
+    try { this.fs.writeFileSync(fd, JSON.stringify({ pid: process.pid })); return await operation(this.read()); }
     finally { this.fs.closeSync(fd); this.fs.unlinkSync(lock); }
   }
   private publish(catalog: WorkspaceCatalog): void { this.atomicWrite('catalog.json', parseWorkspaceCatalog(catalog)); }
@@ -111,12 +125,33 @@ export class WorkspaceStore {
   }
   async reorder(order: string[]): Promise<void> { await this.transaction(async catalog => { this.publish({ ...catalog, order }); }); }
 
-  async revise(instanceId: string, base: number, input: unknown, validation: ValidationCatalog): Promise<PluginInstance> {
+  async conversation(instanceId: string, update: (conversation: PluginConversation) => void): Promise<PluginConversation> {
+    return this.transaction(async catalog => {
+      const instance = catalog.instances.find(item => item.instanceId === instanceId);
+      if (!instance) throw new Error('Plugin no longer exists');
+      const conversation = catalog.conversations[instanceId] ?? newConversation(instance);
+      update(conversation); catalog.conversations[instanceId] = conversation;
+      this.publish(catalog); return conversation;
+    });
+  }
+  async selectRevision(instanceId: string, revision: number): Promise<void> {
+    await this.transaction(async catalog => {
+      const instance = catalog.instances.find(item => item.instanceId === instanceId);
+      if (!instance || !instance.revisions.some(item => item.id === revision)) throw new Error('Revision is unavailable');
+      instance.currentRevision = revision;
+      const conversation = catalog.conversations[instanceId] ?? newConversation(instance);
+      conversation.selectedBase = revision; catalog.conversations[instanceId] = conversation; this.publish(catalog);
+    });
+  }
+
+  async revise(instanceId: string, base: number, input: unknown, validation: ValidationCatalog, turnId?: number): Promise<PluginInstance> {
     const runtime = unwrap(validateRuntime(input, validation));
     return this.transaction(async catalog => {
       const instance = catalog.instances.find(item => item.instanceId === instanceId);
       if (!instance) throw new Error('Plugin no longer exists');
-      const next = Math.max(...instance.revisions.map(item => item.id)) + 1;
+      const revisionRoot = this.bounded('instances', instanceId, 'revisions');
+      const reserved = this.fs.existsSync(revisionRoot) ? this.fs.readdirSync(revisionRoot).filter(name => /^\d+$/u.test(name)).map(Number) : [];
+      const next = Math.max(...instance.revisions.map(item => item.id), ...reserved) + 1;
       const revision = { id: next, basedOn: base, artifact: `revisions/${next}`, createdAt: new Date().toISOString() };
       const updated = { ...instance, revisions: [...instance.revisions, revision], currentRevision: next };
       const destination = this.artifact(updated);
@@ -132,6 +167,15 @@ export class WorkspaceStore {
         this.fs.writeFileSync(this.path.join(destination, 'manifest.json'), JSON.stringify(manifest));
         discoverContributionPackage(destination, this.hostRequire);
         catalog.instances = catalog.instances.map(item => item.instanceId === instanceId ? updated : item);
+        if (turnId !== undefined) {
+          const conversation = catalog.conversations[instanceId];
+          const turn = conversation?.turns.find(item => item.id === turnId);
+          if (!turn || turn.status !== 'pending' || turn.base !== base) throw new Error('The captured Agent turn is no longer pending');
+          turn.status = 'success'; turn.revision = next;
+          // A base changed while generating remains the selected view.
+          if (conversation.selectedBase === base && instance.currentRevision === base) conversation.selectedBase = next;
+          else updated.currentRevision = instance.currentRevision;
+        }
         this.publish(catalog); return updated;
       } catch (error) { if (this.fs.existsSync(destination)) this.removeOwned(destination); throw error; }
     });
