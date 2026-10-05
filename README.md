@@ -14,4 +14,5 @@ Current app: an interactive validated runtime example with typed state, bindings
 - [Package contract](docs/packages.md)
 - [Provider experiment and Eagle host evidence](docs/provider-host-validation.md)
 - [Typed Eagle host capabilities](docs/eagle-capabilities.md)
+- [Built-in Eagle tools](docs/builtin-tools.md)
 - [Implementation checkpoints](openspec/changes/rebuild-power-eagle/tasks.md)
