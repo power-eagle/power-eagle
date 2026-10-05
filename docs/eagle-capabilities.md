@@ -39,6 +39,12 @@ History remains read-only at the adapter layer. Each returned path is checked th
 
 The `.library` suffix is used only to derive a display name. It never determines validity. Removing an entry or clearing invalid entries in the Recent Libraries tool changes that tool's current list only; it does not rewrite Eagle settings, alter persisted history, or delete a directory.
 
+## Declarative Eagle widgets
+
+The built-in `power-eagle.eagle-actions` contribution exposes typed folder listing/opening, tag listing, library history/switching, metadata update, and batch import calls. Runtime documents pair those calls with FolderTree, TagPicker, LibraryPicker, MetadataEditor, and ImportQueue. Choice cancellation emits a local event and does not invoke Eagle. Metadata submission calls `assets.updateMetadata`, which uses the supported `Item.save()` path described above.
+
+Batch import preserves request order and records each actual path or URL result independently, so one rejection cannot be displayed as a successful batch. Runtime activation signals are checked after host completion; disposing or replacing a view aborts its action scope and prevents a late result from writing into the disposed view. Eagle's current item import methods do not expose cancellation, so an already-started host import may still finish inside Eagle even though its disposed view ignores the result.
+
 ## Build examples
 
 The catalog's image, audio, and video fixtures ship under `dist/assets` through Vite's public directory. The deterministic 8×8 H.264 fixture is the public compatibility sample from [A Very Tiny MP4](https://gist.github.com/dmlap/5643609). These local assets prevent the packaged catalog from requesting the old missing `preview.png`, `missing-gallery-image.png`, `example-audio.mp3`, and root-level `example-video.mp4` paths.

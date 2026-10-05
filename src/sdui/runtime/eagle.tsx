@@ -5,6 +5,7 @@ import { AssetCard, AssetGrid, AssetPicker } from '../authoring/eagle';
 import type { Json } from '../schema/model';
 import type { WidgetDefinition } from './session';
 import type { WidgetRenderProps } from './view';
+import { eagleOperationRuntimeWidgets } from './eagle-operations';
 
 const text = (value: Json | undefined, fallback = '') => typeof value === 'string' ? value : fallback;
 const number = (value: Json | undefined, fallback = 0) => typeof value === 'number' ? value : fallback;
@@ -149,3 +150,4 @@ const contracts = { AssetCard, AssetGrid, AssetPicker };
 export const eagleRuntimeWidgets: Record<string, WidgetDefinition> = Object.fromEntries(
   Object.entries(contracts).map(([type, widget]) => [type, { contract: widget.contract, render: renderers[type] }]),
 );
+Object.assign(eagleRuntimeWidgets, eagleOperationRuntimeWidgets);

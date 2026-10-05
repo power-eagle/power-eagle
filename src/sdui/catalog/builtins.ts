@@ -39,7 +39,9 @@ const collectionTypes = new Set([
 ]);
 const feedbackTypes = new Set(['ProgressIndicator', 'Skeleton', 'EmptyState', 'ErrorState', 'Banner', 'Toast', 'Dialog']);
 const mediaTypes = new Set(['ImageGallery', 'ZoomableImage', 'AudioPlayer', 'VideoPlayer']);
-const eagleTypes = new Set(['AssetCard', 'AssetGrid', 'AssetPicker']);
+const eagleTypes = new Set([
+  'AssetCard', 'AssetGrid', 'AssetPicker', 'FolderTree', 'TagPicker', 'LibraryPicker', 'MetadataEditor', 'ImportQueue',
+]);
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export function runnableWidgetExample(type: string, input: Node): Node {

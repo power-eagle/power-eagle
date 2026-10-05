@@ -19,9 +19,11 @@ The current built-in groups are:
 - Collections: DataTable, GridView, ListView, PropertyGrid, ReorderableList, ScrollView, TreeView, VirtualGrid, VirtualList.
 - Feedback: Banner, Dialog, EmptyState, ErrorState, ProgressIndicator, Skeleton, Toast.
 - Media: AudioPlayer, ImageGallery, VideoPlayer, ZoomableImage.
-- Eagle assets: AssetCard, AssetGrid, AssetPicker.
+- Eagle: AssetCard, AssetGrid, AssetPicker, FolderTree, ImportQueue, LibraryPicker, MetadataEditor, TagPicker.
 
 Asset widgets consume the typed record returned by the Eagle capability adapter. `AssetCard` displays one identity and emits that id for selection and activation. `AssetGrid` and `AssetPicker` use controlled id arrays, retain selection when host results reorder, and expose loading, ready-empty, ready-populated, and error/retry states. `AssetPicker.confirm` emits the complete selected-id array; the host-backed Asset Browser built-in maps that event to an explicit Eagle selection action. The renderers never query or select Eagle items while rendering.
+
+`FolderTree` consumes flattened typed folder records while preserving Eagle parent ids and emits explicit select, expand, and open events. `TagPicker` and `LibraryPicker` are controlled choice surfaces with visible loading/empty/error states and separate confirm/cancel events; unavailable libraries cannot be confirmed. `MetadataEditor` submits a typed asset id plus the supported name, annotation, tag, folder, and rating patch. `ImportQueue` renders each path/URL request and its queued, importing, success, error, or cancelled result, with retry/cancel events owned by the document.
 
 The installable [`examples/control-widgets`](../examples/control-widgets) runtime references every form, selection, and desktop-interaction type. Its behavior test compiles the TypeScript source to canonical JSON, validates every referenced public contract, renders each implementation, and completes required form submission plus breadcrumb navigation with keyboard input only.
 

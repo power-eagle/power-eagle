@@ -3219,6 +3219,163 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "emptyText": "No folders",
+          "errorText": "Unable to load folders",
+          "expanded": [],
+          "selection": "",
+          "status": "ready"
+        },
+        "events": {
+          "expandedChange": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "open": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "retry": {
+            "type": "null"
+          },
+          "selectionChange": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "expanded": [
+              "projects"
+            ],
+            "folders": [
+              {
+                "description": "Project assets",
+                "id": "projects",
+                "name": "Projects",
+                "parentId": ""
+              },
+              {
+                "description": "Runtime references",
+                "id": "runtime",
+                "name": "Runtime",
+                "parentId": "projects"
+              }
+            ],
+            "label": "Eagle folders",
+            "selection": "runtime"
+          },
+          "type": "FolderTree"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "emptyText": {
+              "type": "string"
+            },
+            "errorText": {
+              "type": "string"
+            },
+            "expanded": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "folders": {
+              "items": {
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "parentId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "parentId"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "type": "string"
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "loading",
+                "ready",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "folders"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "folder",
+          "tree"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "expanded": [
+            "projects"
+          ],
+          "folders": [
+            {
+              "description": "Project assets",
+              "id": "projects",
+              "name": "Projects",
+              "parentId": ""
+            },
+            {
+              "description": "Runtime references",
+              "id": "runtime",
+              "name": "Runtime",
+              "parentId": "projects"
+            }
+          ],
+          "label": "Eagle folders",
+          "selection": "runtime"
+        },
+        "type": "FolderTree"
+      },
+      "type": "FolderTree"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "validationMode": "submit"
         },
         "events": {
@@ -3980,6 +4137,362 @@
       "contract": {
         "defaults": {
           "disabled": false,
+          "emptyText": "No imports"
+        },
+        "events": {
+          "cancel": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "import": {
+            "properties": {
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "kind": {
+                "type": "enum",
+                "values": [
+                  "path",
+                  "url"
+                ]
+              },
+              "source": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "kind"
+            ],
+            "type": "object"
+          },
+          "retry": {
+            "properties": {
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "kind": {
+                "type": "enum",
+                "values": [
+                  "path",
+                  "url"
+                ]
+              },
+              "source": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "kind"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "items": [
+              {
+                "assetId": "asset-one",
+                "id": "one",
+                "kind": "path",
+                "message": "",
+                "source": "C:\\assets\\one.png",
+                "status": "success"
+              },
+              {
+                "assetId": "",
+                "id": "two",
+                "kind": "url",
+                "message": "Network failed",
+                "source": "https://example.test/two.png",
+                "status": "error"
+              }
+            ],
+            "label": "Imports"
+          },
+          "type": "ImportQueue"
+        },
+        "properties": {
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "emptyText": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "assetId": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "enum",
+                    "values": [
+                      "path",
+                      "url"
+                    ]
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "enum",
+                    "values": [
+                      "queued",
+                      "importing",
+                      "success",
+                      "error",
+                      "cancelled"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "source",
+                  "kind",
+                  "status",
+                  "assetId",
+                  "message"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "asset",
+          "import",
+          "queue"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "items": [
+            {
+              "assetId": "asset-one",
+              "id": "one",
+              "kind": "path",
+              "message": "",
+              "source": "C:\\assets\\one.png",
+              "status": "success"
+            },
+            {
+              "assetId": "",
+              "id": "two",
+              "kind": "url",
+              "message": "Network failed",
+              "source": "https://example.test/two.png",
+              "status": "error"
+            }
+          ],
+          "label": "Imports"
+        },
+        "type": "ImportQueue"
+      },
+      "type": "ImportQueue"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "cancelLabel": "Cancel",
+          "confirmLabel": "Open library",
+          "disabled": false,
+          "emptyText": "No libraries",
+          "errorText": "Unable to load libraries",
+          "selection": "",
+          "status": "ready"
+        },
+        "events": {
+          "cancel": {
+            "type": "null"
+          },
+          "confirm": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "retry": {
+            "type": "null"
+          },
+          "selectionChange": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Libraries",
+            "libraries": [
+              {
+                "id": "current",
+                "name": "Reference",
+                "path": "C:\\Reference.library",
+                "reason": "",
+                "status": "available"
+              },
+              {
+                "id": "missing",
+                "name": "Archive",
+                "path": "D:\\Archive.library",
+                "reason": "Directory does not exist",
+                "status": "missing"
+              }
+            ],
+            "selection": "C:\\Reference.library"
+          },
+          "type": "LibraryPicker"
+        },
+        "properties": {
+          "properties": {
+            "cancelLabel": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "confirmLabel": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "emptyText": {
+              "type": "string"
+            },
+            "errorText": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "libraries": {
+              "items": {
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "enum",
+                    "values": [
+                      "available",
+                      "missing",
+                      "inaccessible"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "path",
+                  "status",
+                  "reason"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "selection": {
+              "type": "string"
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "loading",
+                "ready",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "libraries"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "library",
+          "picker"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Libraries",
+          "libraries": [
+            {
+              "id": "current",
+              "name": "Reference",
+              "path": "C:\\Reference.library",
+              "reason": "",
+              "status": "available"
+            },
+            {
+              "id": "missing",
+              "name": "Archive",
+              "path": "D:\\Archive.library",
+              "reason": "Directory does not exist",
+              "status": "missing"
+            }
+          ],
+          "selection": "C:\\Reference.library"
+        },
+        "type": "LibraryPicker"
+      },
+      "type": "LibraryPicker"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "disabled": false,
           "gap": 8,
           "selection": [],
           "selectionMode": "none"
@@ -4294,6 +4807,160 @@
         "type": "Menu"
       },
       "type": "Menu"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "annotation": "",
+          "disabled": false,
+          "folderIds": [],
+          "message": "",
+          "rating": 0,
+          "status": "ready",
+          "tags": []
+        },
+        "events": {
+          "cancel": {
+            "type": "null"
+          },
+          "submit": {
+            "properties": {
+              "annotation": {
+                "type": "string"
+              },
+              "folderIds": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "rating": {
+                "integer": true,
+                "maximum": 5,
+                "minimum": 0,
+                "type": "number"
+              },
+              "tags": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "annotation",
+              "tags",
+              "folderIds",
+              "rating"
+            ],
+            "type": "object"
+          }
+        },
+        "example": {
+          "props": {
+            "annotation": "Blueprint shell",
+            "assetId": "asset-one",
+            "folderIds": [
+              "references"
+            ],
+            "name": "Design reference",
+            "rating": 4,
+            "tags": [
+              "design"
+            ]
+          },
+          "type": "MetadataEditor"
+        },
+        "properties": {
+          "properties": {
+            "annotation": {
+              "type": "string"
+            },
+            "assetId": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "folderIds": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "message": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "rating": {
+              "integer": true,
+              "maximum": 5,
+              "minimum": 0,
+              "type": "number"
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "ready",
+                "saving",
+                "success",
+                "error"
+              ]
+            },
+            "tags": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "assetId",
+            "name"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "asset",
+          "metadata",
+          "form"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "annotation": "Blueprint shell",
+          "assetId": "asset-one",
+          "folderIds": [
+            "references"
+          ],
+          "name": "Design reference",
+          "rating": 4,
+          "tags": [
+            "design"
+          ]
+        },
+        "type": "MetadataEditor"
+      },
+      "type": "MetadataEditor"
     },
     {
       "availability": "active",
@@ -6441,6 +7108,180 @@
         "type": "Tabs"
       },
       "type": "Tabs"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "cancelLabel": "Cancel",
+          "confirmLabel": "Use tags",
+          "disabled": false,
+          "emptyText": "No tags",
+          "errorText": "Unable to load tags",
+          "selection": [],
+          "status": "ready"
+        },
+        "events": {
+          "cancel": {
+            "type": "null"
+          },
+          "confirm": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "retry": {
+            "type": "null"
+          },
+          "selectionChange": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "label": "Tags",
+            "selection": [
+              "design"
+            ],
+            "tags": [
+              {
+                "color": "#ffad32",
+                "count": 12,
+                "groups": [
+                  "topic"
+                ],
+                "name": "design"
+              },
+              {
+                "color": "#7aa2f7",
+                "count": 8,
+                "groups": [
+                  "topic"
+                ],
+                "name": "runtime"
+              }
+            ]
+          },
+          "type": "TagPicker"
+        },
+        "properties": {
+          "properties": {
+            "cancelLabel": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "confirmLabel": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "emptyText": {
+              "type": "string"
+            },
+            "errorText": {
+              "type": "string"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "loading",
+                "ready",
+                "error"
+              ]
+            },
+            "tags": {
+              "items": {
+                "properties": {
+                  "color": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "groups": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "count",
+                  "color",
+                  "groups"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "label",
+            "tags"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "tag",
+          "picker"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "label": "Tags",
+          "selection": [
+            "design"
+          ],
+          "tags": [
+            {
+              "color": "#ffad32",
+              "count": 12,
+              "groups": [
+                "topic"
+              ],
+              "name": "design"
+            },
+            {
+              "color": "#7aa2f7",
+              "count": 8,
+              "groups": [
+                "topic"
+              ],
+              "name": "runtime"
+            }
+          ]
+        },
+        "type": "TagPicker"
+      },
+      "type": "TagPicker"
     },
     {
       "availability": "active",
