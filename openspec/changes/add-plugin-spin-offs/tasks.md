@@ -14,18 +14,18 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 ## 2. Make plugin artifacts independently materializable
 
 - [x] 2.1 Assemble built-in runtime/provider artifacts through the existing builder, preserving host capability injection and startup behavior in the common artifact/runtime contract; test File Creator, Recent Libraries startup, Asset Browser startup, service-only Clipboard, action-only Eagle Widget Actions, Runtime flow, and styling-only Paper Pop through normal discovery/loading. Document the startup contract and rebuild release assets.
-- [ ] 2.2 Replace package-ID-specific runtime startup with effective instance-owned catalogs/calls; test a built-in artifact at a relocated root and a consumer of a promoted same-namespace copy, while retaining existing built-in behavior tests and no automatic compiler/npm requirement.
+- [x] 2.2 Replace package-ID-specific runtime startup with effective instance-owned catalogs/calls; test a built-in artifact at a relocated root and a consumer of a promoted same-namespace copy, while retaining existing built-in behavior tests and no automatic compiler/npm requirement.
 - [x] 2.3 Implement bounded full-artifact snapshot copying with independent roots and private dependency resolution; test mixed/private-dependency packages, relative assets, licenses/metadata, source immutability, exclusion of conversation/runtime data, escaping links, missing files, cancellation, and partial-write cleanup. Document external-state isolation limits and checkpoint this slice.
 
 ## 3. Persist and publish local plugin workspaces
 
 - [x] 3.1 Implement durable atomic workspace/revision/catalog storage beneath the existing owned state root; verify restart recovery, failed writes preserving previous state, concurrent ID allocation, safe path boundaries, and no mutation of source directories or shared Saucepan data.
 - [x] 3.2 Implement blank creation and selected-revision duplication with the specified defaults, names, provenance, order placement, and fresh conversation identity; test valid empty home screens, provider-only clones without fake runtimes, disabled copies, cancellation, and exactly-once publication.
-- [ ] 3.3 Replace the app's static package list with a single catalog that merges shipped, acquired, local, and Agent-owned revisions by instance identity and retains user order; test refresh stability, dependency/claim reconciliation, filtered selection, reload, and failure containment. Document the common catalog API for pending rebuild acquisition and Agent tasks; checkpoint this slice.
+- [x] 3.3 Replace the app's static package list with a single catalog that merges shipped, acquired, local, and Agent-owned revisions by instance identity and retains user order; test refresh stability, dependency/claim reconciliation, filtered selection, reload, and failure containment. Document the common catalog API for pending rebuild acquisition and Agent tasks; checkpoint this slice.
 
 ## 4. Expose creation and explicit priority in Sources
 
-- [ ] 4.1 Remove visible group headings and retain searchable origin details in the single ordered list; verify no headings remain, filtering preserves order and current runtime state, and Blueprint/Paper Pop defaults remain unchanged.
+- [x] 4.1 Remove visible group headings and retain searchable origin details in the single ordered list; verify no headings remain, filtering preserves order and current runtime state, and Blueprint/Paper Pop defaults remain unchanged.
 - [ ] 4.2 Add the Sources-header New plugin menu and inline name/progress/error form; verify keyboard opening/selection/cancellation, focus restoration, correct captured source revision, duplicate-submit prevention, clear-filter-on-success, and selection of the durably created plugin.
 - [ ] 4.3 Add accessible reorder controls, namespace-owner explanations, and Move above owner; verify desired enablement versus conflict suppression, search-time reorder prevention, promotion/disable handoff, and inspection of losing clones without activation. Document the workflow and inspect 910x750 and compact layouts in both themes; checkpoint the complete Sources slice.
 

@@ -26,7 +26,8 @@ describe('workbench activation stage', () => {
   it('keeps the running tool and its state while the source list is filtered', async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole('button', { name: 'Increment' }));
+  await screen.findByRole('main');
+    await user.click(await screen.findByRole('button', { name: 'Increment' }));
     await user.type(screen.getByRole('searchbox', { name: 'Filter plugins' }), 'clipboard');
     expect(screen.queryByRole('button', { name: 'Select package Runtime flow' })).toBeNull();
     expect(screen.getByText('Count: 1')).toBeTruthy();
@@ -43,6 +44,7 @@ describe('workbench activation stage', () => {
     host.library.switch = vi.fn(async path => ({ path, switched: true }));
     host.assets.list = vi.fn(async () => []);
     render(<App capabilities={host} />);
+    await screen.findByRole('main');
 
     await user.click(screen.getByRole('button', { name: 'Select package File Creator' }));
     await user.type(await screen.findByRole('textbox', { name: /File name/u }), 'notes');
@@ -74,6 +76,7 @@ describe('workbench activation stage', () => {
     let finish!: (value: LibraryHistoryRecord[]) => void;
     host.library.history = vi.fn(() => new Promise<LibraryHistoryRecord[]>(resolve => { finish = resolve; }));
     render(<StrictMode><App capabilities={host} /></StrictMode>);
+    await screen.findByRole('main');
     await user.click(screen.getByRole('button', { name: 'Select package Recent Libraries' }));
     expect(screen.getByRole('status').textContent).toContain('Opening Recent Libraries');
     await user.click(screen.getByRole('button', { name: 'Select package File Creator' }));
@@ -91,6 +94,7 @@ describe('workbench activation stage', () => {
     const host = createEagleCapabilities();
     host.library.history = vi.fn(async () => []);
     render(<App capabilities={host} />);
+    await screen.findByRole('main');
     await user.click(screen.getByRole('button', { name: 'Select package Recent Libraries' }));
     await screen.findByRole('searchbox', { name: 'Filter by name or path' });
     await user.click(screen.getByRole('button', { name: 'Select actions contribution from Recent Libraries' }));
@@ -106,6 +110,7 @@ describe('workbench activation stage', () => {
   it('keeps in-view navigation and the source selection in sync without resetting runtime state', async () => {
     const user = userEvent.setup();
     render(<App />);
+  await screen.findByRole('main');
     await user.click(await screen.findByRole('button', { name: 'Increment' }));
     await user.click(screen.getByRole('button', { name: 'Open details' }));
     expect(await screen.findByText('Opened at count 1')).toBeTruthy();
@@ -118,16 +123,17 @@ describe('workbench activation stage', () => {
   it('replaces an off runtime with inspection and restores it through persisted recovery', async () => {
     const user = userEvent.setup();
     render(<App />);
+  await screen.findByRole('main');
     expect(screen.getByText('Count: 0')).toBeTruthy();
 
     await user.click(screen.getByRole('switch', { name: 'Disable package Runtime flow' }));
-    const inspector = screen.getByRole('region', { name: 'Runtime flow activation' });
-    expect(within(inspector).getByText('Package example.runtime-flow is disabled')).toBeTruthy();
-    expect(JSON.parse(window.localStorage.getItem('power-eagle.enablement.v1') ?? '{}')).toMatchObject({
-      format: 'power-eagle/enablement', formatVersion: 1, packages: { 'example.runtime-flow': false },
+    expect(screen.getByRole('region', { name: 'Runtime flow activation' })).toBeTruthy();
+    expect(screen.getByText('Plugin is disabled')).toBeTruthy();
+    expect(JSON.parse(window.localStorage.getItem('power-eagle.instances.v1') ?? '{}')).toMatchObject({
+      format: 'power-eagle/instance-preferences', formatVersion: 1, instances: { 'builtin.example.runtime-flow': false },
     });
 
-    await user.click(within(inspector).getByRole('button', { name: 'Enable package' }));
+    await user.click(screen.getByRole('button', { name: 'Enable package' }));
     expect(screen.getByText('Count: 0')).toBeTruthy();
   });
 });

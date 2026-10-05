@@ -44,8 +44,8 @@ describe('shared workbench selection and sources', () => {
     const onSelect = vi.fn();
     const user = userEvent.setup();
     render(<WorkbenchSourceTree packages={[builtIn, generated]} selection={defaultSelection(generated)} onSelect={onSelect} />);
-    expect(screen.getByRole('heading', { name: 'Included with Power Eagle' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Created by Agent' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Included with Power Eagle' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Created by Agent' })).toBeNull();
     const search = screen.getByRole('searchbox', { name: 'Filter plugins' });
     await user.type(search, 'AGENT dashboard');
     expect(screen.queryByRole('button', { name: 'Select package builtin.clipboard' })).toBeNull();

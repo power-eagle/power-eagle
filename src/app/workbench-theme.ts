@@ -3,6 +3,7 @@ import { ActivationController, contributionRegistrations } from '../host/activat
 import type { EffectiveRegistry } from '../host/activation/enablement';
 import { collectActiveStyling, composeStyle, type ActiveStyling } from '../host/activation/styling';
 import { paperPopPackage } from '../plugins/paper-pop';
+import type { CatalogEntry } from '../host/workspaces/catalog';
 
 export const THEME_STORAGE_KEY = 'power-eagle.theme.v1';
 export const SHELL_THEME_TARGET = 'power-eagle/shell';
@@ -41,12 +42,17 @@ function initialChoice(): string {
   return '';
 }
 
-export function useWorkbenchTheme(registry: EffectiveRegistry) {
+export function useWorkbenchTheme(registry: EffectiveRegistry, sharedController?: ActivationController, entries?: readonly CatalogEntry[]) {
   const [selected, setSelected] = useState(initialChoice);
   const [catalog, setCatalog] = useState<ReadonlyMap<string, ActiveStyling>>(new Map());
   const [error, setError] = useState('');
   const [saveError, setSaveError] = useState('');
   useEffect(() => {
+    if (sharedController) {
+      try { setCatalog(collectActiveStyling(registry, sharedController.snapshot)); setError(''); }
+      catch (reason) { setError(String(reason)); }
+      return;
+    }
     const controller = new ActivationController();
     let disposed = false;
     const ids = new Set(registrations.map(item => item.identity));
@@ -60,7 +66,7 @@ export function useWorkbenchTheme(registry: EffectiveRegistry) {
       setError([...result.failures.values()].map(item => item.message).join('\n'));
     }).catch(reason => { if (!disposed) setError(String(reason)); });
     return () => { disposed = true; void controller.dispose(); };
-  }, [registry]);
+  }, [registry, sharedController]);
   // Revocation takes effect in this render, before asynchronous reconciliation finishes.
   const available = new Map([...catalog].filter(([identity]) => registry.active.has(identity)));
   const effective = selected && available.has(selected) && !error ? selected : '';
@@ -74,6 +80,9 @@ export function useWorkbenchTheme(registry: EffectiveRegistry) {
   return {
     selected, choose, effective, style: shellThemeStyle(available, effective), error, saveError,
     unavailable: Boolean(selected && !registry.active.has(selected)),
-    options: themeOptions.map(item => ({ ...item, active: registry.active.has(item.identity) })),
+    options: (entries ? [...new Map(entries.flatMap(item => item.discovered.manifest.exports
+      .filter(value => value.kind === 'styling' && value.targets.includes(SHELL_THEME_TARGET))
+      .map(value => [`${item.instance.namespace}/${value.id}`, { identity: `${item.instance.namespace}/${value.id}`, label: item.discovered.manifest.name }] as const))).values()] : themeOptions)
+      .map(item => ({ ...item, active: registry.active.has(item.identity) })),
   };
 }

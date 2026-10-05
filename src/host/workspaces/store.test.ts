@@ -7,6 +7,10 @@ import { foundationRuntimeCatalog } from '../../sdui/runtime/foundation';
 import { InstancePreferences } from './preferences';
 import { resolveInstanceClaims } from './claims';
 import { discoverContributionPackage } from '../install/contribution-package';
+import { PluginCatalog } from './catalog';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as jsx from 'react/jsx-runtime';
 
 const hostRequire = createRequire(import.meta.url);
 const roots: string[] = [];
@@ -20,6 +24,29 @@ afterEach(() => { vi.restoreAllMocks(); roots.splice(0).forEach(root => rmSync(r
 const validation = { widgets: Object.fromEntries(Object.entries(foundationRuntimeCatalog.widgets).map(([id, value]) => [id, value.contract])) };
 
 describe('durable workspace publication', () => {
+  it('refreshes one instance catalog, hands off copies and contains unreadable artifacts', async () => {
+    const store = setup(); const original = await store.create('Original');
+    const unrelated = await store.create('Unrelated');
+    const prefs = InstancePreferences.open({ read: () => null, write: () => {} });
+    const catalog = new PluginCatalog(prefs, { hostRequire, sharedModules: { react: React, 'react-dom': ReactDOM, 'react/jsx-runtime': jsx } }, store);
+    await catalog.refresh();
+    const untouched = catalog.controller.snapshot.runtime.get(`${unrelated.namespace}/main`);
+    const copy = await catalog.create('Copy', { instanceId: original.instanceId, revision: 1 });
+    await catalog.setEnabled(copy.instanceId, true);
+    expect(catalog.snapshot().claims.get(copy.instanceId)?.owner).toBe(original.instanceId);
+    await catalog.move(copy.instanceId, original.instanceId);
+    expect(catalog.snapshot().owners.get(copy.namespace)?.instance.instanceId).toBe(copy.instanceId);
+    expect(catalog.controller.snapshot.runtime.get(`${unrelated.namespace}/main`)).toBe(untouched);
+    await catalog.refresh();
+    expect(catalog.snapshot().entries).toHaveLength(3);
+    await catalog.dispose();
+    rmSync(join(store.artifact(original), 'run.json'));
+    const reloaded = new PluginCatalog(prefs, catalog.loadOptions, store);
+    await reloaded.refresh();
+    expect(reloaded.snapshot().entries.find(item => item.instance.instanceId === original.instanceId)?.failure).toContain('run.json');
+    expect(reloaded.controller.snapshot.runtime.has(`${unrelated.namespace}/main`)).toBe(true);
+    await reloaded.dispose();
+  });
   it('creates and restores independent ordered instances, defaults and selected-revision provenance', async () => {
     const store = setup();
     const original = await store.create('Original');

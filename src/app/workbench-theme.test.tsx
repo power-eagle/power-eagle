@@ -23,6 +23,7 @@ const theme = () => screen.getByRole('main').getAttribute('data-theme');
 it('starts with Paper Pop off, switches without remounting the tool, and persists choices across launches', async () => {
   const user = userEvent.setup();
   const app = render(<StrictMode><App /></StrictMode>);
+  await screen.findByRole('main');
   expect(theme()).toBe('blueprint');
   await user.click(screen.getByRole('switch', { name: 'Enable package Paper Pop' }));
   await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
@@ -39,18 +40,21 @@ it('starts with Paper Pop off, switches without remounting the tool, and persist
   await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), '');
   app.unmount();
   const restored = render(<App />);
+  await screen.findByRole('main');
   expect(theme()).toBe('blueprint');
   expect(JSON.parse(storage.getItem(THEME_STORAGE_KEY)!)).toMatchObject({ identity: '' });
   expect(screen.getByRole('switch', { name: 'Disable package Paper Pop' })).toBeTruthy();
   await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
   restored.unmount();
   render(<App />);
+  await screen.findByRole('main');
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
 });
 
 it('revokes styling on package or export disablement and restores the remembered selection', async () => {
   const user = userEvent.setup();
   render(<App />);
+  await screen.findByRole('main');
   await user.click(screen.getByRole('switch', { name: 'Enable package Paper Pop' }));
   await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
@@ -73,6 +77,7 @@ it('revokes styling on package or export disablement and restores the remembered
 it('keeps the chosen theme active when saving the preference fails', async () => {
   const user = userEvent.setup();
   render(<App />);
+  await screen.findByRole('main');
   await user.click(screen.getByRole('switch', { name: 'Enable package Paper Pop' }));
   await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));

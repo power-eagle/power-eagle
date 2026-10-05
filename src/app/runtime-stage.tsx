@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react';
-import type { EagleCapabilities } from '../host/eagle-capabilities';
 import { eagleSelectionAdapter } from '../host/eagle-selection';
 import type { DiscoveredPackage } from '../host/install/contribution-package';
-import { builtinToolCatalog } from '../plugins/builtin-tool';
-import { getBuiltinTool } from '../plugins/builtins';
-import { foundationRuntimeCatalog } from '../sdui/runtime/foundation';
 import { RuntimeSession } from '../sdui/runtime/session';
 import { RuntimeView } from '../sdui/runtime/view';
-import type { WorkbenchActivationModel } from './workbench-activation';
+import type { PluginCatalog } from '../host/workspaces/catalog';
+import { createArtifactSession } from '../host/workspaces/runtime';
 
 /** Own the selected view, including startup work and cancellation on replacement. */
-export function RuntimeStage({ source, capabilities, activation, screen, onScreenChange }: {
+export function RuntimeStage({ source, activation, screen, onScreenChange }: {
   source: DiscoveredPackage;
-  capabilities: EagleCapabilities;
-  activation: WorkbenchActivationModel;
+  activation: PluginCatalog;
   screen?: string;
   onScreenChange(screen: string): void;
 }) {
@@ -26,17 +22,12 @@ export function RuntimeStage({ source, capabilities, activation, screen, onScree
     setSession(undefined);
     setFailure(undefined);
     const open = async () => {
-      const tool = getBuiltinTool(source.manifest.id);
-      const calls = Object.fromEntries(Object.entries(tool?.calls(capabilities) ?? {}).map(([identity, adapter]) => [identity, {
-        ...adapter,
-        invoke: (...args: Parameters<typeof adapter.invoke>) => {
-          const state = activation.snapshot().exports.find(item => item.identity === identity);
-          if (state?.effectiveStatus !== 'active') throw new Error(`Export ${identity} is unavailable`);
-          return adapter.invoke(...args);
-        },
-      }]));
-      current = new RuntimeSession(source.runtime, tool ? builtinToolCatalog(tool) : foundationRuntimeCatalog, {
-        calls, selection: eagleSelectionAdapter(),
+      current = createArtifactSession(source, activation.snapshot().registry, activation.controller, {
+        selection: eagleSelectionAdapter(),
+      }, relative => {
+        const asset = source.assets[relative];
+        if (!asset || !activation.loadOptions) throw new Error(`Unavailable package asset ${relative}`);
+        return (activation.loadOptions.hostRequire('node:url') as typeof import('node:url')).pathToFileURL(asset).href;
       });
       await current.initialize();
       if (!cancelled) setSession(current);
@@ -48,7 +39,7 @@ export function RuntimeStage({ source, capabilities, activation, screen, onScree
       cancelled = true;
       void current?.dispose().catch(error => console.error('Runtime cleanup failed', error));
     };
-  }, [source, capabilities, activation]);
+  }, [source, activation]);
 
   useEffect(() => {
     if (!session) return;

@@ -6,6 +6,9 @@ export type WorkbenchStatus = 'active' | 'off' | 'failed';
 export type ContributionKind = keyof PackageManifest['contributions'];
 
 export interface WorkbenchPackage {
+  instanceId?: string;
+  desired?: boolean;
+  exportPreferences?: Record<string, boolean>;
   sourceId: string;
   sourceLabel: string;
   sourceKind: WorkbenchSourceKind;
@@ -19,6 +22,7 @@ export interface WorkbenchPackage {
 }
 
 export interface WorkbenchSelection {
+  instanceId?: string;
   packageId: string;
   contribution?: ContributionKind;
   exportId?: string;
@@ -50,6 +54,7 @@ export function contributionExports(manifest: PackageManifest, contribution: Con
 export function contributionSelection(record: WorkbenchPackage, contribution: ContributionKind): WorkbenchSelection {
   const descriptor = contributionExports(record.manifest, contribution)[0];
   return {
+    instanceId: record.instanceId,
     packageId: record.manifest.id,
     ...(record.conversationId ? { conversationId: record.conversationId } : {}),
     ...(record.version !== undefined ? { version: record.version } : {}),
@@ -60,11 +65,13 @@ export function contributionSelection(record: WorkbenchPackage, contribution: Co
 }
 
 export function selectionMatchesRecord(selection: WorkbenchSelection, record: WorkbenchPackage): boolean {
+  if (record.instanceId) return selection.instanceId === record.instanceId;
   return selection.packageId === record.manifest.id &&
     selection.conversationId === record.conversationId && selection.version === record.version;
 }
 
 export function workbenchPackageKey(record: WorkbenchPackage): string {
+  if (record.instanceId) return record.instanceId;
   return [record.sourceId, record.manifest.id, record.conversationId ?? '', record.version ?? ''].join(':');
 }
 

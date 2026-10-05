@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Badge, Input, SectionLabel } from '../components/ui';
+import { Badge, Input } from '../components/ui';
 import type { EffectiveRegistry } from '../host/activation/enablement';
 import {
-  contributionExports, contributionSelection, defaultSelection, groupWorkbenchPackages, packageContributions,
+  contributionExports, contributionSelection, defaultSelection, packageContributions,
   selectionMatchesRecord, workbenchPackageKey, type ContributionKind, type WorkbenchPackage, type WorkbenchSelection,
 } from './workbench-selection';
 
@@ -31,6 +31,7 @@ function ExportChoices({ record, contribution, selection, onSelect, registry, on
 }) {
   const descriptors = contributionExports(record.manifest, contribution);
   const identity = {
+    instanceId: record.instanceId,
     packageId: record.manifest.id,
     ...(record.conversationId ? { conversationId: record.conversationId } : {}),
     ...(record.version !== undefined ? { version: record.version } : {}),
@@ -41,8 +42,8 @@ function ExportChoices({ record, contribution, selection, onSelect, registry, on
       const state = registry?.exports.find(item => item.identity === identityValue);
       return <div className="pe-workbench-export" key={descriptor.id} data-status={state?.effectiveStatus}>
         {state && onToggleExport ? <SourceToggle name={`export ${state.identity}`}
-          enabled={state.desiredExport} status={state.effectiveStatus}
-          onToggle={() => onToggleExport(state.identity, !state.desiredExport)}
+          enabled={record.exportPreferences?.[descriptor.id] ?? state.desiredExport} status={state.effectiveStatus}
+          onToggle={() => onToggleExport(state.identity, !(record.exportPreferences?.[descriptor.id] ?? state.desiredExport))}
         /> : <span className="pe-workbench-tree-branch" aria-hidden="true" />}
         <div className="pe-workbench-export-links">{descriptor.kind === 'runtime'
           ? descriptor.screens.map(screen => <button
@@ -66,7 +67,7 @@ function ExportChoices({ record, contribution, selection, onSelect, registry, on
 
 export function WorkbenchSourceTree({
   packages, selection, onSelect,
-  registry, onTogglePackage, onToggleExport,
+  registry, onTogglePackage, onToggleExport, filter, onFilter,
 }: {
   packages: readonly WorkbenchPackage[];
   selection: WorkbenchSelection;
@@ -74,8 +75,12 @@ export function WorkbenchSourceTree({
   registry?: EffectiveRegistry;
   onTogglePackage?(packageId: string, enabled: boolean): void;
   onToggleExport?(identity: string, enabled: boolean): void;
+  filter?: string;
+  onFilter?(value: string): void;
 }) {
-  const [query, setQuery] = useState('');
+  const [localQuery, setLocalQuery] = useState('');
+  const query = filter ?? localQuery;
+  const setQuery = onFilter ?? setLocalQuery;
   const terms = query.trim().toLocaleLowerCase().split(/\s+/u).filter(Boolean);
   const filtered = packages.filter(record => {
     const text = [record.manifest.name, record.manifest.id, record.manifest.description,
@@ -89,15 +94,13 @@ export function WorkbenchSourceTree({
       {query ? <button type="button" aria-label="Clear plugin filter" onClick={() => setQuery('')}>×</button> : null}
     </div>
     {filtered.length === 0 ? <p className="pe-plugin-search-empty" role="status">No matching plugins.</p> : null}
-    {groupWorkbenchPackages(filtered).map(group => <section key={group.id} aria-label={sourceGroupLabel(group.kind, group.label)}>
-      <SectionLabel>{sourceGroupLabel(group.kind, group.label)}</SectionLabel>
-      {group.packages.map(record => {
+    {filtered.map(record => {
         const selected = selectionMatchesRecord(selection, record);
-        const enabled = registry?.packages.get(record.manifest.id)?.desired ?? record.status !== 'off';
+        const enabled = record.desired ?? registry?.packages.get(record.manifest.id)?.desired ?? record.status !== 'off';
         return <div className="pe-workbench-package" key={workbenchPackageKey(record)} data-status={record.status}>
           <div className="pe-workbench-package-head" data-selected={selected}>
             {onTogglePackage ? <SourceToggle name={`package ${record.manifest.name}`} enabled={enabled} status={record.status}
-              onToggle={() => onTogglePackage(record.manifest.id, !enabled)}
+              onToggle={() => onTogglePackage(record.instanceId ?? record.manifest.id, !enabled)}
             /> : <span className="pe-workbench-tree-branch" aria-hidden="true" />}
             <button className="pe-workbench-package-select" type="button" aria-label={`Select package ${record.manifest.name}`} aria-current={selected ? 'page' : undefined} onClick={() => onSelect(defaultSelection(record))}>
               <span>
@@ -123,7 +126,6 @@ export function WorkbenchSourceTree({
           </div> : null}
         </div>;
       })}
-    </section>)}
   </nav>;
 }
 

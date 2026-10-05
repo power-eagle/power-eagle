@@ -1,95 +1,103 @@
-import { useCallback, useState } from 'react';
-import example from '../../examples/runtime-flow/document';
-import exampleManifest from '../../examples/runtime-flow/manifest.json';
-import { WebStorageEnablementPersistence, type EnablementPersistence } from '../host/activation/enablement';
-import type { DiscoveredPackage } from '../host/install/contribution-package';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { createEagleCapabilities, type EagleCapabilities } from '../host/eagle-capabilities';
-import { builtinContributionManifests, builtinTools } from '../plugins/builtins';
-import type { PackageManifest } from '../sdui/schema/model';
+import { PluginCatalog } from '../host/workspaces/catalog';
 import { ActivationInspector } from './activation-inspector';
 import { WorkbenchSourceTree } from './source-tree';
-import { WorkbenchActivationModel } from './workbench-activation';
-import { defaultSelection, selectionMatchesRecord, type WorkbenchPackage } from './workbench-selection';
+import { defaultSelection, type WorkbenchPackage, type WorkbenchSelection } from './workbench-selection';
 import { WorkbenchShell } from './workbench-shell';
 import { RuntimeStage } from './runtime-stage';
 import { useWorkbenchTheme } from './workbench-theme';
-import { paperPopManifest } from '../plugins/paper-pop';
+import { openPluginCatalog } from './plugin-catalog';
 
-const manifests = [exampleManifest as PackageManifest, ...builtinContributionManifests];
-const discoveredPackages: DiscoveredPackage[] = manifests.map(manifest => {
-  const tool = builtinTools.find(item => item.manifest.id === manifest.id);
-  const runtime = manifest.id === exampleManifest.id ? example : tool?.document;
-  return {
-    root: `builtin:${manifest.id}`, manifestPath: `builtin:${manifest.id}/manifest.json`, manifest,
-    entries: { ...manifest.contributions }, assets: {}, ...(runtime ? { runtime } : {}),
-  };
-});
-const basePackages: WorkbenchPackage[] = manifests.map(manifest => ({
-  sourceId: 'built-in', sourceLabel: 'built-in', sourceKind: 'built-in', persistence: 'built-in', manifest, status: 'active',
-}));
-
-function enablementPersistence(): EnablementPersistence {
-  if (typeof window !== 'undefined') {
-    try { return new WebStorageEnablementPersistence(window.localStorage); } catch { /* non-browser rendering */ }
-  }
-  let value: string | null = null;
-  return { read: () => value, write: next => { value = next; } };
+export default function App({ capabilities: suppliedCapabilities, catalog: suppliedCatalog }: { capabilities?: EagleCapabilities; catalog?: PluginCatalog } = {}) {
+  const [capabilities] = useState(() => suppliedCapabilities ?? createEagleCapabilities());
+  const [catalog, setCatalog] = useState(suppliedCatalog);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (suppliedCatalog) return;
+    let cancelled = false;
+    let current: PluginCatalog | undefined;
+    void openPluginCatalog(capabilities).then(value => {
+      current = value;
+      if (cancelled) void value.dispose(); else setCatalog(value);
+    }).catch(reason => { if (!cancelled) setError(String(reason)); });
+    return () => { cancelled = true; void current?.dispose(); };
+  }, [capabilities, suppliedCatalog]);
+  if (error) return <div role="alert"><h1>Plugin workspaces could not open</h1><p>{error}</p><p>Your stored artifacts have been retained. Correct the reported storage or format problem and reopen Power Eagle.</p></div>;
+  if (!catalog) return <p role="status">Opening plugin workspaces…</p>;
+  return <CatalogWorkbench catalog={catalog} />;
 }
 
-export default function App({ capabilities: suppliedCapabilities }: { capabilities?: EagleCapabilities } = {}) {
-  const [capabilities] = useState(() => suppliedCapabilities ?? createEagleCapabilities());
-  const [activation] = useState(() => new WorkbenchActivationModel(
-    discoveredPackages, enablementPersistence(), { [paperPopManifest.id]: false },
-  ));
-  const [registry, setRegistry] = useState(() => activation.snapshot());
-  const theme = useWorkbenchTheme(registry);
-  const packages = basePackages.map(record => ({
-    ...record, status: registry.packages.get(record.manifest.id)?.effectiveStatus ?? record.status,
+export function CatalogWorkbench({ catalog }: { catalog: PluginCatalog }) {
+  const snapshot = useSyncExternalStore(catalog.subscribe, catalog.snapshot, catalog.snapshot);
+  const [selection, setSelection] = useState<WorkbenchSelection>();
+  const [filter, setFilter] = useState('');
+  const [error, setError] = useState('');
+  const { registry } = snapshot;
+  const theme = useWorkbenchTheme(registry, catalog.controller, snapshot.entries);
+  const packages: WorkbenchPackage[] = snapshot.entries.map(({ instance, discovered }) => ({
+    instanceId: instance.instanceId, sourceId: instance.origin.sourceId, sourceLabel: instance.origin.kind,
+    sourceKind: instance.origin.kind === 'built-in' ? 'built-in' : instance.origin.kind === 'agent' ? 'generated' : 'installed',
+    persistence: instance.origin.kind === 'built-in' ? 'built-in' : 'generated',
+    manifest: { ...discovered.manifest, name: instance.name }, status: snapshot.claims.get(instance.instanceId)!.status,
+    desired: snapshot.claims.get(instance.instanceId)!.desired,
+    exportPreferences: Object.fromEntries(discovered.manifest.exports.map(item => [item.id, catalog.preferences.exportEnabled(instance.instanceId, item.id)])),
+    version: instance.currentRevision,
   }));
-  const [selection, setSelection] = useState(() => defaultSelection(basePackages[0]));
-  const selected = packages.find(record => selectionMatchesRecord(selection, record)) ?? packages[0];
-  const selectedExport = selection.exportId
-    ? registry.exports.find(item => item.identity === `${selected.manifest.id}/${selection.exportId}`)
-    : undefined;
-  const runtimeSource = discoveredPackages.find(source => source.manifest.id === selected.manifest.id && source.runtime);
-  const showRuntime = selection.contribution === 'runtime' && selectedExport?.effectiveStatus === 'active' && runtimeSource;
-  const onScreenChange = useCallback((screen: string) => setSelection(current => ({ ...current, screen })), []);
-  const togglePackage = (packageId: string, enabled: boolean) => setRegistry(activation.setPackage(packageId, enabled));
-  const toggleExport = (identity: string, enabled: boolean) => setRegistry(activation.setExport(identity, enabled));
+  const selected = packages.find(record => record.instanceId === selection?.instanceId) ?? packages[0];
+  const current = selection?.instanceId === selected?.instanceId ? selection : selected ? defaultSelection(selected) : undefined;
+  const entry = snapshot.entries.find(item => item.instance.instanceId === selected?.instanceId);
+  const claim = entry && snapshot.claims.get(entry.instance.instanceId);
+  const selectedExport = current?.exportId ? registry.exports.find(item => item.identity === `${selected.manifest.id}/${current.exportId}`) : undefined;
+  const showRuntime = claim?.status === 'active' && current?.contribution === 'runtime' && selectedExport?.effectiveStatus === 'active' && entry?.discovered.runtime;
+  const report = (work: Promise<unknown>) => { setError(''); void work.catch(reason => setError(String(reason))); };
+  const togglePackage = (id: string, enabled: boolean) => {
+    const instanceId = snapshot.entries.find(item => item.instance.instanceId === id)?.instance.instanceId
+      ?? snapshot.owners.get(id)?.instance.instanceId ?? selected.instanceId!;
+    report(catalog.setEnabled(instanceId, enabled));
+  };
+  const toggleExport = (identity: string, enabled: boolean) => {
+    const [namespace, exportId] = identity.split('/');
+    const instanceId = namespace === selected.manifest.id ? selected.instanceId! : snapshot.owners.get(namespace)?.instance.instanceId;
+    if (instanceId) report(catalog.setExport(instanceId, exportId, enabled));
+  };
+  const onScreenChange = useCallback((screen: string) => setSelection(value => {
+    if (value && value.instanceId !== selected?.instanceId) return value;
+    return selected ? { ...(value ?? defaultSelection(selected)), screen } : value;
+  }), [selected]);
+  if (!selected || !current || !entry || !claim) return <p>No plugins available.</p>;
+  const ownRegistry = claim.status === 'off' ? {
+    ...registry, packages: new Map(registry.packages).set(selected.manifest.id, { packageId: selected.manifest.id, desired: claim.desired, effectiveStatus: 'off' as const, exports: [], reason: { code: 'package-off' as const, message: claim.reason ?? 'Plugin is disabled' } }),
+    exports: registry.exports.filter(item => item.packageId !== selected.manifest.id),
+  } : registry;
   return <WorkbenchShell
     themeStyle={theme.style} themeIdentity={theme.effective || 'blueprint'}
     themeControl={<>
       <label className="pe-theme-picker"><span>Theme</span>
         <select aria-label="Theme" value={theme.selected} onChange={event => theme.choose(event.currentTarget.value)}>
           <option value="">Blueprint</option>
-          {theme.options.map(option => <option key={option.identity} value={option.identity}>
-            {option.label}{option.active ? '' : ' (off)'}
-          </option>)}
-          {theme.selected && !theme.options.some(option => option.identity === theme.selected)
-            ? <option value={theme.selected}>Unavailable theme</option> : null}
+          {theme.options.map(option => <option key={option.identity} value={option.identity}>{option.label}{option.active ? '' : ' (off)'}</option>)}
+          {theme.selected && !theme.options.some(option => option.identity === theme.selected) ? <option value={theme.selected}>Unavailable theme</option> : null}
         </select>
       </label>
-      {theme.unavailable || theme.error ? <span className="pe-theme-notice" role="status"
-        title={theme.error || 'The selected theme is unavailable. Re-enable its package or export in Sources.'}>Using Blueprint</span> : null}
-      {theme.saveError ? <span className="pe-theme-notice" role="status" title={theme.saveError}>Preference not saved</span> : null}
+      {theme.unavailable || theme.error ? <span className="pe-theme-notice" role="status">Using Blueprint</span> : null}
+      {theme.saveError ? <span className="pe-theme-notice" role="status">Preference not saved</span> : null}
     </>}
-    sources={<WorkbenchSourceTree
-      packages={packages} selection={selection} onSelect={setSelection} registry={registry}
-      onTogglePackage={togglePackage} onToggleExport={toggleExport}
-    />}
+    sources={<>
+      {error ? <p role="alert">{error}</p> : null}
+      <WorkbenchSourceTree packages={packages} selection={current} onSelect={setSelection} registry={registry}
+        filter={filter} onFilter={setFilter} onTogglePackage={togglePackage} onToggleExport={toggleExport} />
+    </>}
     sourceHint={String(packages.length)}
-    stage={showRuntime ? <RuntimeStage key={`${selected.manifest.id}/${selection.exportId}`}
-      source={runtimeSource} capabilities={capabilities} activation={activation}
-      screen={selection.screen} onScreenChange={onScreenChange}
-    /> : <ActivationInspector
-      record={selected} selection={selection} registry={registry}
-      onTogglePackage={togglePackage} onToggleExport={toggleExport}
-    />}
-    stageTitle={selected.manifest.name}
-    stageMode={showRuntime ? 'live view' : 'activation'}
-    stageStatus={selectedExport?.effectiveStatus ?? selected.status}
-    stageCaption={[selected.persistence, showRuntime ? selection.screen : selection.contribution].filter(Boolean).join(' · ')}
-    active={packages.filter(record => record.status === 'active').length}
-    total={packages.length}
+    stage={showRuntime ? <RuntimeStage key={catalog.runtimeKey(`${selected.manifest.id}/${current.exportId}`)} source={entry.discovered}
+      activation={catalog} screen={current.screen} onScreenChange={onScreenChange} /> : <>
+      {claim.reason ? <p role="status">{claim.reason}</p> : null}
+      <ActivationInspector record={selected} selection={current} registry={ownRegistry}
+        onTogglePackage={togglePackage} onToggleExport={toggleExport} />
+      {!claim.desired ? <button type="button" onClick={() => togglePackage(selected.instanceId!, true)}>Enable package</button> : null}
+    </>}
+    stageTitle={selected.manifest.name} stageMode={showRuntime ? 'live view' : 'activation'}
+    stageStatus={claim.status} stageCaption={[entry.instance.origin.kind, `revision ${entry.instance.currentRevision}`, showRuntime ? current.screen : current.contribution].filter(Boolean).join(' · ')}
+    active={packages.filter(record => record.status === 'active').length} total={packages.length}
   />;
 }
