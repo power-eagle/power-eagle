@@ -57,6 +57,7 @@ describe('shared workbench selection and sources', () => {
     render(<WorkbenchSourceTree packages={[off, mixed]} selection={defaultSelection(mixed)} onSelect={onSelect} />);
 
     expect(screen.getByText('new')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Select widgets contribution from provider.off' })).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Select package provider.off' }));
     expect(onSelect).toHaveBeenCalledWith({ packageId: 'provider.off', contribution: 'widgets', exportId: 'card' });
     await user.click(screen.getByRole('button', { name: 'Select styling contribution from provider.mixed' }));
