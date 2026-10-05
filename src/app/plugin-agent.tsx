@@ -12,8 +12,7 @@ export function PluginAgentPanel({ agent, entry }: { agent: PluginAgent; entry: 
   const busy = agent.busy(id);
   const report = (work: Promise<unknown>) => { setError(''); void work.catch(reason => setError(String(reason))); };
   return <section className="pe-agent-context" aria-label={`Agent for ${entry.instance.name}`}>
-    <header><strong>{entry.instance.name}</strong><small>Refining revision {record.selectedBase}{busy ? ' · generating…' : ''}</small>
-      {entry.instance.forkOf ? <small>Copied from {entry.instance.forkOf.instanceId}, revision {entry.instance.forkOf.revision}. This conversation is independent.</small> : null}
+    <header><strong title={entry.instance.forkOf ? `Copied from ${entry.instance.forkOf.instanceId}, v${entry.instance.forkOf.revision}` : undefined}>{entry.instance.name}</strong>
     </header>
     <div className="pe-agent-versions" aria-label="Plugin revisions">
       {entry.instance.revisions.map(revision => <button key={revision.id} type="button" aria-pressed={entry.instance.currentRevision === revision.id}
@@ -37,7 +36,7 @@ export function PluginAgentPanel({ agent, entry }: { agent: PluginAgent; entry: 
       <textarea id="plugin-agent-draft" placeholder="What should this plugin do?" value={draft}
         onChange={event => { const value = event.currentTarget.value; setDraft(value); report(agent.draft(id, value)); }} />
       {error || agent.error(id) ? <p role="alert">{error || agent.error(id)}</p> : null}
-      <div><small>{busy ? 'Generating…' : `Base: v${record.selectedBase}`}</small><Button type="submit" disabled={busy || !draft.trim()}>Send</Button></div>
+      <div><small>{busy ? 'Generating…' : ''}</small><Button type="submit" disabled={busy || !draft.trim()}>Send</Button></div>
     </form>
   </section>;
 }
