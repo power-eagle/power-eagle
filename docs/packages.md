@@ -287,6 +287,8 @@ npx vitest run src/host/install/package-examples.test.tsx
 
 That check builds clean artifacts, discovers their manifests without running code, validates the recorded Eagle target, loads through the package-anchored CommonJS loader, renders both widgets through runtime documents, clicks their hook-driven controls, resolves their relocated assets, verifies separate private dependency instances, and loads the mixed styling export.
 
+`examples/clipboard-runtime` is a runtime-only consumer of the provider-only built-in `power-eagle.clipboard` service. Its manifest and `run.json` declare the qualified service dependency while the service publishes `services.cjs`, `read`, and `write` through the same graph and activation contracts as acquired packages. `src/plugins/clipboard-service.test.tsx` activates both packages in dependency order, exercises host-backed copy and paste, disables the provider, and verifies consumer deactivation plus stale-handle revocation.
+
 ## Runtime-only example
 
 `examples/runtime-only` contains `document.ts`, `manifest.json`, and generated canonical `run.json`. Run:
@@ -295,6 +297,8 @@ That check builds clean artifacts, discovers their manifests without running cod
 npm run language -- example
 npm run language -- validate examples/runtime-only/manifest.json
 npm run language -- validate examples/runtime-only/run.json
+npm run language -- validate examples/clipboard-runtime/manifest.json
+npm run language -- validate examples/clipboard-runtime/run.json
 ```
 
 The typed source is unnecessary once compiled. The same static validator accepts its Saucepan-returned directory; workbench acquisition controls and final release packaging are later checkpoints.

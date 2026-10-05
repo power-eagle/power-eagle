@@ -1,0 +1,18 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.clipboard-runtime",
+  "name": "Clipboard runtime consumer",
+  "version": "1.0.0",
+  "description": "A runtime-only package that calls the built-in clipboard service",
+  "sdk": "^1.0.0",
+  "contributions": { "runtime": "run.json" },
+  "exports": [{ "kind": "runtime", "id": "main", "screens": ["home"] }],
+  "dependencies": [{
+    "package": "power-eagle.clipboard",
+    "version": "^1.0.0",
+    "export": "clipboard",
+    "kind": "service"
+  }],
+  "assets": []
+}

@@ -1,0 +1,234 @@
+{
+  "actions": {
+    "copy": {
+      "args": {
+        "$ref": {
+          "path": [
+            "draft"
+          ],
+          "scope": "state"
+        }
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "path": [
+              "message"
+            ],
+            "scope": "error"
+          }
+        }
+      },
+      "kind": "call",
+      "method": "write",
+      "success": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": "Copied through the clipboard service."
+      },
+      "target": "power-eagle.clipboard/clipboard"
+    },
+    "paste": {
+      "args": null,
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "path": [
+              "message"
+            ],
+            "scope": "error"
+          }
+        }
+      },
+      "kind": "call",
+      "method": "read",
+      "success": {
+        "kind": "sequence",
+        "steps": [
+          {
+            "kind": "set",
+            "path": [
+              "value"
+            ],
+            "value": {
+              "$ref": {
+                "path": [],
+                "scope": "result"
+              }
+            }
+          },
+          {
+            "kind": "set",
+            "path": [
+              "status"
+            ],
+            "value": {
+              "$expr": {
+                "args": [
+                  "Read: {0}",
+                  {
+                    "$ref": {
+                      "path": [
+                        "value"
+                      ],
+                      "scope": "state"
+                    }
+                  }
+                ],
+                "op": "format"
+              }
+            }
+          }
+        ]
+      },
+      "target": "power-eagle.clipboard/clipboard"
+    }
+  },
+  "components": {},
+  "dependencies": [
+    {
+      "export": "clipboard",
+      "kind": "service",
+      "package": "power-eagle.clipboard",
+      "version": "^1.0.0"
+    }
+  ],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "screens": {
+    "home": {
+      "body": {
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "props": {
+                "text": "Clipboard consumer",
+                "variant": "title"
+              },
+              "type": "Text"
+            },
+            {
+              "events": {
+                "change": {
+                  "kind": "set",
+                  "path": [
+                    "draft"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "path": [],
+                      "scope": "event"
+                    }
+                  }
+                }
+              },
+              "props": {
+                "id": "draft",
+                "label": "Text",
+                "value": {
+                  "$ref": {
+                    "path": [
+                      "draft"
+                    ],
+                    "scope": "state"
+                  }
+                }
+              },
+              "type": "TextField"
+            },
+            {
+              "props": {
+                "gap": 8
+              },
+              "slots": {
+                "children": [
+                  {
+                    "events": {
+                      "press": {
+                        "action": "copy",
+                        "kind": "run"
+                      }
+                    },
+                    "props": {
+                      "label": "Copy"
+                    },
+                    "type": "Button"
+                  },
+                  {
+                    "events": {
+                      "press": {
+                        "action": "paste",
+                        "kind": "run"
+                      }
+                    },
+                    "props": {
+                      "label": "Paste",
+                      "variant": "outline"
+                    },
+                    "type": "Button"
+                  }
+                ]
+              },
+              "type": "Row"
+            },
+            {
+              "props": {
+                "text": {
+                  "$ref": {
+                    "path": [
+                      "status"
+                    ],
+                    "scope": "state"
+                  }
+                },
+                "variant": "small"
+              },
+              "type": "Text"
+            }
+          ]
+        },
+        "type": "Column"
+      },
+      "params": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "state": {}
+    }
+  },
+  "start": "home",
+  "state": {
+    "draft": {
+      "initial": "Power Eagle clipboard",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "initial": "Ready",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "value": {
+      "initial": "",
+      "schema": {
+        "type": "string"
+      }
+    }
+  }
+}

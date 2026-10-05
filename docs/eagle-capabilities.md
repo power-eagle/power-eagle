@@ -43,7 +43,49 @@ The `.library` suffix is used only to derive a display name. It never determines
 
 The built-in `power-eagle.eagle-actions` contribution exposes typed folder listing/opening, tag listing, library history/switching, metadata update, and batch import calls. Runtime documents pair those calls with FolderTree, TagPicker, LibraryPicker, MetadataEditor, and ImportQueue. Choice cancellation emits a local event and does not invoke Eagle. Metadata submission calls `assets.updateMetadata`, which uses the supported `Item.save()` path described above.
 
+All Eagle widget contracts are catalog entries and therefore use controlled props: an event reports intent or a value, and the owning runtime decides whether to update state or call the host.
+
+| Widget | Required props | Host-relevant events |
+| --- | --- | --- |
+| `AssetCard` | `asset` (full typed asset record) | `select(id)`, `activate(id)`, `imageError(id)` |
+| `AssetGrid` | `label`, `assets` | `selectionChange(ids)`, `activate(id)`, `retry(null)`, `imageError(id)` |
+| `AssetPicker` | `label`, `assets` | `selectionChange(ids)`, `confirm(ids)`, `cancel(null)`, `activate(id)`, `retry(null)`, `imageError(id)` |
+| `FolderTree` | `label`, flattened `folders` | `selectionChange(id)`, `expandedChange(ids)`, `open(id)`, `retry(null)` |
+| `TagPicker` | `label`, `tags` | `selectionChange(names)`, `confirm(names)`, `cancel(null)`, `retry(null)` |
+| `LibraryPicker` | `label`, `libraries` | `selectionChange(path)`, `confirm(path)`, `cancel(null)`, `retry(null)` |
+| `MetadataEditor` | `assetId`, `name` | `submit({id,name,annotation,tags,folderIds,rating})`, `cancel(null)` |
+| `ImportQueue` | `label`, `items` | `import({id,source,kind})`, `retry({id,source,kind})`, `cancel(id)` |
+
+Asset widgets additionally accept controlled selection, loading/error text, sizing, and disabled props. Folder, tag, and library widgets accept controlled selection and loading/error props. Metadata supports annotation, tag names, folder ids, integer rating 0–5, status, message, and disabled state. Import results identify the request and report `queued`, `importing`, `success`, `error`, or `cancelled` with the actual Eagle asset id or failure message. The generated [widget catalog](widget-catalog.md) is authoritative for defaults, complete property schemas, theme hooks, and runnable examples.
+
+The built-in action and service packages publish these qualified call contracts:
+
+| Qualified export | Input | Output / effect |
+| --- | --- | --- |
+| `power-eagle.asset-browser/list` | JSON query | typed asset records from `eagle.item.get` |
+| `power-eagle.asset-browser/select` | asset id array | `true` only after Eagle accepts the exact ids |
+| `power-eagle.file-creator/normalizeExtension` | string | normalized extension or validation error |
+| `power-eagle.file-creator/create` | `{fileName,extension}` | `{status:"created",path}` or `{status:"cancelled"}` |
+| `power-eagle.recent-libraries/history` | `null` | classified library history records |
+| `power-eagle.recent-libraries/filter` | `{libraries,query}` | filtered records without a host call |
+| `power-eagle.recent-libraries/remove` | `{libraries,id}` | session-only filtered records |
+| `power-eagle.recent-libraries/clearMissing` | library records | `{libraries,removed}` retaining inaccessible entries |
+| `power-eagle.recent-libraries/switch` | `{path}` | actual Eagle Web API result |
+| `power-eagle.eagle-actions/folders` | `null` | flattened folder records with Eagle ids |
+| `power-eagle.eagle-actions/openFolder` | folder id | `null` after Eagle opens the exact id |
+| `power-eagle.eagle-actions/tags` | name filter string, empty for all | typed tag records |
+| `power-eagle.eagle-actions/libraries` | `null` | classified library history records |
+| `power-eagle.eagle-actions/switchLibrary` | library path | actual Eagle Web API result |
+| `power-eagle.eagle-actions/updateMetadata` | `{id,name,annotation,tags,folderIds,rating}` | saved typed asset record |
+| `power-eagle.eagle-actions/importMany` | ordered `{id,source,kind}` array | ordered per-request results |
+| `power-eagle.clipboard/clipboard.read` | `null` | current Eagle clipboard text |
+| `power-eagle.clipboard/clipboard.write` | string | `null` after Eagle completes the write |
+
+`power-eagle.clipboard` is a provider-only built-in package. Its `services.cjs` identity enters the same dependency graph and activation controller as an acquired service. A runtime must declare `power-eagle.clipboard/clipboard`; disabling the service also deactivates its consumers, and handles from the old activation remain revoked after re-enable.
+
 Batch import preserves request order and records each actual path or URL result independently, so one rejection cannot be displayed as a successful batch. Runtime activation signals are checked after host completion; disposing or replacing a view aborts its action scope and prevents a late result from writing into the disposed view. Eagle's current item import methods do not expose cancellation, so an already-started host import may still finish inside Eagle even though its disposed view ignores the result.
+
+The executable behavior examples live in `features/eagle-tools.feature`. They verify normalized File Creator output through the Eagle file boundary and prove that Recent Libraries removes only verified-missing entries while sending the exact selected available path to Eagle.
 
 ## Build examples
 

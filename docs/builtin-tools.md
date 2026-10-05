@@ -28,3 +28,5 @@ Recent Libraries loads Eagle's actual history through the typed host adapter. Th
 Filtering is case-insensitive and checks both the displayed name and exact path. Open is enabled only for an `available` entry and passes that entry's full path to the Eagle switch action. A host rejection is shown as an error and is never reported as a successful switch.
 
 Remove and Clear verified missing change only the current runtime session list. Clear removes entries whose status is `missing`; it retains `inaccessible` entries because failed inspection is not evidence that a library is absent. Neither operation rewrites Eagle history, edits library metadata, or deletes files or directories. Refresh discards those session-only list changes by reading the host history again.
+
+The user-facing paths above are executable in `features/eagle-tools.feature`. Run `npx vitest run features/eagle-tools.steps.ts` to verify File Creator normalization and exact host content, plus evidence-based library cleanup and exact-path switching.
