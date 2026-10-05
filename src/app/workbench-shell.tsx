@@ -26,6 +26,8 @@ export class StageBoundary extends Component<StageBoundaryProps, StageBoundarySt
 
 export interface WorkbenchShellProps {
   stage: ReactNode;
+  sources?: ReactNode;
+  sourceHint?: string;
   stageTitle?: string;
   stageCaption?: string;
   active?: number;
@@ -35,7 +37,7 @@ export interface WorkbenchShellProps {
 function compactWindow(): boolean { return typeof window !== 'undefined' && window.innerWidth < 760; }
 
 export function WorkbenchShell({
-  stage, stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
+  stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
   const [agentCollapsed, setAgentCollapsed] = useState(compactWindow);
@@ -61,7 +63,7 @@ export function WorkbenchShell({
       </header>
       <div className="pe-shell-panels" data-layout="sources-stage-agent">
         <Panel
-          index="01" label="Sources" hint="built-ins"
+          index="01" label="Sources" hint={sourceHint}
           className="pe-panel-source" collapsed={sourcesCollapsed}
           onToggleCollapsed={() => setSourcesCollapsed(value => !value)}
           footer={<form className="pe-source-footer" onSubmit={event => event.preventDefault()}>
@@ -72,7 +74,7 @@ export function WorkbenchShell({
             <Button size="sm" variant="secondary" type="submit" disabled>Add</Button>
           </form>}
         >
-          <nav className="pe-source-foundation" aria-label="Available source groups">
+          {sources ?? <nav className="pe-source-foundation" aria-label="Available source groups">
             <SectionLabel>built-in</SectionLabel>
             <div className="pe-source-foundation-row" aria-current="page">
               <span><strong>Language foundation</strong><small>runtime · version 1</small></span>
@@ -86,7 +88,7 @@ export function WorkbenchShell({
               <span><strong>Widget catalog</strong><small>75 declarative types</small></span>
               <span className="pe-meta">active</span>
             </div>
-          </nav>
+          </nav>}
         </Panel>
 
         <Panel index="02" label="Stage" hint="preview" className="pe-panel-stage">

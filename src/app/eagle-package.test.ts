@@ -1,4 +1,4 @@
-import { access, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -28,5 +28,13 @@ describe('Eagle package localization contract', () => {
     await Promise.all([
       'preview.svg', 'gallery.svg', 'example-audio.wav', 'example-video.mp4',
     ].map(name => access(resolve('public/assets', name))));
+  });
+
+  it('does not emit stale sample-media requests in the production bundle', async () => {
+    const assets = await readdir(resolve('dist/assets'));
+    const scripts = await Promise.all(assets.filter(name => name.endsWith('.js')).map(name => readFile(resolve('dist/assets', name), 'utf8')));
+    const output = scripts.join('\n');
+    expect(output).not.toMatch(/preview\.png|missing-gallery-image\.png|example-audio\.mp3/u);
+    expect(output).toContain('assets/example-video.mp4');
   });
 });
