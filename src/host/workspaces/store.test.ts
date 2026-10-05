@@ -24,6 +24,14 @@ afterEach(() => { vi.restoreAllMocks(); roots.splice(0).forEach(root => rmSync(r
 const validation = { widgets: Object.fromEntries(Object.entries(foundationRuntimeCatalog.widgets).map(([id, value]) => [id, value.contract])) };
 
 describe('durable workspace publication', () => {
+  it('retries transient Windows rename locks without replacing a good catalog on permanent failure', async () => {
+    const store = setup(); await store.create('Original');
+    const write = store.atomicWrite.bind(store);
+    const fault = vi.spyOn(store, 'atomicWrite').mockImplementationOnce(() => { throw Object.assign(new Error('locked'), { code: 'EPERM' }); }).mockImplementation(write);
+    await store.create('Retry succeeds');
+    expect(fault).toHaveBeenCalledTimes(2);
+    expect(store.read().instances).toHaveLength(2);
+  });
   it('refreshes one instance catalog, hands off copies and contains unreadable artifacts', async () => {
     const store = setup(); const original = await store.create('Original');
     const unrelated = await store.create('Unrelated');

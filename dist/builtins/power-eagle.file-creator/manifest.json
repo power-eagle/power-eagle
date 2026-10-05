@@ -1,0 +1,75 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "power-eagle.file-creator",
+  "name": "File Creator",
+  "version": "1.0.0",
+  "description": "Create a text file through Eagle using normalized quick extensions.",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "runtime": "run.json",
+    "actions": "actions.cjs"
+  },
+  "exports": [
+    {
+      "kind": "runtime",
+      "id": "main",
+      "screens": [
+        "home"
+      ]
+    },
+    {
+      "kind": "action",
+      "id": "normalizeExtension",
+      "contract": {
+        "input": {
+          "type": "string"
+        },
+        "output": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "create",
+      "contract": {
+        "input": {
+          "type": "object",
+          "properties": {
+            "fileName": {
+              "type": "string"
+            },
+            "extension": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "fileName",
+            "extension"
+          ]
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "enum",
+              "values": [
+                "created",
+                "cancelled"
+              ]
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        }
+      }
+    }
+  ],
+  "dependencies": [],
+  "assets": []
+}

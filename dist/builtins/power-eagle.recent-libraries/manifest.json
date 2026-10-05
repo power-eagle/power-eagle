@@ -1,0 +1,348 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "power-eagle.recent-libraries",
+  "name": "Recent Libraries",
+  "version": "1.0.0",
+  "description": "Inspect, filter, and switch actual Eagle library history without editing library metadata.",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "runtime": "run.json",
+    "actions": "actions.cjs"
+  },
+  "exports": [
+    {
+      "kind": "runtime",
+      "id": "main",
+      "screens": [
+        "home"
+      ]
+    },
+    {
+      "kind": "action",
+      "id": "history",
+      "contract": {
+        "input": {
+          "type": "null"
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "status": {
+                "type": "enum",
+                "values": [
+                  "available",
+                  "missing",
+                  "inaccessible"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "path",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "filter",
+      "contract": {
+        "input": {
+          "type": "object",
+          "properties": {
+            "libraries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "enum",
+                    "values": [
+                      "available",
+                      "missing",
+                      "inaccessible"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "path",
+                  "status"
+                ]
+              }
+            },
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "libraries",
+            "query"
+          ]
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "status": {
+                "type": "enum",
+                "values": [
+                  "available",
+                  "missing",
+                  "inaccessible"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "path",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "remove",
+      "contract": {
+        "input": {
+          "type": "object",
+          "properties": {
+            "libraries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "enum",
+                    "values": [
+                      "available",
+                      "missing",
+                      "inaccessible"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "path",
+                  "status"
+                ]
+              }
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "libraries",
+            "id"
+          ]
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "status": {
+                "type": "enum",
+                "values": [
+                  "available",
+                  "missing",
+                  "inaccessible"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "path",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "clearMissing",
+      "contract": {
+        "input": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "status": {
+                "type": "enum",
+                "values": [
+                  "available",
+                  "missing",
+                  "inaccessible"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "path",
+              "status"
+            ]
+          }
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "libraries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "enum",
+                    "values": [
+                      "available",
+                      "missing",
+                      "inaccessible"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "path",
+                  "status"
+                ]
+              }
+            },
+            "removed": {
+              "type": "number",
+              "minimum": 0,
+              "integer": true
+            }
+          },
+          "required": [
+            "libraries",
+            "removed"
+          ]
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "switch",
+      "contract": {
+        "input": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path"
+          ]
+        },
+        "output": {
+          "type": "json"
+        }
+      }
+    }
+  ],
+  "dependencies": [],
+  "assets": []
+}

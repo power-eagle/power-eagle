@@ -76,7 +76,10 @@ export function WorkbenchShell({
           index="01" label="Sources" hint={sourceHint}
           actions={sourceActions}
           className="pe-panel-source" collapsed={sourcesCollapsed}
-          onToggleCollapsed={() => setSourcesCollapsed(value => !value)}
+          onToggleCollapsed={() => {
+            if (sourcesCollapsed && compactWindow()) setAgentCollapsed(true);
+            setSourcesCollapsed(value => !value);
+          }}
           footer={<form className="pe-source-footer" onSubmit={event => event.preventDefault()}>
             <Input
               size="sm" aria-label="Package source" placeholder="owner/repo or path"
@@ -121,9 +124,12 @@ export function WorkbenchShell({
         </Panel>
 
         <Panel
-          index="03" label="Agent" hint="idle"
+          index="03" label="Agent" hint={agent ? 'conversation' : 'idle'}
           className="pe-panel-agent" collapsed={agentCollapsed}
-          onToggleCollapsed={() => setAgentCollapsed(value => !value)}
+          onToggleCollapsed={() => {
+            if (agentCollapsed && compactWindow()) setSourcesCollapsed(true);
+            setAgentCollapsed(value => !value);
+          }}
           footer={agent ? undefined : <form className="pe-agent-composer" onSubmit={event => event.preventDefault()}>
             <label htmlFor="agent-draft">Describe an extension</label>
             <textarea

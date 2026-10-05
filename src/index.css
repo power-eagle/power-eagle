@@ -16,14 +16,17 @@ body {
 
 button, input, textarea, select { font: inherit; }
 
-.pe-new-plugin { position: relative; }
-.pe-plugin-menu { position: absolute; top: calc(100% + 8px); right: 0; min-width: 200px; z-index: 30; display: grid; padding: 6px; gap: 4px; background: var(--card); border: var(--line-width) solid var(--border); border-radius: var(--panel-radius); box-shadow: var(--panel-shadow); }
-.pe-plugin-menu button { text-align: left; padding: 8px; }
+.pe-panel-source > .pe-panel-bar { position: relative; }
+.pe-new-plugin { position: static; }
+.pe-plugin-menu { position: absolute; top: calc(100% + 4px); left: 6px; right: 6px; z-index: 30; display: grid; padding: 6px; gap: 4px; background: var(--card); border: var(--line-width) solid var(--border); border-radius: var(--panel-radius); box-shadow: var(--panel-shadow); }
+.pe-plugin-menu button { text-align: left; padding: 8px; white-space: normal; background: transparent; color: var(--foreground); }
+.pe-plugin-menu button:hover { background: var(--accent); }
 .pe-plugin-create { display: grid; gap: 8px; margin: 10px; padding: 12px; border: var(--line-width) solid var(--primary); border-radius: var(--frame-radius); background: var(--card); }
 .pe-plugin-create > div, .pe-plugin-order { display: flex; flex-wrap: wrap; gap: 8px; }
 .pe-plugin-create p, .pe-plugin-create small, .pe-plugin-conflict { overflow-wrap: anywhere; }
 .pe-plugin-order { padding: 8px 0; font-size: 11px; }
-.pe-plugin-order button { padding: 4px; border: 1px solid var(--border); }
+.pe-plugin-order button { padding: 4px; border: 1px solid var(--border); background: transparent; color: var(--foreground); }
+.pe-plugin-order button:disabled { opacity: .45; }
 .pe-plugin-order small { width: 100%; }
 .pe-plugin-conflict { display: grid; gap: 8px; margin-bottom: 16px; }
 .pe-plugin-conflict button { justify-self: start; padding: 8px; border: 1px solid var(--primary); }
@@ -45,3 +48,6 @@ button, input, textarea, select { font: inherit; }
 .pe-agent-context-controls input { accent-color: var(--primary); }
 .pe-agent-context [role=alert] { color: var(--destructive); overflow-wrap: anywhere; }
 .pe-agent-versions, .pe-plugin-menu { user-select: none; }
+@media (max-width: 759px) {
+  .pe-shell { --panel-agent: min(280px, 45vw); }
+}

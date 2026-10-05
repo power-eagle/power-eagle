@@ -1,0 +1,355 @@
+{
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "start": "home",
+  "dependencies": [],
+  "components": {},
+  "state": {
+    "count": {
+      "schema": {
+        "type": "number",
+        "integer": true,
+        "minimum": 0
+      },
+      "initial": 0
+    },
+    "message": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": "Ready"
+    },
+    "items": {
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "label"
+          ]
+        }
+      },
+      "initial": [
+        {
+          "id": "widgets",
+          "label": "Declarative widgets"
+        },
+        {
+          "id": "packages",
+          "label": "Composable packages"
+        }
+      ]
+    }
+  },
+  "actions": {
+    "increment": {
+      "kind": "sequence",
+      "steps": [
+        {
+          "kind": "set",
+          "path": [
+            "count"
+          ],
+          "value": {
+            "$expr": {
+              "op": "add",
+              "args": [
+                {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "count"
+                    ]
+                  }
+                },
+                1
+              ]
+            }
+          }
+        },
+        {
+          "kind": "set",
+          "path": [
+            "message"
+          ],
+          "value": {
+            "$expr": {
+              "op": "format",
+              "args": [
+                "Sequence result: {0}",
+                {
+                  "$ref": {
+                    "scope": "result",
+                    "path": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "reset": {
+      "kind": "parallel",
+      "steps": [
+        {
+          "kind": "set",
+          "path": [
+            "count"
+          ],
+          "value": 0
+        },
+        {
+          "kind": "set",
+          "path": [
+            "message"
+          ],
+          "value": "Reset in parallel"
+        }
+      ]
+    }
+  },
+  "screens": {
+    "home": {
+      "params": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "state": {},
+      "body": {
+        "type": "Column",
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$expr": {
+                    "op": "format",
+                    "args": [
+                      "Count: {0}",
+                      {
+                        "$ref": {
+                          "scope": "state",
+                          "path": [
+                            "count"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "message"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$expr": {
+                    "op": "format",
+                    "args": [
+                      "Increment status: {0}",
+                      {
+                        "$ref": {
+                          "scope": "action",
+                          "path": [
+                            "increment",
+                            "status"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "Button",
+              "props": {
+                "label": "Increment"
+              },
+              "events": {
+                "press": {
+                  "kind": "run",
+                  "action": "increment"
+                }
+              }
+            },
+            {
+              "type": "Button",
+              "props": {
+                "label": "Reset"
+              },
+              "events": {
+                "press": {
+                  "kind": "run",
+                  "action": "reset"
+                }
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$ref": {
+                    "scope": "item",
+                    "path": [
+                      "label"
+                    ]
+                  }
+                }
+              },
+              "repeat": {
+                "items": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "items"
+                    ]
+                  }
+                },
+                "key": {
+                  "$ref": {
+                    "scope": "item",
+                    "path": [
+                      "id"
+                    ]
+                  }
+                }
+              },
+              "empty": {
+                "type": "Text",
+                "props": {
+                  "text": "Nothing here"
+                }
+              }
+            },
+            {
+              "type": "Button",
+              "props": {
+                "label": "Open details"
+              },
+              "events": {
+                "press": {
+                  "kind": "navigate",
+                  "mode": "push",
+                  "screen": "detail",
+                  "params": {
+                    "fromCount": {
+                      "$ref": {
+                        "scope": "state",
+                        "path": [
+                          "count"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "detail": {
+      "params": {
+        "type": "object",
+        "properties": {
+          "fromCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fromCount"
+        ]
+      },
+      "state": {
+        "note": {
+          "schema": {
+            "type": "string"
+          },
+          "initial": "Screen-local state is restored after back."
+        }
+      },
+      "body": {
+        "type": "Column",
+        "props": {},
+        "slots": {
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$expr": {
+                    "op": "format",
+                    "args": [
+                      "Opened at count {0}",
+                      {
+                        "$ref": {
+                          "scope": "params",
+                          "path": [
+                            "fromCount"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "note"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "Button",
+              "props": {
+                "label": "Back"
+              },
+              "events": {
+                "press": {
+                  "kind": "back"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -39,7 +39,7 @@ describe('workbench shell', () => {
     expect((screen.getByRole('textbox', { name: 'Describe an extension' }) as HTMLTextAreaElement).value).toBe('Build a folder report');
   });
 
-  it('starts side panels as rails at narrow widths and leaves Stage available', () => {
+  it('keeps only one side panel expanded at narrow widths and leaves Stage available', async () => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 640 });
     render(<WorkbenchShell stage={<p>Narrow stage</p>} />);
 
@@ -47,6 +47,13 @@ describe('workbench shell', () => {
     expect(screen.getByRole('button', { name: 'Expand Agent' })).toBeTruthy();
     expect(screen.getByRole('region', { name: 'Stage' })).toBeTruthy();
     expect(screen.getByText('Narrow stage')).toBeTruthy();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Expand Sources' }));
+    await user.click(screen.getByRole('button', { name: 'Expand Agent' }));
+    expect(screen.getByRole('button', { name: 'Expand Sources' })).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Agent' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Expand Sources' }));
+    expect(screen.getByRole('button', { name: 'Expand Agent' })).toBeTruthy();
   });
 
   it('contains a stage render failure without removing Sources or Agent', () => {

@@ -62,9 +62,12 @@ export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; m
   const showRuntime = claim?.status === 'active' && current?.contribution === 'runtime' && selectedExport?.effectiveStatus === 'active' && entry?.discovered.runtime;
   const report = (work: Promise<unknown>) => { setError(''); void work.catch(reason => setError(String(reason))); };
   const togglePackage = (id: string, enabled: boolean) => {
-    const instanceId = snapshot.entries.find(item => item.instance.instanceId === id)?.instance.instanceId
-      ?? snapshot.owners.get(id)?.instance.instanceId ?? selected.instanceId!;
-    report(catalog.setEnabled(instanceId, enabled));
+    report(catalog.setEnabled(id, enabled));
+  };
+  const toggleNamespacePackage = (id: string, enabled: boolean) => {
+    const instanceId = id === selected.manifest.id ? selected.instanceId : snapshot.owners.get(id)?.instance.instanceId
+      ?? snapshot.entries.find(item => item.instance.namespace === id)?.instance.instanceId;
+    if (instanceId) report(catalog.setEnabled(instanceId, enabled));
   };
   const toggleExport = (identity: string, enabled: boolean) => {
     const [namespace, exportId] = identity.split('/');
@@ -114,7 +117,7 @@ export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; m
       {claim.owner ? <div className="pe-plugin-conflict"><small>Owner: {claim.owner}</small>
         <button type="button" disabled={Boolean(filter.trim())} onClick={() => report(catalog.move(entry.instance.instanceId, claim.owner!))}>Move above owner</button></div> : null}
       <ActivationInspector record={selected} selection={current} registry={ownRegistry}
-        onTogglePackage={togglePackage} onToggleExport={toggleExport} />
+        onTogglePackage={toggleNamespacePackage} onToggleExport={toggleExport} />
     </>}
     stageTitle={selected.manifest.name} stageMode={showRuntime ? 'live view' : 'activation'}
     stageStatus={claim.status} stageCaption={[entry.instance.origin.kind, `revision ${entry.instance.currentRevision}`, showRuntime ? current.screen : current.contribution].filter(Boolean).join(' · ')}

@@ -1,0 +1,362 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "power-eagle.eagle-actions",
+  "name": "Eagle Widget Actions",
+  "version": "1.0.0",
+  "description": "Typed Eagle action exports used by declarative Eagle widgets.",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "actions": "actions.cjs"
+  },
+  "exports": [
+    {
+      "kind": "action",
+      "id": "folders",
+      "contract": {
+        "input": {
+          "type": "null"
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "parentId"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "openFolder",
+      "contract": {
+        "input": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "tags",
+      "contract": {
+        "input": {
+          "type": "string"
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "count": {
+                "type": "number",
+                "minimum": 0
+              },
+              "color": {
+                "type": "string"
+              },
+              "groups": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "count",
+              "color",
+              "groups"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "libraries",
+      "contract": {
+        "input": {
+          "type": "null"
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "enum",
+                "values": [
+                  "available",
+                  "missing",
+                  "inaccessible"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "path",
+              "status",
+              "reason"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "switchLibrary",
+      "contract": {
+        "input": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output": {
+          "type": "json"
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "updateMetadata",
+      "contract": {
+        "input": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string"
+            },
+            "annotation": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "folderIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rating": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5,
+              "integer": true
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "annotation",
+            "tags",
+            "folderIds",
+            "rating"
+          ]
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string"
+            },
+            "extension": {
+              "type": "string"
+            },
+            "width": {
+              "type": "number",
+              "minimum": 0
+            },
+            "height": {
+              "type": "number",
+              "minimum": 0
+            },
+            "url": {
+              "type": "string"
+            },
+            "annotation": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "folderIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rating": {
+              "type": "number",
+              "minimum": 0
+            },
+            "fileUrl": {
+              "type": "string"
+            },
+            "thumbnailUrl": {
+              "type": "string"
+            },
+            "modifiedAt": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "extension",
+            "width",
+            "height",
+            "url",
+            "annotation",
+            "tags",
+            "folderIds",
+            "rating",
+            "fileUrl",
+            "thumbnailUrl",
+            "modifiedAt"
+          ]
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "importMany",
+      "contract": {
+        "input": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "enum",
+                "values": [
+                  "path",
+                  "url"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "kind"
+            ]
+          }
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "enum",
+                "values": [
+                  "path",
+                  "url"
+                ]
+              },
+              "status": {
+                "type": "enum",
+                "values": [
+                  "queued",
+                  "importing",
+                  "success",
+                  "error",
+                  "cancelled"
+                ]
+              },
+              "assetId": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "kind",
+              "status",
+              "assetId",
+              "message"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "dependencies": [],
+  "assets": []
+}

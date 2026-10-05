@@ -1,0 +1,627 @@
+{
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "start": "home",
+  "components": {},
+  "dependencies": [
+    {
+      "package": "power-eagle.file-creator",
+      "version": "^1.0.0",
+      "export": "normalizeExtension",
+      "kind": "action"
+    },
+    {
+      "package": "power-eagle.file-creator",
+      "version": "^1.0.0",
+      "export": "create",
+      "kind": "action"
+    }
+  ],
+  "state": {
+    "fileName": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": ""
+    },
+    "extension": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": "txt"
+    },
+    "savedExtensions": {
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "initial": [
+        "txt",
+        "json",
+        "md"
+      ]
+    },
+    "pendingExtension": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": ""
+    },
+    "status": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": "Enter a file name and choose an extension."
+    }
+  },
+  "actions": {
+    "addExtension": {
+      "kind": "call",
+      "target": "power-eagle.file-creator/normalizeExtension",
+      "args": {
+        "$ref": {
+          "scope": "state",
+          "path": [
+            "extension"
+          ]
+        }
+      },
+      "success": {
+        "kind": "sequence",
+        "steps": [
+          {
+            "kind": "set",
+            "path": [
+              "extension"
+            ],
+            "value": {
+              "$ref": {
+                "scope": "result",
+                "path": []
+              }
+            }
+          },
+          {
+            "kind": "set",
+            "path": [
+              "savedExtensions"
+            ],
+            "value": {
+              "$expr": {
+                "op": "concat",
+                "args": [
+                  {
+                    "$expr": {
+                      "op": "filter",
+                      "args": [
+                        {
+                          "$ref": {
+                            "scope": "state",
+                            "path": [
+                              "savedExtensions"
+                            ]
+                          }
+                        },
+                        {
+                          "$expr": {
+                            "op": "ne",
+                            "args": [
+                              {
+                                "$ref": {
+                                  "scope": "item",
+                                  "path": []
+                                }
+                              },
+                              {
+                                "$ref": {
+                                  "scope": "result",
+                                  "path": []
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  [
+                    {
+                      "$ref": {
+                        "scope": "result",
+                        "path": []
+                      }
+                    }
+                  ]
+                ]
+              }
+            }
+          },
+          {
+            "kind": "set",
+            "path": [
+              "status"
+            ],
+            "value": {
+              "$expr": {
+                "op": "format",
+                "args": [
+                  "Added .{0} to this session.",
+                  {
+                    "$ref": {
+                      "scope": "state",
+                      "path": [
+                        "extension"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    },
+    "removeExtension": {
+      "kind": "sequence",
+      "steps": [
+        {
+          "kind": "set",
+          "path": [
+            "savedExtensions"
+          ],
+          "value": {
+            "$expr": {
+              "op": "filter",
+              "args": [
+                {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "savedExtensions"
+                    ]
+                  }
+                },
+                {
+                  "$expr": {
+                    "op": "ne",
+                    "args": [
+                      {
+                        "$ref": {
+                          "scope": "item",
+                          "path": []
+                        }
+                      },
+                      {
+                        "$ref": {
+                          "scope": "state",
+                          "path": [
+                            "pendingExtension"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "set",
+          "path": [
+            "status"
+          ],
+          "value": {
+            "$expr": {
+              "op": "format",
+              "args": [
+                "Removed .{0} from this session.",
+                {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "pendingExtension"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "createFile": {
+      "kind": "call",
+      "target": "power-eagle.file-creator/create",
+      "args": {
+        "fileName": {
+          "$ref": {
+            "scope": "state",
+            "path": [
+              "fileName"
+            ]
+          }
+        },
+        "extension": {
+          "$ref": {
+            "scope": "state",
+            "path": [
+              "extension"
+            ]
+          }
+        }
+      },
+      "success": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$expr": {
+            "op": "if",
+            "args": [
+              {
+                "$expr": {
+                  "op": "eq",
+                  "args": [
+                    {
+                      "$expr": {
+                        "op": "get",
+                        "args": [
+                          {
+                            "$ref": {
+                              "scope": "result",
+                              "path": []
+                            }
+                          },
+                          "status"
+                        ]
+                      }
+                    },
+                    "cancelled"
+                  ]
+                }
+              },
+              "File creation was cancelled.",
+              {
+                "$expr": {
+                  "op": "format",
+                  "args": [
+                    "Created {0}",
+                    {
+                      "$expr": {
+                        "op": "get",
+                        "args": [
+                          {
+                            "$ref": {
+                              "scope": "result",
+                              "path": []
+                            }
+                          },
+                          "path"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "screens": {
+    "home": {
+      "params": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "state": {},
+      "body": {
+        "type": "Column",
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "text": "File Creator",
+                "variant": "title"
+              }
+            },
+            {
+              "type": "Form",
+              "props": {
+                "id": "fileCreator",
+                "validationMode": "submit"
+              },
+              "events": {
+                "submit": {
+                  "kind": "run",
+                  "action": "createFile"
+                }
+              },
+              "slots": {
+                "children": [
+                  {
+                    "type": "TextField",
+                    "props": {
+                      "id": "fileName",
+                      "label": "File name",
+                      "value": {
+                        "$ref": {
+                          "scope": "state",
+                          "path": [
+                            "fileName"
+                          ]
+                        }
+                      },
+                      "required": true
+                    },
+                    "events": {
+                      "change": {
+                        "kind": "set",
+                        "path": [
+                          "fileName"
+                        ],
+                        "value": {
+                          "$ref": {
+                            "scope": "event",
+                            "path": []
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "TextField",
+                    "props": {
+                      "id": "extension",
+                      "label": "Extension",
+                      "value": {
+                        "$ref": {
+                          "scope": "state",
+                          "path": [
+                            "extension"
+                          ]
+                        }
+                      },
+                      "required": true
+                    },
+                    "events": {
+                      "change": {
+                        "kind": "set",
+                        "path": [
+                          "extension"
+                        ],
+                        "value": {
+                          "$ref": {
+                            "scope": "event",
+                            "path": []
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Row",
+                    "props": {
+                      "gap": 8
+                    },
+                    "slots": {
+                      "children": [
+                        {
+                          "type": "Button",
+                          "props": {
+                            "label": "Add extension",
+                            "variant": "outline"
+                          },
+                          "events": {
+                            "press": {
+                              "kind": "run",
+                              "action": "addExtension"
+                            }
+                          }
+                        },
+                        {
+                          "type": "Button",
+                          "props": {
+                            "label": "Create file",
+                            "buttonType": "submit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": "Quick create extensions",
+                "variant": "label"
+              }
+            },
+            {
+              "type": "Row",
+              "props": {
+                "gap": 8
+              },
+              "slots": {
+                "children": [
+                  {
+                    "type": "Text",
+                    "props": {
+                      "text": {
+                        "$expr": {
+                          "op": "format",
+                          "args": [
+                            ".{0}",
+                            {
+                              "$ref": {
+                                "scope": "item",
+                                "path": []
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Button",
+                    "props": {
+                      "label": {
+                        "$expr": {
+                          "op": "format",
+                          "args": [
+                            "Use .{0}",
+                            {
+                              "$ref": {
+                                "scope": "item",
+                                "path": []
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "variant": "secondary"
+                    },
+                    "events": {
+                      "press": {
+                        "kind": "set",
+                        "path": [
+                          "extension"
+                        ],
+                        "value": {
+                          "$ref": {
+                            "scope": "item",
+                            "path": []
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "Button",
+                    "props": {
+                      "label": {
+                        "$expr": {
+                          "op": "format",
+                          "args": [
+                            "Remove .{0}",
+                            {
+                              "$ref": {
+                                "scope": "item",
+                                "path": []
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "variant": "ghost"
+                    },
+                    "events": {
+                      "press": {
+                        "kind": "sequence",
+                        "steps": [
+                          {
+                            "kind": "set",
+                            "path": [
+                              "pendingExtension"
+                            ],
+                            "value": {
+                              "$ref": {
+                                "scope": "item",
+                                "path": []
+                              }
+                            }
+                          },
+                          {
+                            "kind": "run",
+                            "action": "removeExtension"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "repeat": {
+                "items": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "savedExtensions"
+                    ]
+                  }
+                },
+                "key": {
+                  "$ref": {
+                    "scope": "item",
+                    "path": []
+                  }
+                }
+              },
+              "empty": {
+                "type": "EmptyState",
+                "props": {
+                  "title": "No quick extensions"
+                }
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "status"
+                    ]
+                  }
+                },
+                "variant": "small"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

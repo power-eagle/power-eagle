@@ -23,7 +23,7 @@ export async function buildBuiltinArtifacts(repository = process.cwd(), output =
       writeFileSync(join(input, entry), `export { default } from ${JSON.stringify(relative(input, source).split('\\').join('/'))};\n`);
       providers[kind] = entry;
     }
-    write('power-eagle.build.json', { format: 'power-eagle/build', formatVersion: 1, manifest: 'manifest.json', providers });
+    write('power-eagle.build.json', { format: 'power-eagle/build', formatVersion: 1, manifest: 'manifest.json', providers, minify: true });
     await buildContributionArtifact(join(input, 'power-eagle.build.json'), join(output, manifest.id));
   }
   const ids = manifests.map(manifest => manifest.id);

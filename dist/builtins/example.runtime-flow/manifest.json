@@ -1,0 +1,24 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "example.runtime-flow",
+  "name": "Runtime flow",
+  "version": "1.0.0",
+  "description": "Bindings, repeated content, actions, and navigation",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "runtime": "run.json"
+  },
+  "exports": [
+    {
+      "kind": "runtime",
+      "id": "main",
+      "screens": [
+        "home",
+        "detail"
+      ]
+    }
+  ],
+  "dependencies": [],
+  "assets": []
+}

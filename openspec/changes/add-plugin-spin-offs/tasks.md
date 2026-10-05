@@ -27,7 +27,7 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 
 - [x] 4.1 Remove visible group headings and retain searchable origin details in the single ordered list; verify no headings remain, filtering preserves order and current runtime state, and Blueprint/Paper Pop defaults remain unchanged.
 - [x] 4.2 Add the Sources-header New plugin menu and inline name/progress/error form; verify keyboard opening/selection/cancellation, focus restoration, correct captured source revision, duplicate-submit prevention, clear-filter-on-success, and selection of the durably created plugin.
-- [ ] 4.3 Add accessible reorder controls, namespace-owner explanations, and Move above owner; verify desired enablement versus conflict suppression, search-time reorder prevention, promotion/disable handoff, and inspection of losing clones without activation. Document the workflow and inspect 910x750 and compact layouts in both themes; checkpoint the complete Sources slice.
+- [x] 4.3 Add accessible reorder controls, namespace-owner explanations, and Move above owner; verify desired enablement versus conflict suppression, search-time reorder prevention, promotion/disable handoff, and inspection of losing clones without activation. Document the workflow and inspect 910x750 and compact layouts in both themes; checkpoint the complete Sources slice.
 
 ## 5. Bind real Agent authoring to plugin instances
 
@@ -37,5 +37,9 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 
 ## 6. Verify the integrated workflow
 
-- [ ] 6.1 Run relevant unit/BDD suites, lint, typecheck, production build, built-in artifact assembly, and strict validation of both changes; inspect the final diff against every plugin-spin-offs scenario and record actual results.
+- [x] 6.1 Run relevant unit/BDD suites, lint, typecheck, production build, built-in artifact assembly, and strict validation of both changes; inspect the final diff against every plugin-spin-offs scenario and record actual results.
 - [ ] 6.2 In Eagle, create a blank plugin, refine it through Agent, duplicate a built-in and a mixed package, enable/promote/reorder copies, switch conversations during a turn, and reload; record namespace owners, state/history isolation, retained artifacts, and any unavailable live checks without marking them complete.
+
+Verification checkpoint (2026-10-04): all 284 tests across 59 unit/BDD files pass; lint, typecheck (included in production build), seven-built-in artifact assembly, production build, and strict validation of both active changes pass. Browser inspection at 910x750 and 600x750 covered Blueprint and Paper Pop, creation menus/forms, Agent, and panel switching. Fixed menu clipping and compact panel overlap; compact Agent measurement is 574px scrollWidth / 574px clientWidth. The final inspector regression verifies a copy's switch changes its instance rather than the original namespace owner. Windows transient rename locks receive bounded retries, and workspace UUID allocation does not depend on secure-context-only crypto.randomUUID.
+
+Task 6.2 remains unchecked: native Eagle interaction is unavailable in this session, so no real Eagle creation/duplication/AI run or reload is claimed. Deterministic tests use actual filesystem artifacts and the production model adapter with controlled model responses. See docs/plugin-spin-offs-verification.md for evidence and live follow-up.

@@ -1,0 +1,406 @@
+{
+  "initialize": [
+    "load"
+  ],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "start": "home",
+  "components": {},
+  "dependencies": [
+    {
+      "package": "power-eagle.asset-browser",
+      "version": "^1.0.0",
+      "export": "list",
+      "kind": "action"
+    },
+    {
+      "package": "power-eagle.asset-browser",
+      "version": "^1.0.0",
+      "export": "select",
+      "kind": "action"
+    }
+  ],
+  "state": {
+    "assets": {
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string"
+            },
+            "extension": {
+              "type": "string"
+            },
+            "width": {
+              "type": "number",
+              "minimum": 0
+            },
+            "height": {
+              "type": "number",
+              "minimum": 0
+            },
+            "url": {
+              "type": "string"
+            },
+            "annotation": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "folderIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rating": {
+              "type": "number",
+              "minimum": 0
+            },
+            "fileUrl": {
+              "type": "string"
+            },
+            "thumbnailUrl": {
+              "type": "string"
+            },
+            "modifiedAt": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "extension",
+            "width",
+            "height",
+            "url",
+            "annotation",
+            "tags",
+            "folderIds",
+            "rating",
+            "fileUrl",
+            "thumbnailUrl",
+            "modifiedAt"
+          ]
+        }
+      },
+      "initial": []
+    },
+    "selection": {
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "initial": []
+    },
+    "status": {
+      "schema": {
+        "type": "enum",
+        "values": [
+          "loading",
+          "ready",
+          "error"
+        ]
+      },
+      "initial": "loading"
+    },
+    "message": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": "Loading Eagle assets"
+    }
+  },
+  "actions": {
+    "load": {
+      "kind": "sequence",
+      "steps": [
+        {
+          "kind": "set",
+          "path": [
+            "status"
+          ],
+          "value": "loading"
+        },
+        {
+          "kind": "set",
+          "path": [
+            "message"
+          ],
+          "value": "Loading Eagle assets"
+        },
+        {
+          "kind": "call",
+          "target": "power-eagle.asset-browser/list",
+          "args": {},
+          "success": {
+            "kind": "sequence",
+            "steps": [
+              {
+                "kind": "set",
+                "path": [
+                  "assets"
+                ],
+                "value": {
+                  "$ref": {
+                    "scope": "result",
+                    "path": []
+                  }
+                }
+              },
+              {
+                "kind": "set",
+                "path": [
+                  "status"
+                ],
+                "value": "ready"
+              },
+              {
+                "kind": "set",
+                "path": [
+                  "message"
+                ],
+                "value": {
+                  "$expr": {
+                    "op": "format",
+                    "args": [
+                      "Loaded {0} Eagle assets.",
+                      {
+                        "$expr": {
+                          "op": "length",
+                          "args": [
+                            {
+                              "$ref": {
+                                "scope": "state",
+                                "path": [
+                                  "assets"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "error": {
+            "kind": "sequence",
+            "steps": [
+              {
+                "kind": "set",
+                "path": [
+                  "status"
+                ],
+                "value": "error"
+              },
+              {
+                "kind": "set",
+                "path": [
+                  "message"
+                ],
+                "value": {
+                  "$ref": {
+                    "scope": "error",
+                    "path": [
+                      "message"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "select": {
+      "kind": "call",
+      "target": "power-eagle.asset-browser/select",
+      "args": {
+        "$ref": {
+          "scope": "state",
+          "path": [
+            "selection"
+          ]
+        }
+      },
+      "success": {
+        "kind": "set",
+        "path": [
+          "message"
+        ],
+        "value": {
+          "$expr": {
+            "op": "format",
+            "args": [
+              "Selected {0} assets in Eagle.",
+              {
+                "$expr": {
+                  "op": "length",
+                  "args": [
+                    {
+                      "$ref": {
+                        "scope": "state",
+                        "path": [
+                          "selection"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "message"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "screens": {
+    "home": {
+      "params": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "state": {},
+      "body": {
+        "type": "Column",
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "text": "Eagle Asset Picker",
+                "variant": "title"
+              }
+            },
+            {
+              "type": "AssetPicker",
+              "props": {
+                "label": "Eagle assets",
+                "assets": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "assets"
+                    ]
+                  }
+                },
+                "selection": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "selection"
+                    ]
+                  }
+                },
+                "selectionMode": "multiple",
+                "status": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "status"
+                    ]
+                  }
+                },
+                "errorText": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "message"
+                    ]
+                  }
+                },
+                "columns": 3
+              },
+              "events": {
+                "selectionChange": {
+                  "kind": "set",
+                  "path": [
+                    "selection"
+                  ],
+                  "value": {
+                    "$ref": {
+                      "scope": "event",
+                      "path": []
+                    }
+                  }
+                },
+                "confirm": {
+                  "kind": "run",
+                  "action": "select"
+                },
+                "retry": {
+                  "kind": "run",
+                  "action": "load"
+                }
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "message"
+                    ]
+                  }
+                },
+                "variant": "small"
+              },
+              "visible": {
+                "$expr": {
+                  "op": "ne",
+                  "args": [
+                    {
+                      "$ref": {
+                        "scope": "state",
+                        "path": [
+                          "status"
+                        ]
+                      }
+                    },
+                    "error"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

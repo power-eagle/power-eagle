@@ -67,8 +67,16 @@ export const workspaceCatalogSchema = z.strictObject({
 export type WorkspaceCatalog = z.infer<typeof workspaceCatalogSchema>;
 export interface PluginSelection { instanceId: string; revision: number; exportId?: string; screen?: string }
 
+/** WebCrypto random bytes are available on Eagle's custom scheme without a secure-context UUID API. */
+export function workspaceUuid(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128;
+  const hex = [...bytes].map(value => value.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 export function newPluginInstance(name: string, origin: PluginInstance['origin'], source?: PluginInstance): PluginInstance {
-  const instanceId = `plugin.${crypto.randomUUID()}`;
+  const instanceId = `plugin.${workspaceUuid()}`;
   return pluginInstanceSchema.parse({
     format: 'power-eagle/plugin-instance', formatVersion: 1, instanceId,
     namespace: source?.namespace ?? instanceId, name, origin, currentRevision: 1,

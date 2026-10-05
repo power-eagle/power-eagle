@@ -1,0 +1,11 @@
+{
+  "name": "power-eagle.file-creator",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {},
+  "powerEagle": {
+    "sdk": "^1.0.0",
+    "target": null
+  }
+}

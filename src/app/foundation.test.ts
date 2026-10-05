@@ -8,14 +8,11 @@ import { foundationRuntimeCatalog } from '../sdui/runtime/foundation';
 import document from '../../examples/runtime-only/document';
 
 describe('language foundation preview', () => {
-  it('renders the shell before opening a runtime after mount', () => {
+  it('waits for the durable catalog before exposing a runtime', () => {
     const html = renderToStaticMarkup(createElement(App));
-    expect(html).toContain('Opening Runtime flow');
+    expect(html).toContain('Opening plugin workspaces');
     expect(html).not.toContain('data-pe-widget=');
-    expect(html).toContain('<button type="button"');
-    expect(html).toContain('01 / Sources');
-    expect(html).toContain('02 / Stage');
-    expect(html).toContain('03 / Agent');
+    expect(html).toContain('role="status"');
   });
   it('renders script-like text as text', () => {
     const input = JSON.parse(JSON.stringify(document));

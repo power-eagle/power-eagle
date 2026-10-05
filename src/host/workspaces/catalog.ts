@@ -64,7 +64,11 @@ export class PluginCatalog {
       const claim = result.claims.get(entry.instance.instanceId)!;
       if (result.owners.get(entry.instance.namespace)?.instance.instanceId !== entry.instance.instanceId) continue;
       const errors = [...activation.failures.values()].filter(item => item.identity.startsWith(`${entry.instance.namespace}/`));
-      if (entry.failure || errors.length) { claim.status = 'failed'; claim.reason = entry.failure ?? errors.map(item => item.message).join('\n'); }
+      if (entry.failure || errors.length) {
+        claim.status = 'failed'; claim.reason = entry.failure ?? errors.map(item => item.message).join('\n');
+        const packageState = result.registry.packages.get(entry.instance.namespace);
+        if (packageState) { packageState.effectiveStatus = 'failed'; packageState.reason = { code: 'dependency-failed', message: claim.reason }; }
+      }
     }
     for (const node of result.registry.exports) {
       const failure = activation.failures.get(node.identity);

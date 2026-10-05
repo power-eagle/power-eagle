@@ -1,0 +1,38 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "power-eagle.clipboard",
+  "name": "Clipboard Service",
+  "version": "1.0.0",
+  "description": "Typed clipboard reads and writes through the Eagle host capability boundary.",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "services": "services.cjs"
+  },
+  "exports": [
+    {
+      "kind": "service",
+      "id": "clipboard",
+      "methods": {
+        "read": {
+          "input": {
+            "type": "null"
+          },
+          "output": {
+            "type": "string"
+          }
+        },
+        "write": {
+          "input": {
+            "type": "string"
+          },
+          "output": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "dependencies": [],
+  "assets": []
+}

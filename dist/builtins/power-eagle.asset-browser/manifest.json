@@ -1,0 +1,121 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "power-eagle.asset-browser",
+  "name": "Asset Browser",
+  "version": "1.0.0",
+  "description": "Load and explicitly select typed Eagle assets.",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "runtime": "run.json",
+    "actions": "actions.cjs"
+  },
+  "exports": [
+    {
+      "kind": "runtime",
+      "id": "main",
+      "screens": [
+        "home"
+      ]
+    },
+    {
+      "kind": "action",
+      "id": "list",
+      "contract": {
+        "input": {
+          "type": "json"
+        },
+        "output": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string"
+              },
+              "extension": {
+                "type": "string"
+              },
+              "width": {
+                "type": "number",
+                "minimum": 0
+              },
+              "height": {
+                "type": "number",
+                "minimum": 0
+              },
+              "url": {
+                "type": "string"
+              },
+              "annotation": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "folderIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rating": {
+                "type": "number",
+                "minimum": 0
+              },
+              "fileUrl": {
+                "type": "string"
+              },
+              "thumbnailUrl": {
+                "type": "string"
+              },
+              "modifiedAt": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "extension",
+              "width",
+              "height",
+              "url",
+              "annotation",
+              "tags",
+              "folderIds",
+              "rating",
+              "fileUrl",
+              "thumbnailUrl",
+              "modifiedAt"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "kind": "action",
+      "id": "select",
+      "contract": {
+        "input": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "output": {
+          "type": "boolean"
+        }
+      }
+    }
+  ],
+  "dependencies": [],
+  "assets": []
+}

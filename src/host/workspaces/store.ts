@@ -4,7 +4,7 @@ import { unwrap, validateRuntime, type ValidationCatalog } from '../../sdui/sche
 import { discoverContributionPackage } from '../install/contribution-package';
 import { POWER_EAGLE_STATE_SENTINEL } from '../install/state-reset';
 import { snapshotArtifact, type CopyOptions } from './artifact-copy';
-import { newPluginInstance, parseWorkspaceCatalog, type PluginConversation, type PluginInstance, type WorkspaceCatalog } from './model';
+import { newPluginInstance, parseWorkspaceCatalog, workspaceUuid, type PluginConversation, type PluginInstance, type WorkspaceCatalog } from './model';
 
 export const emptyCatalog = (): WorkspaceCatalog => ({ format: 'power-eagle/workspace-catalog', formatVersion: 1, order: [], instances: [], conversations: {} });
 export const newConversation = (instance: PluginInstance): PluginConversation => ({
@@ -53,7 +53,7 @@ export class WorkspaceStore {
   }
   atomicWrite(relative: string, value: unknown): void {
     const file = this.bounded(relative);
-    const temporary = this.bounded(`${relative}.tmp-${crypto.randomUUID()}`);
+    const temporary = this.bounded(`${relative}.tmp-${workspaceUuid()}`);
     this.fs.mkdirSync(this.path.dirname(file), { recursive: true });
     try {
       const fd = this.fs.openSync(temporary, 'wx');
@@ -79,7 +79,17 @@ export class WorkspaceStore {
     try { this.fs.writeFileSync(fd, JSON.stringify({ pid: process.pid })); return await operation(this.read()); }
     finally { this.fs.closeSync(fd); this.fs.unlinkSync(lock); }
   }
-  private publish(catalog: WorkspaceCatalog): void { this.atomicWrite('catalog.json', parseWorkspaceCatalog(catalog)); }
+  private async publish(catalog: WorkspaceCatalog, signal?: AbortSignal): Promise<void> {
+    const checked = parseWorkspaceCatalog(catalog);
+    for (let attempt = 0; ; attempt += 1) {
+      signal?.throwIfAborted();
+      try { this.atomicWrite('catalog.json', checked); return; }
+      catch (error) {
+        if (attempt >= 5 || !['EPERM', 'EBUSY'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error;
+        await new Promise<void>(resolve => setTimeout(resolve, 20 * 2 ** attempt));
+      }
+    }
+  }
   private removeOwned(path: string): void { this.fs.rmSync(this.bounded(this.path.relative(this.root, path)), { recursive: true, force: true }); }
 
   async register(source: string, origin: PluginInstance['origin'], stableId?: string): Promise<PluginInstance> {
@@ -91,9 +101,10 @@ export class WorkspaceStore {
       instance.namespace = discovered.manifest.id;
       if (stableId) instance.instanceId = identifier.parse(stableId);
       const destination = this.artifact(instance);
+      if (this.fs.existsSync(destination)) throw new Error(`Unpublished artifact retained for recovery: ${destination}`);
       try {
         await snapshotArtifact(source, destination, this.root, this.hostRequire);
-        catalog.instances.push(instance); catalog.order.push(instance.instanceId); this.publish(catalog); return instance;
+        catalog.instances.push(instance); catalog.order.push(instance.instanceId); await this.publish(catalog); return instance;
       } catch (error) { if (this.fs.existsSync(destination)) this.removeOwned(destination); throw error; }
     });
   }
@@ -119,11 +130,11 @@ export class WorkspaceStore {
         catalog.instances.push(instance);
         if (original) catalog.order.splice(catalog.order.indexOf(original.instanceId) + 1, 0, instance.instanceId);
         else catalog.order.push(instance.instanceId);
-        this.publish(catalog); return instance;
+        await this.publish(catalog, options.signal); return instance;
       } catch (error) { if (this.fs.existsSync(destination)) this.removeOwned(destination); throw error; }
     });
   }
-  async reorder(order: string[]): Promise<void> { await this.transaction(async catalog => { this.publish({ ...catalog, order }); }); }
+  async reorder(order: string[]): Promise<void> { await this.transaction(async catalog => { await this.publish({ ...catalog, order }); }); }
 
   async conversation(instanceId: string, update: (conversation: PluginConversation) => void): Promise<PluginConversation> {
     return this.transaction(async catalog => {
@@ -131,7 +142,7 @@ export class WorkspaceStore {
       if (!instance) throw new Error('Plugin no longer exists');
       const conversation = catalog.conversations[instanceId] ?? newConversation(instance);
       update(conversation); catalog.conversations[instanceId] = conversation;
-      this.publish(catalog); return conversation;
+      await this.publish(catalog); return conversation;
     });
   }
   async selectRevision(instanceId: string, revision: number): Promise<void> {
@@ -140,7 +151,7 @@ export class WorkspaceStore {
       if (!instance || !instance.revisions.some(item => item.id === revision)) throw new Error('Revision is unavailable');
       instance.currentRevision = revision;
       const conversation = catalog.conversations[instanceId] ?? newConversation(instance);
-      conversation.selectedBase = revision; catalog.conversations[instanceId] = conversation; this.publish(catalog);
+      conversation.selectedBase = revision; catalog.conversations[instanceId] = conversation; await this.publish(catalog);
     });
   }
 
@@ -176,7 +187,7 @@ export class WorkspaceStore {
           if (conversation.selectedBase === base && instance.currentRevision === base) conversation.selectedBase = next;
           else updated.currentRevision = instance.currentRevision;
         }
-        this.publish(catalog); return updated;
+        await this.publish(catalog); return updated;
       } catch (error) { if (this.fs.existsSync(destination)) this.removeOwned(destination); throw error; }
     });
   }

@@ -52,8 +52,9 @@ it('captures the source before selection changes, starts disabled and promotes a
   const copy = catalog.snapshot().entries.find(item => item.instance.name === 'Original copy')!.instance;
   expect(copy.forkOf?.instanceId).toBe(source.instanceId);
   expect(catalog.snapshot().order.slice(0, 2)).toEqual([source.instanceId, copy.instanceId]);
-  const sources = within(screen.getByRole('navigation', { name: 'Package sources' }));
-  await user.click(sources.getByRole('switch', { name: 'Enable package Original copy' }));
+  const inspector = within(screen.getByRole('region', { name: 'Original copy activation' }));
+  await user.click(inspector.getByRole('switch', { name: 'Enable package Original copy' }));
+  expect(catalog.snapshot().claims.get(source.instanceId)?.desired).toBe(true);
   expect(await screen.findByText('Namespace owned by Original')).toBeTruthy();
   await user.type(screen.getByRole('searchbox', { name: 'Filter plugins' }), 'copy');
   expect(screen.getByRole('button', { name: 'Move above owner' }).hasAttribute('disabled')).toBe(true);

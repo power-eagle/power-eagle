@@ -22,6 +22,7 @@ const buildConfigSchema = z.strictObject({
     services: relativePath.optional(),
   }),
   externalDependencies: z.array(z.string().min(1)).default([]),
+  minify: z.boolean().default(false),
 });
 
 export type ProviderBuildConfig = z.infer<typeof buildConfigSchema>;
@@ -158,10 +159,11 @@ function wrapProvider(code: string): string {
     `return providerFactory(sdk);\n};\n`;
 }
 
-async function compileProvider(source: string, externalDependencies: string[]): Promise<string> {
+async function compileProvider(source: string, externalDependencies: string[], minify: boolean): Promise<string> {
   const result = await bundle({
     entryPoints: [source], bundle: true, write: false, format: 'cjs', platform: 'browser', target: ['chrome108', 'node16.17'],
     jsx: 'automatic', external: [...sharedModules, ...externalDependencies],
+    minify,
     define: { 'process.env.NODE_ENV': '"production"' }, logLevel: 'silent',
     plugins: [{
       name: 'power-eagle-sdk',
@@ -213,7 +215,7 @@ export async function buildContributionArtifact(configFile: string, outputDirect
       const sourceEntry = config.providers[contribution];
       const outputEntry = manifest.contributions[contribution];
       if (!sourceEntry || !outputEntry) continue;
-      const compiled = await compileProvider(sourcePath(root, sourceEntry, `${contribution} provider source`), config.externalDependencies);
+      const compiled = await compileProvider(sourcePath(root, sourceEntry, `${contribution} provider source`), config.externalDependencies, config.minify);
       write(join(temporary, outputEntry), compiled);
       providers.push(outputEntry);
     }

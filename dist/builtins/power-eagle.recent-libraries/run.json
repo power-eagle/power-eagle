@@ -1,0 +1,837 @@
+{
+  "initialize": [
+    "refresh"
+  ],
+  "format": "power-eagle/runtime",
+  "formatVersion": 1,
+  "start": "home",
+  "components": {},
+  "dependencies": [
+    {
+      "package": "power-eagle.recent-libraries",
+      "version": "^1.0.0",
+      "export": "history",
+      "kind": "action"
+    },
+    {
+      "package": "power-eagle.recent-libraries",
+      "version": "^1.0.0",
+      "export": "filter",
+      "kind": "action"
+    },
+    {
+      "package": "power-eagle.recent-libraries",
+      "version": "^1.0.0",
+      "export": "remove",
+      "kind": "action"
+    },
+    {
+      "package": "power-eagle.recent-libraries",
+      "version": "^1.0.0",
+      "export": "clearMissing",
+      "kind": "action"
+    },
+    {
+      "package": "power-eagle.recent-libraries",
+      "version": "^1.0.0",
+      "export": "switch",
+      "kind": "action"
+    }
+  ],
+  "state": {
+    "libraries": {
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "available",
+                "missing",
+                "inaccessible"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "path",
+            "status"
+          ]
+        }
+      },
+      "initial": []
+    },
+    "visibleLibraries": {
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "available",
+                "missing",
+                "inaccessible"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "path",
+            "status"
+          ]
+        }
+      },
+      "initial": []
+    },
+    "query": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": ""
+    },
+    "pendingId": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": ""
+    },
+    "pendingPath": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": ""
+    },
+    "clearResult": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "libraries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "enum",
+                  "values": [
+                    "available",
+                    "missing",
+                    "inaccessible"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "path",
+                "status"
+              ]
+            }
+          },
+          "removed": {
+            "type": "number",
+            "minimum": 0,
+            "integer": true
+          }
+        },
+        "required": [
+          "libraries",
+          "removed"
+        ]
+      },
+      "initial": {
+        "libraries": [],
+        "removed": 0
+      }
+    },
+    "status": {
+      "schema": {
+        "type": "string"
+      },
+      "initial": "Loading recent libraries…"
+    }
+  },
+  "actions": {
+    "applyFilter": {
+      "kind": "call",
+      "target": "power-eagle.recent-libraries/filter",
+      "args": {
+        "libraries": {
+          "$ref": {
+            "scope": "state",
+            "path": [
+              "libraries"
+            ]
+          }
+        },
+        "query": {
+          "$ref": {
+            "scope": "state",
+            "path": [
+              "query"
+            ]
+          }
+        }
+      },
+      "success": {
+        "kind": "set",
+        "path": [
+          "visibleLibraries"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "result",
+            "path": []
+          }
+        }
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    },
+    "refresh": {
+      "kind": "call",
+      "target": "power-eagle.recent-libraries/history",
+      "args": null,
+      "success": {
+        "kind": "sequence",
+        "steps": [
+          {
+            "kind": "set",
+            "path": [
+              "libraries"
+            ],
+            "value": {
+              "$ref": {
+                "scope": "result",
+                "path": []
+              }
+            }
+          },
+          {
+            "kind": "set",
+            "path": [
+              "status"
+            ],
+            "value": {
+              "$expr": {
+                "op": "format",
+                "args": [
+                  "Loaded {0} recent libraries.",
+                  {
+                    "$expr": {
+                      "op": "length",
+                      "args": [
+                        {
+                          "$ref": {
+                            "scope": "result",
+                            "path": []
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "kind": "run",
+            "action": "applyFilter"
+          }
+        ]
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    },
+    "remove": {
+      "kind": "call",
+      "target": "power-eagle.recent-libraries/remove",
+      "args": {
+        "libraries": {
+          "$ref": {
+            "scope": "state",
+            "path": [
+              "libraries"
+            ]
+          }
+        },
+        "id": {
+          "$ref": {
+            "scope": "state",
+            "path": [
+              "pendingId"
+            ]
+          }
+        }
+      },
+      "success": {
+        "kind": "sequence",
+        "steps": [
+          {
+            "kind": "set",
+            "path": [
+              "libraries"
+            ],
+            "value": {
+              "$ref": {
+                "scope": "result",
+                "path": []
+              }
+            }
+          },
+          {
+            "kind": "set",
+            "path": [
+              "status"
+            ],
+            "value": "Removed from this session list. Eagle history and library contents are unchanged."
+          },
+          {
+            "kind": "run",
+            "action": "applyFilter"
+          }
+        ]
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    },
+    "clearMissing": {
+      "kind": "call",
+      "target": "power-eagle.recent-libraries/clearMissing",
+      "args": {
+        "$ref": {
+          "scope": "state",
+          "path": [
+            "libraries"
+          ]
+        }
+      },
+      "success": {
+        "kind": "sequence",
+        "steps": [
+          {
+            "kind": "set",
+            "path": [
+              "clearResult"
+            ],
+            "value": {
+              "$ref": {
+                "scope": "result",
+                "path": []
+              }
+            }
+          },
+          {
+            "kind": "set",
+            "path": [
+              "libraries"
+            ],
+            "value": {
+              "$ref": {
+                "scope": "state",
+                "path": [
+                  "clearResult",
+                  "libraries"
+                ]
+              }
+            }
+          },
+          {
+            "kind": "set",
+            "path": [
+              "status"
+            ],
+            "value": {
+              "$expr": {
+                "op": "format",
+                "args": [
+                  "Removed {0} verified-missing entries from this session list. Eagle history and library contents are unchanged.",
+                  {
+                    "$ref": {
+                      "scope": "state",
+                      "path": [
+                        "clearResult",
+                        "removed"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "kind": "run",
+            "action": "applyFilter"
+          }
+        ]
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    },
+    "open": {
+      "kind": "call",
+      "target": "power-eagle.recent-libraries/switch",
+      "args": {
+        "path": {
+          "$ref": {
+            "scope": "state",
+            "path": [
+              "pendingPath"
+            ]
+          }
+        }
+      },
+      "success": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$expr": {
+            "op": "format",
+            "args": [
+              "Opened {0}",
+              {
+                "$ref": {
+                  "scope": "state",
+                  "path": [
+                    "pendingPath"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "error": {
+        "kind": "set",
+        "path": [
+          "status"
+        ],
+        "value": {
+          "$ref": {
+            "scope": "error",
+            "path": [
+              "message"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "screens": {
+    "home": {
+      "params": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "state": {},
+      "body": {
+        "type": "Column",
+        "props": {
+          "gap": 12
+        },
+        "slots": {
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "text": "Recent Libraries",
+                "variant": "title"
+              }
+            },
+            {
+              "type": "TextField",
+              "props": {
+                "id": "query",
+                "label": "Filter by name or path",
+                "value": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "query"
+                    ]
+                  }
+                },
+                "inputType": "search"
+              },
+              "events": {
+                "change": {
+                  "kind": "sequence",
+                  "steps": [
+                    {
+                      "kind": "set",
+                      "path": [
+                        "query"
+                      ],
+                      "value": {
+                        "$ref": {
+                          "scope": "event",
+                          "path": []
+                        }
+                      }
+                    },
+                    {
+                      "kind": "run",
+                      "action": "applyFilter"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "Row",
+              "props": {
+                "gap": 8
+              },
+              "slots": {
+                "children": [
+                  {
+                    "type": "Button",
+                    "props": {
+                      "label": "Refresh",
+                      "variant": "outline"
+                    },
+                    "events": {
+                      "press": {
+                        "kind": "run",
+                        "action": "refresh"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Button",
+                    "props": {
+                      "label": "Clear verified missing",
+                      "variant": "outline"
+                    },
+                    "events": {
+                      "press": {
+                        "kind": "run",
+                        "action": "clearMissing"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": "Remove and Clear verified missing affect only this session list. They never rewrite Eagle history or delete a library.",
+                "variant": "small"
+              }
+            },
+            {
+              "type": "Text",
+              "props": {
+                "text": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "status"
+                    ]
+                  }
+                },
+                "variant": "small"
+              }
+            },
+            {
+              "type": "Column",
+              "props": {
+                "gap": 4
+              },
+              "slots": {
+                "children": [
+                  {
+                    "type": "Text",
+                    "props": {
+                      "text": {
+                        "$ref": {
+                          "scope": "item",
+                          "path": [
+                            "name"
+                          ]
+                        }
+                      },
+                      "variant": "rowName"
+                    }
+                  },
+                  {
+                    "type": "Text",
+                    "props": {
+                      "text": {
+                        "$ref": {
+                          "scope": "item",
+                          "path": [
+                            "path"
+                          ]
+                        }
+                      },
+                      "variant": "code"
+                    }
+                  },
+                  {
+                    "type": "Text",
+                    "props": {
+                      "text": {
+                        "$expr": {
+                          "op": "format",
+                          "args": [
+                            "Status: {0}",
+                            {
+                              "$ref": {
+                                "scope": "item",
+                                "path": [
+                                  "status"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "variant": "meta"
+                    }
+                  },
+                  {
+                    "type": "Row",
+                    "props": {
+                      "gap": 8
+                    },
+                    "slots": {
+                      "children": [
+                        {
+                          "type": "Button",
+                          "props": {
+                            "label": {
+                              "$expr": {
+                                "op": "format",
+                                "args": [
+                                  "Open {0}",
+                                  {
+                                    "$ref": {
+                                      "scope": "item",
+                                      "path": [
+                                        "name"
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "disabled": {
+                              "$expr": {
+                                "op": "ne",
+                                "args": [
+                                  {
+                                    "$ref": {
+                                      "scope": "item",
+                                      "path": [
+                                        "status"
+                                      ]
+                                    }
+                                  },
+                                  "available"
+                                ]
+                              }
+                            }
+                          },
+                          "events": {
+                            "press": {
+                              "kind": "sequence",
+                              "steps": [
+                                {
+                                  "kind": "set",
+                                  "path": [
+                                    "pendingPath"
+                                  ],
+                                  "value": {
+                                    "$ref": {
+                                      "scope": "item",
+                                      "path": [
+                                        "path"
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "kind": "run",
+                                  "action": "open"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "type": "Button",
+                          "props": {
+                            "label": {
+                              "$expr": {
+                                "op": "format",
+                                "args": [
+                                  "Remove {0}",
+                                  {
+                                    "$ref": {
+                                      "scope": "item",
+                                      "path": [
+                                        "name"
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "variant": "ghost"
+                          },
+                          "events": {
+                            "press": {
+                              "kind": "sequence",
+                              "steps": [
+                                {
+                                  "kind": "set",
+                                  "path": [
+                                    "pendingId"
+                                  ],
+                                  "value": {
+                                    "$ref": {
+                                      "scope": "item",
+                                      "path": [
+                                        "id"
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "kind": "run",
+                                  "action": "remove"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "repeat": {
+                "items": {
+                  "$ref": {
+                    "scope": "state",
+                    "path": [
+                      "visibleLibraries"
+                    ]
+                  }
+                },
+                "key": {
+                  "$ref": {
+                    "scope": "item",
+                    "path": [
+                      "id"
+                    ]
+                  }
+                }
+              },
+              "empty": {
+                "type": "EmptyState",
+                "props": {
+                  "title": "No matching libraries"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
