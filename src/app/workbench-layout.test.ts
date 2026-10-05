@@ -13,6 +13,9 @@ describe('workbench layout contract', () => {
     expect(tokens).toContain('--panel-agent: 272px');
     expect(components).toContain('grid-template-columns: var(--panel-source) minmax(220px, 1fr) var(--panel-agent)');
     expect(components).toContain('.pe-panel-body { flex: 1; min-height: 0; overflow: auto; }');
+    expect(components).toContain('.pe-workbench-contributions > div { display: grid; min-width: 0;');
+    expect(components).toContain('.pe-activation-exports .pe-activation-recovery-action { grid-column: 1 / -1;');
+    expect(components).not.toContain('.pe-activation-exports article > button { grid-column: 1 / -1;');
     expect(root).toContain('html, body, #root { width: 100%; height: 100%; min-height: 0; overflow: hidden; }');
     expect(readFileSync('src/main.tsx', 'utf8')).toContain("@fontsource/ibm-plex-sans/latin-400.css");
   });

@@ -67,10 +67,12 @@ export function WorkbenchSourceTree({
         return <div className="pe-workbench-package" key={workbenchPackageKey(record)} data-status={record.status}>
           <div className="pe-workbench-package-head">
             <button type="button" aria-label={`Select package ${record.manifest.name}`} aria-current={selected ? 'page' : undefined} onClick={() => onSelect(defaultSelection(record))}>
-              <span><strong>{record.manifest.name}</strong><small>{record.manifest.version} · {record.persistence}</small></span>
-              <span className="pe-meta">{record.status}</span>
-              {record.fresh ? <Badge>new</Badge> : null}
+              <span>
+                <span className="pe-workbench-package-title"><strong>{record.manifest.name}</strong>{record.fresh ? <Badge>new</Badge> : null}</span>
+                <small>{record.manifest.version} · {record.persistence}</small>
+              </span>
             </button>
+            <span className="pe-meta">{record.status}</span>
             {onTogglePackage ? <Switch
               checked={registry?.packages.get(record.manifest.id)?.desired ?? record.status !== 'off'}
               aria-label={`${registry?.packages.get(record.manifest.id)?.desired === false ? 'Enable' : 'Disable'} package ${record.manifest.name}`}

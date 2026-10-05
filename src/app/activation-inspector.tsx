@@ -17,18 +17,18 @@ function Recovery({ node, registry, onTogglePackage, onToggleExport }: {
   onToggleExport(identity: string, enabled: boolean): void;
 }) {
   if (node.reason?.code === 'package-off') {
-    return <button type="button" onClick={() => onTogglePackage(node.packageId, true)}>Enable package</button>;
+    return <button className="pe-activation-recovery-action" type="button" onClick={() => onTogglePackage(node.packageId, true)}>Enable package</button>;
   }
   if (node.reason?.code === 'export-off') {
-    return <button type="button" onClick={() => onToggleExport(node.identity, true)}>Enable export</button>;
+    return <button className="pe-activation-recovery-action" type="button" onClick={() => onToggleExport(node.identity, true)}>Enable export</button>;
   }
   if (node.reason?.dependency) {
     const required = registry.exports.find(item => item.identity === node.reason?.dependency);
     if (required && !required.desiredPackage) {
-      return <button type="button" onClick={() => onTogglePackage(required.packageId, true)}>Enable required package</button>;
+      return <button className="pe-activation-recovery-action" type="button" onClick={() => onTogglePackage(required.packageId, true)}>Enable required package</button>;
     }
     if (required && !required.desiredExport) {
-      return <button type="button" onClick={() => onToggleExport(required.identity, true)}>Enable required export</button>;
+      return <button className="pe-activation-recovery-action" type="button" onClick={() => onToggleExport(required.identity, true)}>Enable required export</button>;
     }
   }
   return node.effectiveStatus === 'failed'
