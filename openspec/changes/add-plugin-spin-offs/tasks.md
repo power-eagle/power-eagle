@@ -4,10 +4,12 @@ Each group is a coherent checkpoint with its own verification and documentation.
 
 ## 1. Establish instance and namespace contracts
 
-- [ ] 1.1 Reconcile the active rebuild's workbench-shell, contribution-activation, contribution-packages, and ai-authoring planning contracts with this follow-on; verify both changes pass strict OpenSpec validation and contain no conflicting group-label, duplicate-identity, or conversation-ownership requirements.
-- [ ] 1.2 Define versioned workspace/instance/revision/conflict/order records and instance-based selection and preference keys; verify unique blank identities, same-namespace clones, revision ownership, duplicate record rejection, and explicit incompatible-format diagnostics. Document namespace versus instance identity with an original/clone example.
-- [ ] 1.3 Implement deterministic whole-namespace arbitration before dependency graph construction; test list ordering, disabled owners, multiple clones, missing original with retained provenance, invalid/undeclared collisions, disabled export holes, incompatible winning versions, and dependency cycles without silently choosing another owner.
-- [ ] 1.4 Integrate instance-owned activation registrations and coherent claim handoff; verify old handles revoke, consumers dispose before providers, changed-owner instances do not share lifecycle state, failed activation exposes no partial registrations, and unrelated runtime/service instances remain alive. Checkpoint the complete contract slice.
+- [x] 1.1 Reconcile the active rebuild's workbench-shell, contribution-activation, contribution-packages, and ai-authoring planning contracts with this follow-on; verify both changes pass strict OpenSpec validation and contain no conflicting group-label, duplicate-identity, or conversation-ownership requirements.
+- [x] 1.2 Define versioned workspace/instance/revision/conflict/order records and instance-based selection and preference keys; verify unique blank identities, same-namespace clones, revision ownership, duplicate record rejection, and explicit incompatible-format diagnostics. Document namespace versus instance identity with an original/clone example.
+- [x] 1.3 Implement deterministic whole-namespace arbitration before dependency graph construction; test list ordering, disabled owners, multiple clones, missing original with retained provenance, invalid/undeclared collisions, disabled export holes, incompatible winning versions, and dependency cycles without silently choosing another owner.
+- [x] 1.4 Integrate instance-owned activation registrations and coherent claim handoff; verify old handles revoke, consumers dispose before providers, changed-owner instances do not share lifecycle state, failed activation exposes no partial registrations, and unrelated runtime/service instances remain alive. Checkpoint the complete contract slice.
+
+Foundation checkpoint: versioned instance/catalog/preference contracts, declared lineage arbitration, dependency-respecting priority, and instance/revision activation ownership are implemented. Ten focused workspace/activation tests, typecheck, lint, and strict validation of both changes pass. Dynamic app/catalog wiring follows in later tasks.
 
 ## 2. Make plugin artifacts independently materializable
 

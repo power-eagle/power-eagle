@@ -47,7 +47,7 @@ New-format conversations SHALL persist under the versioned clean Power Eagle sta
 - **THEN** Agent begins with empty new-format history and no legacy executable record is available to load
 
 ### Requirement: Source and stage integration
-Successful generated packages SHALL appear under `ai generated` and use normal package/activation semantics. Agent version selection SHALL update the shared shell selection. A user SHALL be able to create/select conversations, select stored versions, delete failed turns, and see whether a version is on stage.
+Successful generated versions SHALL update their owning plugin instance in the common Sources list and use normal package/activation semantics. Agent version selection SHALL update the shared instance/revision selection. Each instance SHALL own its conversation; users SHALL select conversations through plugin selection, select stored versions, delete failed turns, and see whether a version is on stage. A clone SHALL start independent history with source-revision provenance.
 
 #### Scenario: Select a generated package through Sources
 - **WHEN** a user chooses a generated package/version from Sources

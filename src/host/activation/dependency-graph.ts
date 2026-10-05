@@ -114,7 +114,9 @@ function stronglyConnected(candidates: Candidate[], edges: ReadonlyMap<string, S
   return components;
 }
 
-function stableOrder(candidates: Candidate[]): string[] {
+function stableOrder(candidates: Candidate[], priorities: ReadonlyMap<string, number>): string[] {
+  const priorityCompare = (left: string, right: string) =>
+    (priorities.get(left.split('/')[0]) ?? 0) - (priorities.get(right.split('/')[0]) ?? 0) || compare(left, right);
   const resolved = candidates.filter(candidate => candidate.failures.length === 0);
   const identities = new Set(resolved.map(candidate => candidate.node.identity));
   const indegree = new Map(resolved.map(candidate => [candidate.node.identity, 0]));
@@ -128,7 +130,7 @@ function stableOrder(candidates: Candidate[]): string[] {
       dependents.set(dependency, targets);
     });
   });
-  const ready = [...indegree].filter(([, count]) => count === 0).map(([identity]) => identity).sort(compare);
+  const ready = [...indegree].filter(([, count]) => count === 0).map(([identity]) => identity).sort(priorityCompare);
   const order: string[] = [];
   while (ready.length) {
     const identity = ready.shift()!;
@@ -138,14 +140,14 @@ function stableOrder(candidates: Candidate[]): string[] {
       indegree.set(dependent, remaining);
       if (remaining === 0) {
         ready.push(dependent);
-        ready.sort(compare);
+        ready.sort(priorityCompare);
       }
     }
   }
   return order;
 }
 
-export function buildExportRegistryGraph(packages: readonly DiscoveredPackage[]): ExportRegistryGraph {
+export function buildExportRegistryGraph(packages: readonly DiscoveredPackage[], priorities: ReadonlyMap<string, number> = new Map()): ExportRegistryGraph {
   const candidates = [...packages]
     .sort((left, right) => compare(left.manifest.id, right.manifest.id) || compare(left.manifest.version, right.manifest.version) || compare(left.root, right.root))
     .flatMap(discovered => [...discovered.manifest.exports]
@@ -229,7 +231,7 @@ export function buildExportRegistryGraph(packages: readonly DiscoveredPackage[])
     candidate.node.diagnostics = candidate.failures.sort((left, right) => compare(left.code, right.code) || compare(left.message, right.message));
     candidate.node.status = candidate.failures.length ? 'failed' : 'resolved';
   });
-  const activationOrder = stableOrder(candidates);
+  const activationOrder = stableOrder(candidates, priorities);
   const available = new Map<string, RegistryExport>();
   activationOrder.forEach(identity => available.set(identity, byIdentity.get(identity)![0].node));
   const exports = candidates.map(candidate => candidate.node)

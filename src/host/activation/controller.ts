@@ -174,7 +174,7 @@ export class ActivationController {
     const pending = new Set(groups.keys());
     const processed = new Set<string>();
     while (pending.size) {
-      const ready = [...pending].filter(group => [...(groupDependencies.get(group) ?? [])].every(dependency => processed.has(dependency))).sort();
+      const ready = [...pending].filter(group => [...(groupDependencies.get(group) ?? [])].every(dependency => processed.has(dependency)));
       if (!ready.length) {
         [...pending].sort().forEach(group => {
           groups.get(group)!.forEach(identity => failures.set(identity, { identity, group, message: `Activation group dependency cycle involving ${group}` }));

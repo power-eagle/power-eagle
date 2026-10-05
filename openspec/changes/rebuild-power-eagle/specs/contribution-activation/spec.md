@@ -7,7 +7,7 @@ Make mixed package contributions predictable through explicit dependencies, inde
 ## ADDED Requirements
 
 ### Requirement: Explicit dependency resolution
-Public exports SHALL have package-qualified identities and declare required provider versions, export ids, and kinds. Activation SHALL resolve dependencies before exposing consumers. Missing exports, incompatible versions, cycles, and duplicate identities MUST be diagnosed deterministically; unrelated valid packages MUST remain available.
+Public exports SHALL have package-qualified identities and declare required provider versions, export ids, and kinds. Activation SHALL resolve dependencies before exposing consumers. Declared spin-offs SHALL resolve exclusive namespace ownership by plugin-instance order before dependency validation; undeclared duplicate identities, missing exports, incompatible versions, and cycles MUST be diagnosed deterministically; unrelated valid packages MUST remain available.
 
 #### Scenario: Combine providers from different packages
 - **WHEN** a runtime declares a widget from one package and a style from another compatible enabled package
@@ -18,7 +18,7 @@ Public exports SHALL have package-qualified identities and declare required prov
 - **THEN** affected exports are unavailable with the cycle identified and an unrelated runtime can still activate
 
 ### Requirement: Package and export enablement
-Users SHALL be able to enable or disable a package and its individually exposed exports. Package disablement SHALL suppress all its exports without erasing their individual preferences. Desired enablement SHALL persist across reloads separately from effective status. User-disabled exports SHALL be `off`; enabled exports with failed dependencies SHALL be `failed` with a cause; available enabled exports SHALL be `active`.
+Users SHALL be able to enable or disable a package and its individually exposed exports. Package disablement SHALL suppress all its exports without erasing their individual preferences. Desired enablement SHALL persist per plugin instance and export across reloads separately from effective status. A losing desired-enabled namespace claimant SHALL be off with an owner-conflict explanation. User-disabled exports SHALL be `off`; enabled exports with failed dependencies SHALL be `failed` with a cause; available enabled exports SHALL be `active`.
 
 #### Scenario: Restore individual preferences
 - **WHEN** a user disables one widget export, disables its package, and later re-enables the package

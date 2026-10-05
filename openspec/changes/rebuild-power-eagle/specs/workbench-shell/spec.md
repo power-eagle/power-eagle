@@ -18,7 +18,7 @@ The shell SHALL retain the supplied Sources, Stage, and Agent arrangement with s
 - **THEN** it becomes an operable rail and returns without losing selection, conversation, or enablement state
 
 ### Requirement: Unified selection
-The workbench SHALL maintain a single selection identifying a package, runtime screen or contribution/export, and any generated conversation/version. Selecting a source entry or AI version SHALL update that same selection and stage. Merely inspecting a package MUST NOT enable it or execute its view's actions.
+The workbench SHALL maintain a single selection identifying a plugin instance, its revision, and runtime screen or contribution/export. The selected instance SHALL own the Agent conversation. Selecting a source entry or AI version SHALL update that same selection and stage. Merely inspecting a package MUST NOT enable it or execute its view's actions.
 
 #### Scenario: Select an AI version
 - **WHEN** a user selects an older generated version in Agent
@@ -29,7 +29,7 @@ The workbench SHALL maintain a single selection identifying a package, runtime s
 - **THEN** its exports and off state appear without enabling or executing them
 
 ### Requirement: Source tree and package controls
-Sources SHALL group built-ins, canonical sources from Power Eagle's scoped Saucepan view, generated packages, and unscoped artifacts staged for the current session, and SHALL expose each package's declared contribution categories. Package rows SHALL show version, persistence mode, and active/off/failed state, with a new badge for packages generated in the current session. Selecting a runtime SHALL offer its view; selecting a provider contribution SHALL show its exports. Recipe acquisition SHALL be reachable from the source footer with unambiguous persistent and session-only controls and validation.
+Sources SHALL present built-ins, canonical sources from Power Eagle's scoped Saucepan view, local/Agent-created instances, and session-only artifacts in one persisted ordered searchable list without visible group headings, and SHALL expose each instance's declared contribution categories. Origin metadata SHALL remain available in details. Package rows SHALL show version, persistence mode, and active/off/failed state, with a new badge for packages generated in the current session. Selecting a runtime SHALL offer its view; selecting a provider contribution SHALL show its exports. Recipe acquisition SHALL be reachable from the source footer with unambiguous persistent and session-only controls and validation.
 
 #### Scenario: Select a mixed package
 - **WHEN** a package contains runtime, widgets, and styling contributions
@@ -38,11 +38,11 @@ Sources SHALL group built-ins, canonical sources from Power Eagle's scoped Sauce
 #### Scenario: Filter plugins across origins
 - **WHEN** the user enters a plugin filter
 - **THEN** names, identifiers, descriptions, and source groups are matched without changing selection, activation, or the running tool's state; clearing the filter restores the list
-- **AND** shipped plugins appear under Included with Power Eagle, while generated plugins appear under Created by Agent in the same Sources panel
+- **AND** shipped and Agent-created plugins appear in the same ordered list with origin metadata in details rather than visible group headings
 
 #### Scenario: Acquire from the footer
 - **WHEN** a user supplies a supported recipe, chooses persistent acquisition, and the operation succeeds
-- **THEN** the appropriate canonical source group refreshes from Power Eagle's scoped view without navigating to an old installation tab
+- **THEN** the ordered plugin list refreshes with canonical source metadata from Power Eagle's scoped view without navigating to an old installation tab
 
 #### Scenario: Stage an unscoped artifact
 - **WHEN** a user chooses session-only acquisition and validation succeeds

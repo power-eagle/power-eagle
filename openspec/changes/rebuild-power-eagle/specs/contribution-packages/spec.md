@@ -7,6 +7,9 @@ Allow one installed package to combine declarative runtimes and compiled provide
 ## ADDED Requirements
 
 ### Requirement: Composable package manifest
+
+Workbench instance identity SHALL be separate from the manifest's public package namespace. A declared spin-off SHALL retain that namespace with unique instance identity and source-revision/conflict metadata, as defined in plugin-spin-offs. Copies SHALL not require rewriting compiled namespace references.
+
 A package SHALL declare the supported `power-eagle/package` format version, id, name, version, description, supported host SDK range, contribution paths, named export descriptors, and export dependencies in `manifest.json`. Runtime, widget, styling, action, and service contributions SHALL be independently optional, with at least one contribution required. The conventional entries SHALL be `run.json`, `types.cjs`, `styling.cjs`, `actions.cjs`, and `services.cjs`; declared paths, not filename scanning, SHALL determine what loads.
 
 #### Scenario: Load a mixed package
