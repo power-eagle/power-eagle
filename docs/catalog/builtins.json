@@ -289,6 +289,754 @@
       "availability": "active",
       "contract": {
         "defaults": {
+          "disabled": false,
+          "failureText": "Preview unavailable",
+          "selected": false
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "imageError": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "select": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "example": {
+          "props": {
+            "asset": {
+              "annotation": "Blueprint shell",
+              "extension": "png",
+              "fileUrl": "",
+              "folderIds": [
+                "references"
+              ],
+              "height": 720,
+              "id": "asset-one",
+              "modifiedAt": 1,
+              "name": "Design reference",
+              "rating": 4,
+              "tags": [
+                "design"
+              ],
+              "thumbnailUrl": "assets/gallery.svg",
+              "url": "",
+              "width": 1280
+            },
+            "selected": true
+          },
+          "type": "AssetCard"
+        },
+        "properties": {
+          "properties": {
+            "asset": {
+              "properties": {
+                "annotation": {
+                  "type": "string"
+                },
+                "extension": {
+                  "type": "string"
+                },
+                "fileUrl": {
+                  "type": "string"
+                },
+                "folderIds": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "height": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "modifiedAt": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "rating": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "tags": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "thumbnailUrl": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "width": {
+                  "minimum": 0,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "extension",
+                "width",
+                "height",
+                "url",
+                "annotation",
+                "tags",
+                "folderIds",
+                "rating",
+                "fileUrl",
+                "thumbnailUrl",
+                "modifiedAt"
+              ],
+              "type": "object"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "failureText": {
+              "type": "string"
+            },
+            "selected": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "asset"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "asset",
+          "card"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "asset": {
+            "annotation": "Blueprint shell",
+            "extension": "png",
+            "fileUrl": "",
+            "folderIds": [
+              "references"
+            ],
+            "height": 720,
+            "id": "asset-one",
+            "modifiedAt": 1,
+            "name": "Design reference",
+            "rating": 4,
+            "tags": [
+              "design"
+            ],
+            "thumbnailUrl": "assets/gallery.svg",
+            "url": "",
+            "width": 1280
+          },
+          "selected": true
+        },
+        "type": "AssetCard"
+      },
+      "type": "AssetCard"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "columns": 3,
+          "disabled": false,
+          "emptyText": "No Eagle assets",
+          "errorText": "Unable to load Eagle assets",
+          "failureText": "Preview unavailable",
+          "gap": 8,
+          "selection": [],
+          "selectionMode": "single",
+          "status": "ready"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "imageError": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "retry": {
+            "type": "null"
+          },
+          "selectionChange": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "assets": [
+              {
+                "annotation": "Blueprint shell",
+                "extension": "png",
+                "fileUrl": "",
+                "folderIds": [
+                  "references"
+                ],
+                "height": 720,
+                "id": "asset-one",
+                "modifiedAt": 1,
+                "name": "Design reference",
+                "rating": 4,
+                "tags": [
+                  "design"
+                ],
+                "thumbnailUrl": "assets/gallery.svg",
+                "url": "",
+                "width": 1280
+              },
+              {
+                "annotation": "Blueprint shell",
+                "extension": "svg",
+                "fileUrl": "",
+                "folderIds": [
+                  "references"
+                ],
+                "height": 600,
+                "id": "asset-two",
+                "modifiedAt": 2,
+                "name": "Runtime diagram",
+                "rating": 0,
+                "tags": [
+                  "runtime"
+                ],
+                "thumbnailUrl": "assets/preview.svg",
+                "url": "",
+                "width": 800
+              }
+            ],
+            "columns": 2,
+            "label": "Eagle assets",
+            "selection": [
+              "asset-one"
+            ]
+          },
+          "type": "AssetGrid"
+        },
+        "properties": {
+          "properties": {
+            "assets": {
+              "items": {
+                "properties": {
+                  "annotation": {
+                    "type": "string"
+                  },
+                  "extension": {
+                    "type": "string"
+                  },
+                  "fileUrl": {
+                    "type": "string"
+                  },
+                  "folderIds": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "height": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "modifiedAt": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "rating": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "tags": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "thumbnailUrl": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "extension",
+                  "width",
+                  "height",
+                  "url",
+                  "annotation",
+                  "tags",
+                  "folderIds",
+                  "rating",
+                  "fileUrl",
+                  "thumbnailUrl",
+                  "modifiedAt"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "columns": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "emptyText": {
+              "type": "string"
+            },
+            "errorText": {
+              "type": "string"
+            },
+            "failureText": {
+              "type": "string"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "none",
+                "single",
+                "multiple"
+              ]
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "loading",
+                "ready",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "assets"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "asset",
+          "grid"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "assets": [
+            {
+              "annotation": "Blueprint shell",
+              "extension": "png",
+              "fileUrl": "",
+              "folderIds": [
+                "references"
+              ],
+              "height": 720,
+              "id": "asset-one",
+              "modifiedAt": 1,
+              "name": "Design reference",
+              "rating": 4,
+              "tags": [
+                "design"
+              ],
+              "thumbnailUrl": "assets/gallery.svg",
+              "url": "",
+              "width": 1280
+            },
+            {
+              "annotation": "Blueprint shell",
+              "extension": "svg",
+              "fileUrl": "",
+              "folderIds": [
+                "references"
+              ],
+              "height": 600,
+              "id": "asset-two",
+              "modifiedAt": 2,
+              "name": "Runtime diagram",
+              "rating": 0,
+              "tags": [
+                "runtime"
+              ],
+              "thumbnailUrl": "assets/preview.svg",
+              "url": "",
+              "width": 800
+            }
+          ],
+          "columns": 2,
+          "label": "Eagle assets",
+          "selection": [
+            "asset-one"
+          ]
+        },
+        "type": "AssetGrid"
+      },
+      "type": "AssetGrid"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
+          "cancelLabel": "Cancel",
+          "columns": 3,
+          "confirmLabel": "Use selection",
+          "disabled": false,
+          "emptyText": "No Eagle assets",
+          "errorText": "Unable to load Eagle assets",
+          "failureText": "Preview unavailable",
+          "gap": 8,
+          "selection": [],
+          "selectionMode": "multiple",
+          "status": "ready"
+        },
+        "events": {
+          "activate": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "cancel": {
+            "type": "null"
+          },
+          "confirm": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "imageError": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "retry": {
+            "type": "null"
+          },
+          "selectionChange": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "example": {
+          "props": {
+            "assets": [
+              {
+                "annotation": "Blueprint shell",
+                "extension": "png",
+                "fileUrl": "",
+                "folderIds": [
+                  "references"
+                ],
+                "height": 720,
+                "id": "asset-one",
+                "modifiedAt": 1,
+                "name": "Design reference",
+                "rating": 4,
+                "tags": [
+                  "design"
+                ],
+                "thumbnailUrl": "assets/gallery.svg",
+                "url": "",
+                "width": 1280
+              },
+              {
+                "annotation": "Blueprint shell",
+                "extension": "svg",
+                "fileUrl": "",
+                "folderIds": [
+                  "references"
+                ],
+                "height": 600,
+                "id": "asset-two",
+                "modifiedAt": 2,
+                "name": "Runtime diagram",
+                "rating": 0,
+                "tags": [
+                  "runtime"
+                ],
+                "thumbnailUrl": "assets/preview.svg",
+                "url": "",
+                "width": 800
+              }
+            ],
+            "columns": 2,
+            "label": "Choose Eagle assets",
+            "selection": [
+              "asset-two"
+            ]
+          },
+          "type": "AssetPicker"
+        },
+        "properties": {
+          "properties": {
+            "assets": {
+              "items": {
+                "properties": {
+                  "annotation": {
+                    "type": "string"
+                  },
+                  "extension": {
+                    "type": "string"
+                  },
+                  "fileUrl": {
+                    "type": "string"
+                  },
+                  "folderIds": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "height": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "modifiedAt": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "rating": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "tags": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "thumbnailUrl": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "extension",
+                  "width",
+                  "height",
+                  "url",
+                  "annotation",
+                  "tags",
+                  "folderIds",
+                  "rating",
+                  "fileUrl",
+                  "thumbnailUrl",
+                  "modifiedAt"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "cancelLabel": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "columns": {
+              "integer": true,
+              "minimum": 1,
+              "type": "number"
+            },
+            "confirmLabel": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "emptyText": {
+              "type": "string"
+            },
+            "errorText": {
+              "type": "string"
+            },
+            "failureText": {
+              "type": "string"
+            },
+            "gap": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "height": {
+              "minimum": 5e-324,
+              "type": "number"
+            },
+            "label": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "selection": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "selectionMode": {
+              "type": "enum",
+              "values": [
+                "single",
+                "multiple"
+              ]
+            },
+            "status": {
+              "type": "enum",
+              "values": [
+                "loading",
+                "ready",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "label",
+            "assets"
+          ],
+          "type": "object"
+        },
+        "slots": {},
+        "themeHooks": [
+          "eagle",
+          "asset",
+          "picker"
+        ]
+      },
+      "family": "eagle",
+      "origin": {
+        "kind": "builtin"
+      },
+      "runnableExample": {
+        "props": {
+          "assets": [
+            {
+              "annotation": "Blueprint shell",
+              "extension": "png",
+              "fileUrl": "",
+              "folderIds": [
+                "references"
+              ],
+              "height": 720,
+              "id": "asset-one",
+              "modifiedAt": 1,
+              "name": "Design reference",
+              "rating": 4,
+              "tags": [
+                "design"
+              ],
+              "thumbnailUrl": "assets/gallery.svg",
+              "url": "",
+              "width": 1280
+            },
+            {
+              "annotation": "Blueprint shell",
+              "extension": "svg",
+              "fileUrl": "",
+              "folderIds": [
+                "references"
+              ],
+              "height": 600,
+              "id": "asset-two",
+              "modifiedAt": 2,
+              "name": "Runtime diagram",
+              "rating": 0,
+              "tags": [
+                "runtime"
+              ],
+              "thumbnailUrl": "assets/preview.svg",
+              "url": "",
+              "width": 800
+            }
+          ],
+          "columns": 2,
+          "label": "Choose Eagle assets",
+          "selection": [
+            "asset-two"
+          ]
+        },
+        "type": "AssetPicker"
+      },
+      "type": "AssetPicker"
+    },
+    {
+      "availability": "active",
+      "contract": {
+        "defaults": {
           "autoplay": false,
           "controls": true,
           "loop": false,

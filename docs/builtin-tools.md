@@ -1,6 +1,10 @@
 # Built-in Eagle tools
 
-Power Eagle ships File Creator and Recent Libraries as ordinary new-format packages. Each built-in has a versioned `power-eagle/package` manifest, a declarative runtime document, and action exports that receive the same typed Eagle capabilities available to installed providers. Opening a built-in creates a runtime session and runs only its declared startup actions; rendering the document does not call Eagle.
+Power Eagle ships Asset Browser, File Creator, and Recent Libraries as ordinary new-format packages. Each built-in has a versioned `power-eagle/package` manifest, a declarative runtime document, and action exports that receive the same typed Eagle capabilities available to installed providers. Opening a built-in creates a runtime session and runs only its declared startup actions; rendering the document does not call Eagle.
+
+## Asset Browser
+
+Asset Browser loads typed records through the Eagle asset-list capability and passes them to the declarative `AssetPicker`. Loading, empty, ready, and host-error states remain visible in the stage. Selection is controlled by stable Eagle asset ids, so reordering or refreshing records does not change what is selected. Confirm is an explicit action that sends the selected ids to Eagle; rendering and highlighting a card never invoke a host mutation.
 
 ## File Creator
 

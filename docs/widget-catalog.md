@@ -8,7 +8,7 @@ npm run language -- catalog
 
 Each entry contains its public type spelling, family, origin, effective availability, property schema, defaults, slots, events, theme hooks, authoring example, and a runnable example. The runnable form supplies required structural parents for Positioned, Expanded, Flexible, and Spacer. The application gallery renders that runnable example through the same runtime registry used by packages.
 
-All built-in constructors are re-exported from `src/sdui/authoring/foundation`; focused modules are available at `authoring/layout`, `authoring/content`, `authoring/forms`, `authoring/selection`, `authoring/desktop`, `authoring/collections`, `authoring/feedback`, and `authoring/media`. Each constructor derives its TypeScript property, slot, and event names from the published contract and emits an ordinary runtime node.
+All built-in constructors are re-exported from `src/sdui/authoring/foundation`; focused modules are available at `authoring/layout`, `authoring/content`, `authoring/forms`, `authoring/selection`, `authoring/desktop`, `authoring/collections`, `authoring/feedback`, `authoring/media`, and `authoring/eagle`. Each constructor derives its TypeScript property, slot, and event names from the published contract and emits an ordinary runtime node.
 
 The current built-in groups are:
 
@@ -19,6 +19,9 @@ The current built-in groups are:
 - Collections: DataTable, GridView, ListView, PropertyGrid, ReorderableList, ScrollView, TreeView, VirtualGrid, VirtualList.
 - Feedback: Banner, Dialog, EmptyState, ErrorState, ProgressIndicator, Skeleton, Toast.
 - Media: AudioPlayer, ImageGallery, VideoPlayer, ZoomableImage.
+- Eagle assets: AssetCard, AssetGrid, AssetPicker.
+
+Asset widgets consume the typed record returned by the Eagle capability adapter. `AssetCard` displays one identity and emits that id for selection and activation. `AssetGrid` and `AssetPicker` use controlled id arrays, retain selection when host results reorder, and expose loading, ready-empty, ready-populated, and error/retry states. `AssetPicker.confirm` emits the complete selected-id array; the host-backed Asset Browser built-in maps that event to an explicit Eagle selection action. The renderers never query or select Eagle items while rendering.
 
 The installable [`examples/control-widgets`](../examples/control-widgets) runtime references every form, selection, and desktop-interaction type. Its behavior test compiles the TypeScript source to canonical JSON, validates every referenced public contract, renders each implementation, and completes required form submission plus breadcrumb navigation with keyboard input only.
 
