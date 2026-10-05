@@ -1,0 +1,6 @@
+{
+  "source": {
+    "provider": "local",
+    "path": "examples/runtime-only"
+  }
+}

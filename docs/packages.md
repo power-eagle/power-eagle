@@ -1,4 +1,91 @@
-# New-format package contract
+# Package acquisition and contribution contract
+
+Power Eagle uses Saucepan 0.6's shared central store. It does not download a private executable, create `saucepan.toml`, maintain buckets, read the encrypted index, or reconstruct a content path. Install or build a compatible Saucepan executable independently at `~/.saucepan/bin/saucepan[.exe]`, or configure an explicit executable path. Initialize the user store deliberately once with:
+
+```sh
+saucepan init
+```
+
+Acquisition never initializes a missing store. Power Eagle calls the executable asynchronously through Eagle's Node 16 bridge with literal arguments and temporary JSON files. The executable owns provider behavior, encryption, credentials, locking, content verification, snapshots, and its index. A missing executable or unavailable store disables package controls while built-in runtimes remain available.
+
+## Clean Power Eagle state
+
+The first revised launch removes the complete legacy Power Eagle-owned `~/.powereagle` tree and obsolete browser enablement keys. This deliberately deletes old conversations, themes, cached Saucepan binaries, workspace configuration/indexes, managed clones, and generated package data inside that root. There is no migration or compatibility fallback.
+
+The reset never deletes a local source outside `~/.powereagle` and never deletes the shared `~/.saucepan` store. After cleanup, Power Eagle recreates its root with a versioned sentinel. Later launches retain the new state only when that sentinel is valid; an unreadable or unknown sentinel fails startup rather than risking another deletion.
+
+```text
+~/.powereagle/
+  .power-eagle-state.json       # power-eagle/state version 1 sentinel
+  .saucepanhash                 # stable Power Eagle Saucepan app token
+
+~/.saucepan/
+  bin/saucepan[.exe]            # independently installed shared executable
+  index.json.enc                # owned exclusively by Saucepan
+  index.lock
+  sources/<source-id>/...       # shared central content and snapshots
+```
+
+Power Eagle writes neither `index.json.enc` nor a companion installed-package index. Its durable package list is the marker-scoped Saucepan view.
+
+## Recipes and persistence
+
+Acquisition accepts the current Git, URL, and local recipe shapes. The local runtime example is checked in at [`examples/saucepan-recipes/local-runtime.json`](../examples/saucepan-recipes/local-runtime.json):
+
+```json
+{"source":{"provider":"local","path":"examples/runtime-only"}}
+```
+
+Git can track a ref or pin a full commit:
+
+```json
+{
+  "source": {
+    "provider": "git",
+    "origin": "https://github.com/example/power-eagle-packages.git",
+    "reference": "main"
+  },
+  "folder": "packages/example"
+}
+```
+
+URL recipes declare whether the result is one named file or a ZIP:
+
+```json
+{
+  "source": {
+    "provider": "url",
+    "url": "https://example.com/power-eagle-package.zip",
+    "download": {"format":"zip"}
+  }
+}
+```
+
+Local inputs are copied into Saucepan's central store. Power Eagle validates and loads the `directory` returned by acquisition; it never assumes that the original local path is the installed package.
+
+Persistent acquisition registers the `power-eagle` app once, stores its stable marker under the clean state root, and uses that marker for acquire, view, path, history, snapshot, mirror, configure, and verify. Successfully validated artifacts return through the scoped view after restart.
+
+Session-only acquisition omits app, marker, and authoritative flags. It shares Saucepan's verified retained content but creates no Power Eagle touch. Power Eagle keeps a validated session artifact only in memory and labels it session-only; it does not return after restart. Use this path for preview or validation, not installation.
+
+Artifacts are grouped by Saucepan's canonical `source_id` and full `source` descriptor. Two Git origins remain separate even though both use the `git` provider. Package discovery uses only Saucepan-returned directories and static files. It does not execute provider code.
+
+## Acquisition validation and recovery
+
+Every acquired directory must pass the new manifest, runtime, entry, asset, SDK, host-target, and path-containment checks before Power Eagle publishes it. When `package.json` declares production dependencies, discovery resolves and version-checks them from inside that acquired directory without evaluating provider modules. Power Eagle never builds acquired source or runs a package manager.
+
+A persistent package occupies a canonical source-and-folder slot. If a newly acquired or refreshed artifact fails validation, the error names the failing layer and the previously validated package in that slot remains active. Transport success alone never publishes partial package state.
+
+| Failure layer | Meaning | Recovery |
+| --- | --- | --- |
+| state reset | target or sentinel is unsafe/invalid | inspect the exact `~/.powereagle` path; do not bypass the guard |
+| tooling launch | shared executable is missing or cannot start | install Saucepan 0.6 or configure its exact executable path |
+| central store | initialization, credentials, locking, source, or policy failed | run explicit setup when needed and follow Saucepan's stderr diagnostic |
+| transport/protocol | process terminated or returned non-JSON/incompatible output | use a compatible Saucepan 0.6 executable and retry |
+| package format | manifest/runtime/entry/asset path is invalid or legacy | publish a `power-eagle/package` version 1 artifact |
+| dependency | a declared production dependency is absent, external, or has the wrong version | rebuild the artifact with its complete production `node_modules` |
+| host compatibility | SDK, platform, architecture, or Node target excludes Eagle | rebuild for the recorded Eagle runtime or correct the manifest target |
+
+Raw Saucepan stderr remains attached to command failures. Package diagnostics remain distinct from acquisition failures, so repairing a manifest does not masquerade as a network or credential problem.
 
 `manifest.json` uses `format: "power-eagle/package"` and `formatVersion: 1`. Required metadata is `id`, `name`, full semantic `version`, `description`, and supported host `sdk` range. IDs use letters followed by letters, digits, dots, underscores, or hyphens. An export is identified as `package.id/exportId`.
 
@@ -210,10 +297,10 @@ npm run language -- validate examples/runtime-only/manifest.json
 npm run language -- validate examples/runtime-only/run.json
 ```
 
-The typed source is unnecessary once compiled. Production installation and release packaging are later checkpoints; the runtime-only example loads through the foundation validator and runtime renderer.
+The typed source is unnecessary once compiled. The same static validator accepts its Saucepan-returned directory; workbench acquisition controls and final release packaging are later checkpoints.
 
 The same manifest-first layout is used by `examples/layout-widgets`, `examples/content-widgets`, `examples/control-widgets`, and `examples/collection-feedback-media`. The control package is the public Section 7 acceptance example; the collection/feedback/media package is the Section 8 acceptance example. Their typed sources reference every widget in their checkpoints, while each generated `run.json` is the only runtime payload an installed package needs.
 
-## Retained organization
+## Source organization
 
-Implementation stays under `src/app`, `src/sdui`, `src/host/install`, `src/plugins`, `src/ai`, and `src/components/ui`. The intended installed layout remains `~/.powereagle/bin`, `saucepan.toml`, `.saucepan/index.json`, Saucepan-reported package paths, local packages in place, and `conversations/<id>/v<N>`. This checkpoint does not touch those stores. Old payloads are unsupported and are not converted or overwritten.
+Implementation stays under `src/app`, `src/sdui`, `src/host/install`, `src/plugins`, `src/ai`, and `src/components/ui`. Host installation code owns only the CLI transport, Power Eagle marker, acquisition result validation, and in-memory publication. Saucepan owns the shared executable location and central storage. Old Power Eagle payloads and storage records are deleted by the reset rather than converted or retained.

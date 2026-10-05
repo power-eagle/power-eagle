@@ -1,6 +1,6 @@
 # Power Eagle language v1
 
-Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, and the layout, content, form, selection, desktop-interaction, collection, feedback, and media catalog are implemented. Package installation, the workbench, and AI integration remain later checkpoints.
+Status: structural/semantic validation, typed authoring, canonical emission, scoped state, expression evaluation, keyed rendering, action dispatch, view-local navigation, compiled-provider activation, current Saucepan acquisition/validation, and the layout, content, form, selection, desktop-interaction, collection, feedback, and media catalog are implemented. Workbench acquisition controls and AI integration remain later checkpoints.
 
 ## Build and inspect
 
