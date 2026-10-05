@@ -8,12 +8,14 @@ import { foundationRuntimeCatalog } from '../sdui/runtime/foundation';
 import document from '../../examples/runtime-only/document';
 
 describe('language foundation preview', () => {
-  it('renders both component instances and their slots from the public example', () => {
+  it('renders the validated example inside the three-panel workbench', () => {
     const html = renderToStaticMarkup(createElement(App));
     expect(html).toMatch(/data-pe-widget="Text"[^>]*>Count: 0<\/span>/);
     expect(html).toMatch(/data-pe-widget="Text"[^>]*>Declarative widgets<\/span>/);
     expect(html).toContain('<button type="button"');
-    expect(html).toContain('uses scoped state');
+    expect(html).toContain('01 / Sources');
+    expect(html).toContain('02 / Stage');
+    expect(html).toContain('03 / Agent');
   });
   it('renders script-like text as text', () => {
     const input = JSON.parse(JSON.stringify(document));
