@@ -1,6 +1,6 @@
 # Workbench theme plugins
 
-Paper Pop ships enabled: warm paper, mint/gold/lavender panel headers, dark ink outlines, rounded controls, and offset shadows. Choose **Theme → Blueprint** in the top bar to return to the original appearance. The choice persists locally. Switching themes preserves the open tool's state.
+Blueprint is the default appearance and Paper Pop ships disabled. To use its warm paper, mint/gold/lavender headers, dark ink outlines, rounded controls, and offset shadows, enable Paper Pop in Sources and choose **Theme → Paper Pop** in the top bar. Explicit saved package and theme choices are respected. The choice persists locally. Switching themes preserves the open tool's state.
 
 Paper Pop appears in Sources as a styling-only package. Disabling its package or `paper` export removes its styling immediately and shows Blueprint. Re-enabling restores the remembered choice.
 

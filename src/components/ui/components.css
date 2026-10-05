@@ -436,6 +436,12 @@
 .pe-source-footer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2); }
 .pe-workbench-source-tree { display: grid; gap: var(--space-4); padding: var(--space-2) var(--space-1); }
 .pe-workbench-source-tree section { min-width: 0; }
+.pe-plugin-search { position: sticky; top: -8px; z-index: 1; display: flex; align-items: center; gap: 4px; padding: 8px 4px; background: var(--card); }
+.pe-plugin-search input { min-width: 0; flex: 1; }
+.pe-plugin-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.pe-plugin-search button { flex: none; padding: 2px 4px; color: var(--foreground); background: transparent; border: 0; cursor: pointer; }
+.pe-plugin-search button:focus-visible { outline: 2px solid var(--ring); }
+.pe-plugin-search-empty { margin: 8px; color: var(--muted-foreground); font: 400 12px/18px var(--font-sans); }
 .pe-workbench-source-tree section > .pe-label { display: block; padding: var(--space-2) var(--space-2) var(--space-3); }
 .pe-workbench-package { min-width: 0; margin-bottom: var(--space-1); }
 .pe-workbench-package-head { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: start; gap: var(--space-1); padding: var(--space-1); border: 1px solid transparent; }

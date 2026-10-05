@@ -35,6 +35,11 @@ Sources SHALL group built-ins, canonical sources from Power Eagle's scoped Sauce
 - **WHEN** a package contains runtime, widgets, and styling contributions
 - **THEN** the tree exposes all three and the stage can switch between a runnable view and contribution inspection
 
+#### Scenario: Filter plugins across origins
+- **WHEN** the user enters a plugin filter
+- **THEN** names, identifiers, descriptions, and source groups are matched without changing selection, activation, or the running tool's state; clearing the filter restores the list
+- **AND** shipped plugins appear under Included with Power Eagle, while generated plugins appear under Created by Agent in the same Sources panel
+
 #### Scenario: Acquire from the footer
 - **WHEN** a user supplies a supported recipe, chooses persistent acquisition, and the operation succeeds
 - **THEN** the appropriate canonical source group refreshes from Power Eagle's scoped view without navigating to an old installation tab
@@ -66,7 +71,7 @@ The shell SHALL use theme tokens, outlined selection, visible focus, lowercase t
 - **THEN** app chrome does not create a text selection, while editable fields and readable tool content remain selectable
 
 ### Requirement: Selectable theme plugins
-Styling exports explicitly targeting `power-eagle/shell` SHALL supply supported scoped tokens for the workbench and inheriting runtime controls. Paper Pop SHALL ship as a compiled styling-only package and a bundled built-in with warm paper, pastel panels, and bold ink outlines. It SHALL be the initial theme. Users SHALL be able to select Blueprint or an available theme and retain that choice across reloads. Theme changes SHALL preserve runtime state and layout. Package and export disablement SHALL remove the selected styling layer and retain the choice for re-enablement.
+Styling exports explicitly targeting `power-eagle/shell` SHALL supply supported scoped tokens for the workbench and inheriting runtime controls. Paper Pop SHALL ship as a compiled styling-only package and a bundled built-in with warm paper, pastel panels, and bold ink outlines. Blueprint SHALL be the initial theme, and Paper Pop SHALL be disabled by default unless the user has explicitly enabled it. Users SHALL be able to select Blueprint or an available theme and retain that choice across reloads. Theme changes SHALL preserve runtime state and layout. Package and export disablement SHALL remove the selected styling layer and retain the choice for re-enablement.
 
 #### Scenario: Switch appearance while using a tool
 - **WHEN** the user changes from Paper Pop to Blueprint with a runtime open

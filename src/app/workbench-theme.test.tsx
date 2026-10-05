@@ -20,9 +20,12 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const theme = () => screen.getByRole('main').getAttribute('data-theme');
 
-it('starts with Paper Pop, switches without remounting the tool, and persists Blueprint across launches', async () => {
+it('starts with Paper Pop off, switches without remounting the tool, and persists choices across launches', async () => {
   const user = userEvent.setup();
   const app = render(<StrictMode><App /></StrictMode>);
+  expect(theme()).toBe('blueprint');
+  await user.click(screen.getByRole('switch', { name: 'Enable package Paper Pop' }));
+  await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
   expect(screen.getByRole('main').style.getPropertyValue('--background')).toBe('#fff9ef');
   await user.click(screen.getByRole('button', { name: 'Increment' }));
@@ -35,14 +38,21 @@ it('starts with Paper Pop, switches without remounting the tool, and persists Bl
   expect(theme()).toBe(PAPER_POP_IDENTITY);
   await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), '');
   app.unmount();
-  render(<App />);
+  const restored = render(<App />);
   expect(theme()).toBe('blueprint');
   expect(JSON.parse(storage.getItem(THEME_STORAGE_KEY)!)).toMatchObject({ identity: '' });
+  expect(screen.getByRole('switch', { name: 'Disable package Paper Pop' })).toBeTruthy();
+  await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
+  restored.unmount();
+  render(<App />);
+  await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
 });
 
 it('revokes styling on package or export disablement and restores the remembered selection', async () => {
   const user = userEvent.setup();
   render(<App />);
+  await user.click(screen.getByRole('switch', { name: 'Enable package Paper Pop' }));
+  await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
   await user.click(screen.getByRole('button', { name: 'Increment' }));
   const sources = within(screen.getByRole('navigation', { name: 'Package sources' }));
@@ -63,6 +73,8 @@ it('revokes styling on package or export disablement and restores the remembered
 it('keeps the chosen theme active when saving the preference fails', async () => {
   const user = userEvent.setup();
   render(<App />);
+  await user.click(screen.getByRole('switch', { name: 'Enable package Paper Pop' }));
+  await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), PAPER_POP_IDENTITY);
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
   vi.spyOn(storage, 'setItem').mockImplementation(() => { throw new Error('quota'); });
   await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), '');

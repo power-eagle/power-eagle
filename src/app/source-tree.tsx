@@ -1,4 +1,5 @@
-import { Badge, SectionLabel } from '../components/ui';
+import { useState } from 'react';
+import { Badge, Input, SectionLabel } from '../components/ui';
 import type { EffectiveRegistry } from '../host/activation/enablement';
 import {
   contributionExports, contributionSelection, defaultSelection, groupWorkbenchPackages, packageContributions,
@@ -74,9 +75,22 @@ export function WorkbenchSourceTree({
   onTogglePackage?(packageId: string, enabled: boolean): void;
   onToggleExport?(identity: string, enabled: boolean): void;
 }) {
+  const [query, setQuery] = useState('');
+  const terms = query.trim().toLocaleLowerCase().split(/\s+/u).filter(Boolean);
+  const filtered = packages.filter(record => {
+    const text = [record.manifest.name, record.manifest.id, record.manifest.description,
+      record.sourceLabel, sourceGroupLabel(record.sourceKind, record.sourceLabel)].join(' ').toLocaleLowerCase();
+    return terms.every(term => text.includes(term));
+  });
   return <nav className="pe-workbench-source-tree" aria-label="Package sources">
-    {groupWorkbenchPackages(packages).map(group => <section key={group.id} aria-label={group.label}>
-      <SectionLabel>{group.label}</SectionLabel>
+    <div className="pe-plugin-search">
+      <Input size="sm" type="search" aria-label="Filter plugins" placeholder="Filter plugins…"
+        value={query} onChange={event => setQuery(event.currentTarget.value)} />
+      {query ? <button type="button" aria-label="Clear plugin filter" onClick={() => setQuery('')}>×</button> : null}
+    </div>
+    {filtered.length === 0 ? <p className="pe-plugin-search-empty" role="status">No matching plugins.</p> : null}
+    {groupWorkbenchPackages(filtered).map(group => <section key={group.id} aria-label={sourceGroupLabel(group.kind, group.label)}>
+      <SectionLabel>{sourceGroupLabel(group.kind, group.label)}</SectionLabel>
       {group.packages.map(record => {
         const selected = selectionMatchesRecord(selection, record);
         const enabled = registry?.packages.get(record.manifest.id)?.desired ?? record.status !== 'off';
@@ -111,4 +125,11 @@ export function WorkbenchSourceTree({
       })}
     </section>)}
   </nav>;
+}
+
+function sourceGroupLabel(kind: WorkbenchPackage['sourceKind'], label: string): string {
+  if (kind === 'built-in') return 'Included with Power Eagle';
+  if (kind === 'generated') return 'Created by Agent';
+  if (kind === 'session') return 'Session only';
+  return label;
 }

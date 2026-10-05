@@ -8,9 +8,9 @@ export class WorkbenchActivationModel {
   readonly #graph;
   readonly #preferences: EnablementPreferences;
 
-  constructor(packages: readonly DiscoveredPackage[], persistence: EnablementPersistence) {
+  constructor(packages: readonly DiscoveredPackage[], persistence: EnablementPersistence, packageDefaults: Readonly<Record<string, boolean>> = {}) {
     this.#graph = buildExportRegistryGraph(packages);
-    this.#preferences = EnablementPreferences.open(persistence);
+    this.#preferences = EnablementPreferences.open(persistence, packageDefaults);
   }
 
   snapshot(): EffectiveRegistry { return reconcileEnablement(this.#graph, this.#preferences); }

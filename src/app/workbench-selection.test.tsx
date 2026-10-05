@@ -36,6 +36,30 @@ function record(id: string, sourceKind: WorkbenchPackage['sourceKind'], status: 
 }
 
 describe('shared workbench selection and sources', () => {
+  it('filters included and agent-created plugins without changing selection or their identities', async () => {
+    const builtIn = record('builtin.clipboard', 'built-in', 'active', { services: 'services.cjs' });
+    const generated = record('generated.dashboard', 'generated', 'active', { runtime: 'run.json' });
+    generated.conversationId = 'conversation-7';
+    generated.version = 2;
+    const onSelect = vi.fn();
+    const user = userEvent.setup();
+    render(<WorkbenchSourceTree packages={[builtIn, generated]} selection={defaultSelection(generated)} onSelect={onSelect} />);
+    expect(screen.getByRole('heading', { name: 'Included with Power Eagle' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Created by Agent' })).toBeTruthy();
+    const search = screen.getByRole('searchbox', { name: 'Filter plugins' });
+    await user.type(search, 'AGENT dashboard');
+    expect(screen.queryByRole('button', { name: 'Select package builtin.clipboard' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Select package generated.dashboard' }).getAttribute('aria-current')).toBe('page');
+    expect(onSelect).not.toHaveBeenCalled();
+    await user.clear(search);
+    await user.type(search, 'no-match');
+    expect(screen.getByRole('status').textContent).toBe('No matching plugins.');
+    await user.click(screen.getByRole('button', { name: 'Clear plugin filter' }));
+    expect(screen.getAllByRole('button', { name: /^Select package/u })).toHaveLength(2);
+    await user.click(screen.getByRole('button', { name: 'Select package generated.dashboard' }));
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ conversationId: 'conversation-7', version: 2 }));
+  });
+
   it('groups built-in, canonical installed, generated, and session packages deterministically', () => {
     const groups = groupWorkbenchPackages([
       record('session.preview', 'session', 'active', { runtime: 'run.json' }),

@@ -172,6 +172,8 @@ Eagle asset metadata correction (2026-10-04): the host screenshot exposed finite
 
 ## 12. Integrate AI document authoring and version history
 
+Source browsing follow-up (2026-10-04): Blueprint is now the default and Paper Pop starts disabled unless explicitly enabled in saved preferences. A plugin search matches names, IDs, descriptions, and source labels without changing the active tool or generated version identity. Shipped and generated groups use Included with Power Eagle and Created by Agent labels. Search/no-results/clear, runtime-state preservation, and default-versus-saved enablement are covered by focused tests; live Agent catalog integration remains pending in 12.4.
+
 - [ ] 12.1 Replace legacy module-generation prompts with schema/catalog-aware runtime-document generation and Eagle/Web API context controls; verify installed custom types are described, disabled exports are excluded, invalid output is diagnosed, and generated executable code is never run through this flow.
 - [ ] 12.2 Implement new-format conversation records and immutable version payloads under the clean versioned state root, including base identity and monotonic allocation; verify empty post-reset startup, reload, older-version refinement, turn deletion without version reuse, absence of legacy loading/migration, and storage-error reporting.
 - [ ] 12.3 Record model, validation, and activation failures and protect asynchronous turn ownership; verify duplicate-submit prevention, last-valid-stage retention, model unavailability, and completion after switching conversations without selecting or overwriting the wrong result.

@@ -13,6 +13,7 @@ import { defaultSelection, selectionMatchesRecord, type WorkbenchPackage } from 
 import { WorkbenchShell } from './workbench-shell';
 import { RuntimeStage } from './runtime-stage';
 import { useWorkbenchTheme } from './workbench-theme';
+import { paperPopManifest } from '../plugins/paper-pop';
 
 const manifests = [exampleManifest as PackageManifest, ...builtinContributionManifests];
 const discoveredPackages: DiscoveredPackage[] = manifests.map(manifest => {
@@ -38,7 +39,7 @@ function enablementPersistence(): EnablementPersistence {
 export default function App({ capabilities: suppliedCapabilities }: { capabilities?: EagleCapabilities } = {}) {
   const [capabilities] = useState(() => suppliedCapabilities ?? createEagleCapabilities());
   const [activation] = useState(() => new WorkbenchActivationModel(
-    discoveredPackages, enablementPersistence(),
+    discoveredPackages, enablementPersistence(), { [paperPopManifest.id]: false },
   ));
   const [registry, setRegistry] = useState(() => activation.snapshot());
   const theme = useWorkbenchTheme(registry);

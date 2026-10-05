@@ -10,7 +10,7 @@ Power Eagle needs a coherent extensible language and workbench rather than the c
 - **BREAKING:** Replace mutually exclusive plugin kinds and the single module entry with optional manifest-declared contributions: `run.json`, `types.cjs`, `styling.cjs`, and action/service modules. Packages may include any supported combination and ship production `node_modules` and assets.
 - Add named exports, explicit cross-package dependencies, per-export enablement, lifecycle cleanup, and deterministic registry/style resolution. Verify plugin-local dependency loading and shared React inside Eagle before dependent implementation.
 - Expand the widget catalog across layout, forms, collections, media, desktop interactions, and Eagle assets; give every supported type a schema, behavioral contract, and documentation.
-- Rebuild the shell from the supplied design system with selectable styling plugins, starting with Paper Pop's warm paper, pastel panels, and bold ink outlines and retaining Blueprint as a selectable base: Sources, Stage, and Agent share one selection; start a clean new-format AI history with version refinement using the new document contract.
+- Rebuild the shell from the supplied design system with selectable styling plugins, defaulting to Blueprint with Paper Pop's warm paper, pastel panels, and bold ink outlines available as an opt-in theme: Sources, Stage, and Agent share one selection; start a clean new-format AI history with version refinement using the new document contract.
 - Preserve the source module boundaries while replacing the legacy Power Eagle data layout with Saucepan's current shared central-store protocol. Re-author useful Eagle tools and restore an Eagle release package rather than restoring legacy runtime behavior.
 
 ## Capabilities

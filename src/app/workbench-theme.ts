@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { ActivationController, contributionRegistrations } from '../host/activation/controller';
 import type { EffectiveRegistry } from '../host/activation/enablement';
 import { collectActiveStyling, composeStyle, type ActiveStyling } from '../host/activation/styling';
-import { PAPER_POP_IDENTITY, paperPopPackage } from '../plugins/paper-pop';
+import { paperPopPackage } from '../plugins/paper-pop';
 
 export const THEME_STORAGE_KEY = 'power-eagle.theme.v1';
 export const SHELL_THEME_TARGET = 'power-eagle/shell';
@@ -37,8 +37,8 @@ function initialChoice(): string {
   try {
     const saved = JSON.parse(window.localStorage.getItem(THEME_STORAGE_KEY) ?? 'null');
     if (saved?.format === 'power-eagle/theme' && saved.formatVersion === 1 && typeof saved.identity === 'string') return saved.identity;
-  } catch { /* Unavailable storage starts with the shipped theme. */ }
-  return PAPER_POP_IDENTITY;
+  } catch { /* Unavailable storage starts with the base appearance. */ }
+  return '';
 }
 
 export function useWorkbenchTheme(registry: EffectiveRegistry) {

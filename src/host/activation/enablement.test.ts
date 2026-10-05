@@ -46,6 +46,19 @@ function status(registry: ReturnType<typeof reconcileEnablement>, identity: stri
 }
 
 describe('persistent activation preferences', () => {
+  it('uses host defaults only for packages without an explicit saved choice', () => {
+    const persistence = new MemoryPersistence();
+    const original = EnablementPreferences.open(persistence);
+    original.setPackage('unrelated', false);
+    const defaults = { 'power-eagle.paper-pop': false };
+    const updated = EnablementPreferences.open(persistence, defaults);
+    expect(updated.packageEnabled('power-eagle.paper-pop')).toBe(false);
+    expect(updated.packageEnabled('unrelated')).toBe(false);
+    expect(updated.packageEnabled('other')).toBe(true);
+    updated.setPackage('power-eagle.paper-pop', true);
+    expect(EnablementPreferences.open(persistence, defaults).packageEnabled('power-eagle.paper-pop')).toBe(true);
+  });
+
   it('stores a versioned deterministic record and restores package/export choices', () => {
     const persistence = new MemoryPersistence();
     const preferences = EnablementPreferences.open(persistence);

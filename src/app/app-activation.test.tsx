@@ -23,6 +23,18 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('workbench activation stage', () => {
+  it('keeps the running tool and its state while the source list is filtered', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Increment' }));
+    await user.type(screen.getByRole('searchbox', { name: 'Filter plugins' }), 'clipboard');
+    expect(screen.queryByRole('button', { name: 'Select package Runtime flow' })).toBeNull();
+    expect(screen.getByText('Count: 1')).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Clear plugin filter' }));
+    expect(screen.getByRole('button', { name: 'Select package Runtime flow' }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByText('Count: 1')).toBeTruthy();
+  });
+
   it('opens real built-in controls and routes their operations through the supplied host', async () => {
     const user = userEvent.setup();
     const host = createEagleCapabilities();

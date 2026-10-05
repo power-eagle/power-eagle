@@ -32,19 +32,23 @@ function sortedRecord(values: Record<string, boolean>): Record<string, boolean> 
 }
 
 export class EnablementPreferences {
-  private constructor(private readonly persistence: EnablementPersistence, private document: EnablementDocument) {}
+  private constructor(
+    private readonly persistence: EnablementPersistence,
+    private document: EnablementDocument,
+    private readonly packageDefaults: Readonly<Record<string, boolean>>,
+  ) {}
 
-  static open(persistence: EnablementPersistence): EnablementPreferences {
+  static open(persistence: EnablementPersistence, packageDefaults: Readonly<Record<string, boolean>> = {}): EnablementPreferences {
     const raw = persistence.read();
-    if (raw === null) return new EnablementPreferences(persistence, emptyDocument());
+    if (raw === null) return new EnablementPreferences(persistence, emptyDocument(), packageDefaults);
     try {
-      return new EnablementPreferences(persistence, preferenceSchema.parse(JSON.parse(raw)));
+      return new EnablementPreferences(persistence, preferenceSchema.parse(JSON.parse(raw)), packageDefaults);
     } catch (error) {
       throw new EnablementPreferenceError('Invalid persisted Power Eagle enablement preferences', error);
     }
   }
 
-  packageEnabled(packageId: string): boolean { return this.document.packages[packageId] ?? true; }
+  packageEnabled(packageId: string): boolean { return this.document.packages[packageId] ?? this.packageDefaults[packageId] ?? true; }
   exportEnabled(identity: string): boolean { return this.document.exports[identity] ?? true; }
 
   setPackage(packageId: string, enabled: boolean): void {
