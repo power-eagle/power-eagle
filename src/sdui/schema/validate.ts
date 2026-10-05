@@ -185,6 +185,9 @@ export function validateRuntime(value: unknown, catalog: ValidationCatalog): Val
   const doc = parsed.data;
   const diagnostics = dependenciesDiagnostics(doc.dependencies, '/dependencies');
   const add = (path: string, message: string, code = 'reference') => diagnostics.push({ path, code, message });
+  doc.initialize?.forEach((name, index) => {
+    if (!own(doc.actions, name)) add(`/initialize/${index}`, `Startup action ${name} does not exist`);
+  });
   if (!own(doc.screens, doc.start)) add('/start', 'Start screen does not exist');
   else if (doc.screens[doc.start].params.required.length) add(`/screens/${doc.start}/params`, 'Start screen cannot require navigation parameters');
   for (const [index, dependency] of doc.dependencies.entries()) {

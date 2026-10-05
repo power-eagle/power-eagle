@@ -108,6 +108,7 @@ const result = ref('result');
 const errorMessage = ref<string>('error', 'message');
 
 export const recentLibrariesDocument = defineDocument({
+  initialize: ['refresh'],
   format: 'power-eagle/runtime', formatVersion: 1, start: 'home', components: {},
   dependencies: ['history', 'filter', 'remove', 'clearMissing', 'switch'].map(exportId => ({
     package: PACKAGE_ID, version: '^1.0.0', export: exportId, kind: 'action' as const,
@@ -218,5 +219,4 @@ export const recentLibrariesTool: BuiltinTool = {
   manifest: recentLibrariesManifest,
   document: recentLibrariesDocument,
   calls: recentLibraryCalls,
-  initialize: ['refresh'],
 };

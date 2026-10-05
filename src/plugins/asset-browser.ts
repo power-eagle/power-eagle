@@ -35,6 +35,7 @@ const result = ref('result');
 const errorMessage = ref<string>('error', 'message');
 
 export const assetBrowserDocument = defineDocument({
+  initialize: ['load'],
   format: 'power-eagle/runtime', formatVersion: 1, start: 'home', components: {},
   dependencies: ['list', 'select'].map(exportId => ({
     package: PACKAGE_ID, version: '^1.0.0', export: exportId, kind: 'action' as const,
@@ -102,5 +103,4 @@ export const assetBrowserTool: BuiltinTool = {
   manifest: assetBrowserManifest,
   document: assetBrowserDocument,
   calls: assetBrowserCalls,
-  initialize: ['load'],
 };

@@ -38,10 +38,7 @@ export function RuntimeStage({ source, capabilities, activation, screen, onScree
       current = new RuntimeSession(source.runtime, tool ? builtinToolCatalog(tool) : foundationRuntimeCatalog, {
         calls, selection: eagleSelectionAdapter(),
       });
-      for (const action of tool?.initialize ?? []) {
-        if (cancelled) return;
-        await current.run(action);
-      }
+      await current.initialize();
       if (!cancelled) setSession(current);
     };
     void open().catch(error => {

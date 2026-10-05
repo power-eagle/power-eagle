@@ -27,3 +27,4 @@ dist-ssr
 /.codegraph
 coverage/
 .artifacts/
+public/builtins/

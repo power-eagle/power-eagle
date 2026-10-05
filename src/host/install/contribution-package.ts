@@ -35,6 +35,7 @@ export interface LoadedContribution {
 }
 
 export interface ProviderLoadOptions {
+  host?: ProviderSdk['host'];
   hostRequire: NodeRequire;
   sharedModules: SharedRuntimeModules;
 }
@@ -327,6 +328,7 @@ export function loadCompiledContributions(discovered: DiscoveredPackage, options
         throw new ContributionPackageError([{ packageRoot: discovered.root, path, code: 'provider-contract', message: 'Compiled entry must export a provider factory function' }]);
       }
       const sdk: ProviderSdk = {
+        host: options.host,
         packageId: discovered.manifest.id,
         packageRoot: discovered.root,
         require: localRequire,

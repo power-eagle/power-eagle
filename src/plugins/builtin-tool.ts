@@ -9,7 +9,6 @@ export interface BuiltinTool {
   manifest: PackageManifest;
   document: RuntimeDocument;
   calls(capabilities: EagleCapabilities): Readonly<Record<string, CallableAdapter>>;
-  initialize?: readonly string[];
 }
 
 export function builtinToolCatalog(tool: BuiltinTool): RuntimeCatalog {
@@ -38,7 +37,7 @@ export function createBuiltinToolSession(tool: BuiltinTool, capabilities: EagleC
 export async function openBuiltinTool(tool: BuiltinTool, capabilities: EagleCapabilities): Promise<RuntimeSession> {
   const session = createBuiltinToolSession(tool, capabilities);
   try {
-    for (const action of tool.initialize ?? []) await session.run(action);
+    await session.initialize();
     return session;
   } catch (error) {
     await session.dispose();

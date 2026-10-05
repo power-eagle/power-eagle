@@ -82,6 +82,11 @@ export class RuntimeSession {
   subscribe = (listener: () => void): (() => void) => { this.#listeners.add(listener); return () => this.#listeners.delete(listener); };
   snapshot = (): number => this.#version;
 
+  /** Called once by the owner before publishing a newly opened view. */
+  async initialize(): Promise<void> {
+    for (const action of this.document.initialize ?? []) await this.run(action);
+  }
+
   resolve(): ResolvedNode | null {
     const frame = this.navigation.current;
     const live = new Set<string>();

@@ -13,9 +13,9 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 
 ## 2. Make plugin artifacts independently materializable
 
-- [ ] 2.1 Assemble built-in runtime/provider artifacts through the existing builder, preserving host capability injection and startup behavior in the common artifact/runtime contract; test File Creator, Recent Libraries startup, Asset Browser startup, service-only Clipboard, action-only Eagle Widget Actions, Runtime flow, and styling-only Paper Pop through normal discovery/loading. Document the startup contract and rebuild release assets.
+- [x] 2.1 Assemble built-in runtime/provider artifacts through the existing builder, preserving host capability injection and startup behavior in the common artifact/runtime contract; test File Creator, Recent Libraries startup, Asset Browser startup, service-only Clipboard, action-only Eagle Widget Actions, Runtime flow, and styling-only Paper Pop through normal discovery/loading. Document the startup contract and rebuild release assets.
 - [ ] 2.2 Replace package-ID-specific runtime startup with effective instance-owned catalogs/calls; test a built-in artifact at a relocated root and a consumer of a promoted same-namespace copy, while retaining existing built-in behavior tests and no automatic compiler/npm requirement.
-- [ ] 2.3 Implement bounded full-artifact snapshot copying with independent roots and private dependency resolution; test mixed/private-dependency packages, relative assets, licenses/metadata, source immutability, exclusion of conversation/runtime data, escaping links, missing files, cancellation, and partial-write cleanup. Document external-state isolation limits and checkpoint this slice.
+- [x] 2.3 Implement bounded full-artifact snapshot copying with independent roots and private dependency resolution; test mixed/private-dependency packages, relative assets, licenses/metadata, source immutability, exclusion of conversation/runtime data, escaping links, missing files, cancellation, and partial-write cleanup. Document external-state isolation limits and checkpoint this slice.
 
 ## 3. Persist and publish local plugin workspaces
 
@@ -39,3 +39,4 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 
 - [ ] 6.1 Run relevant unit/BDD suites, lint, typecheck, production build, built-in artifact assembly, and strict validation of both changes; inspect the final diff against every plugin-spin-offs scenario and record actual results.
 - [ ] 6.2 In Eagle, create a blank plugin, refine it through Agent, duplicate a built-in and a mixed package, enable/promote/reorder copies, switch conversations during a turn, and reload; record namespace owners, state/history isolation, retained artifacts, and any unavailable live checks without marking them complete.
+

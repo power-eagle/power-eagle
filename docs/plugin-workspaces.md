@@ -11,3 +11,9 @@ The winner owns its entire namespace. An absent/disabled export does not fall th
 `instanceRegistrations` binds activation groups to instance ID and revision. Replacing an owner revokes old service handles and recreates affected consumers without disposing unrelated providers. A failed replacement is reported; it does not silently restore another owner.
 
 These are host contracts. The app's dynamic workspace catalog, artifact copying, creation controls, and Agent integration are delivered in later checkpoints of `add-plugin-spin-offs`; their completion must be verified separately.
+
+Built-ins are assembled with `npm run builtins:build` (also part of production build) into `public/builtins`, then copied to `dist/builtins` by Vite. The same builder compiles shipped and third-party providers. `ProviderSdk.host.eagle` supplies the host boundary; artifacts include implementation code and do not resolve the original instance. Optional runtime `initialize` lists named actions run in order when a new view opens. This is independent of manifest identity.
+
+Artifact snapshots copy the complete package tree into an independent owned root, including production node_modules, licenses and assets. Host records live outside artifact roots; `.git` and `.power-eagle-workspace` are excluded. Links/junctions, special files, depth over 128, more than 100,000 files or more than 1 GiB are rejected. Cancellation or validation failure removes only the newly created destination. This isolates package files and module caches; arbitrary provider code can still address shared external state.
+
+The common runtime environment uses active instance registrations, validates service method contracts, and rejects stale action results after ownership changes. App catalog wiring follows in the next checkpoint.

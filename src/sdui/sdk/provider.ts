@@ -13,6 +13,8 @@ export interface SharedRuntimeModules extends Readonly<Record<string, unknown>> 
 }
 
 export interface ProviderSdk {
+  /** Host capabilities remain host-owned when an artifact is relocated or cloned. */
+  host?: { eagle: import('../../host/eagle-capabilities').EagleCapabilities };
   packageId: string;
   packageRoot: string;
   require: NodeRequire;

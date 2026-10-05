@@ -101,6 +101,7 @@ export const nodeSchema: z.ZodType<Node> = z.lazy(() => z.strictObject({
 export const componentSchema = z.strictObject({ inputs: objectSchema, slots: slotsSchema, state: stateSchema, body: nodeSchema });
 export const screenSchema = z.strictObject({ params: objectSchema, state: stateSchema, body: nodeSchema });
 export const runtimeSchema = z.strictObject({
+  initialize: z.array(identifier).optional(),
   format: z.literal('power-eagle/runtime'), formatVersion: z.literal(1),
   start: identifier, state: stateSchema, screens: z.record(identifier, screenSchema),
   components: z.record(identifier, componentSchema), actions: z.record(identifier, actionSchema),
