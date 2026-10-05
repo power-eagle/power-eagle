@@ -19,8 +19,8 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 
 ## 3. Persist and publish local plugin workspaces
 
-- [ ] 3.1 Implement durable atomic workspace/revision/catalog storage beneath the existing owned state root; verify restart recovery, failed writes preserving previous state, concurrent ID allocation, safe path boundaries, and no mutation of source directories or shared Saucepan data.
-- [ ] 3.2 Implement blank creation and selected-revision duplication with the specified defaults, names, provenance, order placement, and fresh conversation identity; test valid empty home screens, provider-only clones without fake runtimes, disabled copies, cancellation, and exactly-once publication.
+- [x] 3.1 Implement durable atomic workspace/revision/catalog storage beneath the existing owned state root; verify restart recovery, failed writes preserving previous state, concurrent ID allocation, safe path boundaries, and no mutation of source directories or shared Saucepan data.
+- [x] 3.2 Implement blank creation and selected-revision duplication with the specified defaults, names, provenance, order placement, and fresh conversation identity; test valid empty home screens, provider-only clones without fake runtimes, disabled copies, cancellation, and exactly-once publication.
 - [ ] 3.3 Replace the app's static package list with a single catalog that merges shipped, acquired, local, and Agent-owned revisions by instance identity and retains user order; test refresh stability, dependency/claim reconciliation, filtered selection, reload, and failure containment. Document the common catalog API for pending rebuild acquisition and Agent tasks; checkpoint this slice.
 
 ## 4. Expose creation and explicit priority in Sources
@@ -39,4 +39,3 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 
 - [ ] 6.1 Run relevant unit/BDD suites, lint, typecheck, production build, built-in artifact assembly, and strict validation of both changes; inspect the final diff against every plugin-spin-offs scenario and record actual results.
 - [ ] 6.2 In Eagle, create a blank plugin, refine it through Agent, duplicate a built-in and a mixed package, enable/promote/reorder copies, switch conversations during a turn, and reload; record namespace owners, state/history isolation, retained artifacts, and any unavailable live checks without marking them complete.
-
