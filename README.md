@@ -13,4 +13,5 @@ Current app: an interactive validated runtime example with typed state, bindings
 - [Widget catalog and custom widget template](docs/widget-catalog.md)
 - [Package contract](docs/packages.md)
 - [Provider experiment and Eagle host evidence](docs/provider-host-validation.md)
+- [Typed Eagle host capabilities](docs/eagle-capabilities.md)
 - [Implementation checkpoints](openspec/changes/rebuild-power-eagle/tasks.md)

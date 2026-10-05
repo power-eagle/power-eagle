@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-labelledby="title description">
+  <title id="title">Power Eagle package preview</title>
+  <desc id="description">Amber nodes connected on a dark blueprint grid.</desc>
+  <defs>
+    <pattern id="grid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M16 0H0V16" fill="none" stroke="#2d2d2d" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="320" height="180" fill="#111"/>
+  <rect width="320" height="180" fill="url(#grid)"/>
+  <path d="M54 90h70m72 0h70" stroke="#ffae28" stroke-width="3"/>
+  <rect x="24" y="62" width="72" height="56" fill="#181818" stroke="#eee"/>
+  <rect x="124" y="48" width="72" height="84" fill="#181818" stroke="#ffae28"/>
+  <rect x="224" y="62" width="72" height="56" fill="#181818" stroke="#eee"/>
+  <circle cx="60" cy="90" r="6" fill="#ffae28"/>
+  <circle cx="160" cy="90" r="6" fill="#ffae28"/>
+  <circle cx="260" cy="90" r="6" fill="#ffae28"/>
+</svg>

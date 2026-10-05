@@ -31,4 +31,12 @@ describe('Eagle file selection adapter', () => {
     })).rejects.toMatchObject({ name: 'AbortError' });
     expect(showOpenDialog).not.toHaveBeenCalled();
   });
+
+  it('reports the real dialog failure through the typed host boundary', async () => {
+    const select = createEagleSelectionAdapter({ showOpenDialog: async () => { throw new Error('dialog unavailable'); } });
+    await expect(select({ selectionType: 'file', multiple: false, signal: new AbortController().signal }))
+      .rejects.toMatchObject({
+        name: 'HostCapabilityError', capability: 'file-picker', operation: 'open', code: 'failed',
+      });
+  });
 });

@@ -1,4 +1,5 @@
 import type { HostSelectionAdapter, HostSelectionRequest } from '../sdui/runtime/selection-adapter';
+import { hostOperation } from './capability-error';
 
 interface EagleDialogHost {
   showOpenDialog(options: {
@@ -21,13 +22,13 @@ export function createEagleSelectionAdapter(dialog: EagleDialogHost): HostSelect
       request.selectionType === 'directory' ? 'openDirectory' : 'openFile',
     ];
     if (request.multiple) properties.push('multiSelections');
-    const result = await dialog.showOpenDialog({
+    const result = await hostOperation('file-picker', 'open', () => dialog.showOpenDialog({
       ...(request.title ? { title: request.title } : {}),
       ...(request.initialPath ? { defaultPath: request.initialPath } : {}),
       ...(request.buttonLabel ? { buttonLabel: request.buttonLabel } : {}),
       ...(request.filters?.length ? { filters: request.filters } : {}),
       properties,
-    });
+    }));
     if (request.signal.aborted) throw abortError();
     return result.canceled ? null : result.filePaths;
   };

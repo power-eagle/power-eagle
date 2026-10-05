@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90" role="img" aria-labelledby="title">
+  <title id="title">Second package image</title>
+  <rect width="160" height="90" fill="#181818"/>
+  <path d="M20 68 58 30l22 22 18-18 42 34Z" fill="#ffae28"/>
+  <circle cx="122" cy="24" r="9" fill="#eee"/>
+</svg>

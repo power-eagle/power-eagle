@@ -77,7 +77,7 @@ export const Image = defineWidget('Image', {
   slots: { failure: { cardinality: 'one', required: false } },
   events: { load: { type: 'null' }, error: { type: 'object', properties: { src: string }, required: ['src'] } },
   themeHooks: ['image'],
-  example: { type: 'Image', props: { src: 'assets/preview.png', alt: 'Preview', fit: 'cover' } },
+  example: { type: 'Image', props: { src: 'assets/preview.svg', alt: 'Preview', fit: 'cover' } },
 });
 
 export const iconNames = [

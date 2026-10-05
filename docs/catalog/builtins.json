@@ -346,8 +346,8 @@
           "props": {
             "controls": true,
             "label": "Package audio preview",
-            "mimeType": "audio/mpeg",
-            "src": "example-audio.mp3"
+            "mimeType": "audio/wav",
+            "src": "assets/example-audio.wav"
           },
           "type": "AudioPlayer"
         },
@@ -406,8 +406,8 @@
         "props": {
           "controls": true,
           "label": "Package audio preview",
-          "mimeType": "audio/mpeg",
-          "src": "example-audio.mp3"
+          "mimeType": "audio/wav",
+          "src": "assets/example-audio.wav"
         },
         "type": "AudioPlayer"
       },
@@ -2995,7 +2995,7 @@
           "props": {
             "alt": "Preview",
             "fit": "cover",
-            "src": "assets/preview.png"
+            "src": "assets/preview.svg"
           },
           "type": "Image"
         },
@@ -3060,7 +3060,7 @@
         "props": {
           "alt": "Preview",
           "fit": "cover",
-          "src": "assets/preview.png"
+          "src": "assets/preview.svg"
         },
         "type": "Image"
       },
@@ -3118,7 +3118,7 @@
                 "alt": "Second image",
                 "caption": "Second",
                 "id": "two",
-                "src": "missing-gallery-image.png"
+                "src": "assets/gallery.svg"
               }
             ],
             "label": "Package images",
@@ -3217,7 +3217,7 @@
               "alt": "Second image",
               "caption": "Second",
               "id": "two",
-              "src": "missing-gallery-image.png"
+              "src": "assets/gallery.svg"
             }
           ],
           "label": "Package images",
@@ -6429,7 +6429,8 @@
             "height": 135,
             "label": "Package video preview",
             "mimeType": "video/mp4",
-            "src": "example-video.mp4",
+            "poster": "assets/preview.svg",
+            "src": "assets/example-video.mp4",
             "width": 240
           },
           "type": "VideoPlayer"
@@ -6502,7 +6503,8 @@
           "height": 135,
           "label": "Package video preview",
           "mimeType": "video/mp4",
-          "src": "example-video.mp4",
+          "poster": "assets/preview.svg",
+          "src": "assets/example-video.mp4",
           "width": 240
         },
         "type": "VideoPlayer"

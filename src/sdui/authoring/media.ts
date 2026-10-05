@@ -35,7 +35,7 @@ export const ImageGallery = defineWidget('ImageGallery', {
   themeHooks: ['media', 'gallery', 'image'],
   example: { type: 'ImageGallery', props: { label: 'Package images', selection: 'one', columns: 2, items: [
     { id: 'one', src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"/%3E', alt: 'First image', caption: 'First' },
-    { id: 'two', src: 'missing-gallery-image.png', alt: 'Second image', caption: 'Second' },
+    { id: 'two', src: 'assets/gallery.svg', alt: 'Second image', caption: 'Second' },
   ] } },
 });
 
@@ -67,7 +67,7 @@ const playbackEvents = {
 export const AudioPlayer = defineWidget('AudioPlayer', {
   properties: { type: 'object', properties: playbackProperties, required: ['src', 'label'] },
   defaults: playbackDefaults, slots: {}, events: playbackEvents, themeHooks: ['media', 'audio', 'playback'],
-  example: { type: 'AudioPlayer', props: { src: 'example-audio.mp3', label: 'Package audio preview', mimeType: 'audio/mpeg', controls: true } },
+  example: { type: 'AudioPlayer', props: { src: 'assets/example-audio.wav', label: 'Package audio preview', mimeType: 'audio/wav', controls: true } },
 });
 
 export const VideoPlayer = defineWidget('VideoPlayer', {
@@ -75,7 +75,11 @@ export const VideoPlayer = defineWidget('VideoPlayer', {
     ...playbackProperties, poster: text, width: positive, height: positive,
   }, required: ['src', 'label'] },
   defaults: { ...playbackDefaults, poster: '' }, slots: {}, events: playbackEvents, themeHooks: ['media', 'video', 'playback'],
-  example: { type: 'VideoPlayer', props: { src: 'example-video.mp4', label: 'Package video preview', mimeType: 'video/mp4', controls: true, width: 240, height: 135 } },
+  example: { type: 'VideoPlayer', props: {
+    src: 'assets/example-video.mp4',
+    label: 'Package video preview', mimeType: 'video/mp4', controls: true,
+    poster: 'assets/preview.svg', width: 240, height: 135,
+  } },
 });
 
 export const mediaWidgets = { ImageGallery, ZoomableImage, AudioPlayer, VideoPlayer } as const;

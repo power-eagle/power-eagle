@@ -23,4 +23,10 @@ describe('Eagle package localization contract', () => {
     }
     await access(resolve(manifest.logo.slice(1)));
   });
+
+  it('ships every local catalog media fixture', async () => {
+    await Promise.all([
+      'preview.svg', 'gallery.svg', 'example-audio.wav', 'example-video.mp4',
+    ].map(name => access(resolve('public/assets', name))));
+  });
 });
