@@ -460,6 +460,8 @@
 .pe-workbench-stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
 .pe-workbench-stage-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); min-height: 52px; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); }
 .pe-workbench-stage-dot { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--primary); box-shadow: var(--iris-glow); }
+.pe-workbench-stage-dot[data-status="off"] { box-sizing: border-box; border: 1px solid var(--muted-foreground); background: transparent; box-shadow: none; }
+.pe-workbench-stage-dot[data-status="failed"] { background: var(--destructive); box-shadow: var(--iris-glow-failed); }
 .pe-workbench-stage-head h1 { margin: 0; overflow: hidden; font: 600 18px/28px var(--font-sans); letter-spacing: -0.02em; text-overflow: ellipsis; white-space: nowrap; }
 .pe-workbench-stage-head p { margin: 0; overflow: hidden; color: var(--muted-foreground); font: 400 10.5px/16px var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
 .pe-workbench-stage-scroll { flex: 1; min-height: 0; overflow: auto; padding: var(--space-3); }

@@ -1,12 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import example from '../../examples/runtime-flow/document';
 import exampleManifest from '../../examples/runtime-flow/manifest.json';
 import { WebStorageEnablementPersistence, type EnablementPersistence } from '../host/activation/enablement';
 import type { DiscoveredPackage } from '../host/install/contribution-package';
-import { foundationRuntimeCatalog } from '../sdui/runtime/foundation';
-import { RuntimeSession } from '../sdui/runtime/session';
-import { RuntimeView } from '../sdui/runtime/view';
-import { eagleSelectionAdapter } from '../host/eagle-selection';
+import { createEagleCapabilities, type EagleCapabilities } from '../host/eagle-capabilities';
 import { builtinContributionManifests, builtinTools } from '../plugins/builtins';
 import type { PackageManifest } from '../sdui/schema/model';
 import { ActivationInspector } from './activation-inspector';
@@ -14,8 +11,8 @@ import { WorkbenchSourceTree } from './source-tree';
 import { WorkbenchActivationModel } from './workbench-activation';
 import { defaultSelection, selectionMatchesRecord, type WorkbenchPackage } from './workbench-selection';
 import { WorkbenchShell } from './workbench-shell';
+import { RuntimeStage } from './runtime-stage';
 
-const session = new RuntimeSession(example, foundationRuntimeCatalog, { selection: eagleSelectionAdapter() });
 const manifests = [exampleManifest as PackageManifest, ...builtinContributionManifests];
 const discoveredPackages: DiscoveredPackage[] = manifests.map(manifest => {
   const tool = builtinTools.find(item => item.manifest.id === manifest.id);
@@ -37,7 +34,8 @@ function enablementPersistence(): EnablementPersistence {
   return { read: () => value, write: next => { value = next; } };
 }
 
-export default function App() {
+export default function App({ capabilities: suppliedCapabilities }: { capabilities?: EagleCapabilities } = {}) {
+  const [capabilities] = useState(() => suppliedCapabilities ?? createEagleCapabilities());
   const [activation] = useState(() => new WorkbenchActivationModel(
     discoveredPackages, enablementPersistence(),
   ));
@@ -50,7 +48,9 @@ export default function App() {
   const selectedExport = selection.exportId
     ? registry.exports.find(item => item.identity === `${selected.manifest.id}/${selection.exportId}`)
     : undefined;
-  const showFoundation = selected.manifest.id === exampleManifest.id && selection.contribution === 'runtime' && selectedExport?.effectiveStatus === 'active';
+  const runtimeSource = discoveredPackages.find(source => source.manifest.id === selected.manifest.id && source.runtime);
+  const showRuntime = selection.contribution === 'runtime' && selectedExport?.effectiveStatus === 'active' && runtimeSource;
+  const onScreenChange = useCallback((screen: string) => setSelection(current => ({ ...current, screen })), []);
   const togglePackage = (packageId: string, enabled: boolean) => setRegistry(activation.setPackage(packageId, enabled));
   const toggleExport = (identity: string, enabled: boolean) => setRegistry(activation.setExport(identity, enabled));
   return <WorkbenchShell
@@ -59,12 +59,17 @@ export default function App() {
       onTogglePackage={togglePackage} onToggleExport={toggleExport}
     />}
     sourceHint={String(packages.length)}
-    stage={showFoundation ? <RuntimeView session={session} /> : <ActivationInspector
+    stage={showRuntime ? <RuntimeStage key={`${selected.manifest.id}/${selection.exportId}`}
+      source={runtimeSource} capabilities={capabilities} activation={activation}
+      screen={selection.screen} onScreenChange={onScreenChange}
+    /> : <ActivationInspector
       record={selected} selection={selection} registry={registry}
       onTogglePackage={togglePackage} onToggleExport={toggleExport}
     />}
     stageTitle={selected.manifest.name}
-    stageCaption={[selected.manifest.id, selected.persistence, selection.contribution ?? 'package', selection.exportId, selection.screen].filter(Boolean).join(' · ')}
+    stageMode={showRuntime ? 'live view' : 'activation'}
+    stageStatus={selectedExport?.effectiveStatus ?? selected.status}
+    stageCaption={[selected.persistence, showRuntime ? selection.screen : selection.contribution].filter(Boolean).join(' · ')}
     active={packages.filter(record => record.status === 'active').length}
     total={packages.length}
   />;

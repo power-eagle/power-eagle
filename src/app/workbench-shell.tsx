@@ -30,6 +30,8 @@ export interface WorkbenchShellProps {
   sourceHint?: string;
   stageTitle?: string;
   stageCaption?: string;
+  stageMode?: string;
+  stageStatus?: string;
   active?: number;
   total?: number;
 }
@@ -38,6 +40,7 @@ function compactWindow(): boolean { return typeof window !== 'undefined' && wind
 
 export function WorkbenchShell({
   stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
+  stageMode = 'live view', stageStatus = 'active',
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
   const [agentCollapsed, setAgentCollapsed] = useState(compactWindow);
@@ -91,15 +94,15 @@ export function WorkbenchShell({
           </nav>}
         </Panel>
 
-        <Panel index="02" label="Stage" hint="preview" className="pe-panel-stage">
+        <Panel index="02" label="Stage" hint={stageMode} className="pe-panel-stage">
           <section className="pe-workbench-stage" aria-labelledby="workbench-stage-title">
             <header className="pe-workbench-stage-head">
-              <span className="pe-workbench-stage-dot" aria-hidden="true" />
+              <span className="pe-workbench-stage-dot" data-status={stageStatus} aria-hidden="true" />
               <div>
                 <h1 id="workbench-stage-title">{stageTitle}</h1>
                 <p>{stageCaption}</p>
               </div>
-              <span className="pe-meta">ready</span>
+              <span className="pe-meta">{stageStatus}</span>
             </header>
             <div className="pe-workbench-stage-scroll pe-scroll">
               <div className="pe-workbench-stage-viewport">
