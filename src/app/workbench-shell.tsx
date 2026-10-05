@@ -27,6 +27,7 @@ export class StageBoundary extends Component<StageBoundaryProps, StageBoundarySt
 export interface WorkbenchShellProps {
   stage: ReactNode;
   sources?: ReactNode;
+  sourceActions?: ReactNode;
   sourceHint?: string;
   stageTitle?: string;
   stageCaption?: string;
@@ -44,7 +45,7 @@ function compactWindow(): boolean { return typeof window !== 'undefined' && wind
 export function WorkbenchShell({
   stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
   stageMode = 'live view', stageStatus = 'active',
-  themeStyle, themeIdentity = 'blueprint', themeControl,
+  themeStyle, themeIdentity = 'blueprint', themeControl, sourceActions,
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
   const [agentCollapsed, setAgentCollapsed] = useState(compactWindow);
@@ -72,6 +73,7 @@ export function WorkbenchShell({
       <div className="pe-shell-panels" data-layout="sources-stage-agent">
         <Panel
           index="01" label="Sources" hint={sourceHint}
+          actions={sourceActions}
           className="pe-panel-source" collapsed={sourcesCollapsed}
           onToggleCollapsed={() => setSourcesCollapsed(value => !value)}
           footer={<form className="pe-source-footer" onSubmit={event => event.preventDefault()}>

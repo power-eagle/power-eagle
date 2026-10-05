@@ -26,7 +26,7 @@ Foundation checkpoint: versioned instance/catalog/preference contracts, declared
 ## 4. Expose creation and explicit priority in Sources
 
 - [x] 4.1 Remove visible group headings and retain searchable origin details in the single ordered list; verify no headings remain, filtering preserves order and current runtime state, and Blueprint/Paper Pop defaults remain unchanged.
-- [ ] 4.2 Add the Sources-header New plugin menu and inline name/progress/error form; verify keyboard opening/selection/cancellation, focus restoration, correct captured source revision, duplicate-submit prevention, clear-filter-on-success, and selection of the durably created plugin.
+- [x] 4.2 Add the Sources-header New plugin menu and inline name/progress/error form; verify keyboard opening/selection/cancellation, focus restoration, correct captured source revision, duplicate-submit prevention, clear-filter-on-success, and selection of the durably created plugin.
 - [ ] 4.3 Add accessible reorder controls, namespace-owner explanations, and Move above owner; verify desired enablement versus conflict suppression, search-time reorder prevention, promotion/disable handoff, and inspection of losing clones without activation. Document the workflow and inspect 910x750 and compact layouts in both themes; checkpoint the complete Sources slice.
 
 ## 5. Bind real Agent authoring to plugin instances

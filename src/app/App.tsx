@@ -8,6 +8,7 @@ import { WorkbenchShell } from './workbench-shell';
 import { RuntimeStage } from './runtime-stage';
 import { useWorkbenchTheme } from './workbench-theme';
 import { openPluginCatalog } from './plugin-catalog';
+import { usePluginCreation } from './plugin-creation';
 
 export default function App({ capabilities: suppliedCapabilities, catalog: suppliedCatalog }: { capabilities?: EagleCapabilities; catalog?: PluginCatalog } = {}) {
   const [capabilities] = useState(() => suppliedCapabilities ?? createEagleCapabilities());
@@ -48,6 +49,11 @@ export function CatalogWorkbench({ catalog }: { catalog: PluginCatalog }) {
   const current = selection?.instanceId === selected?.instanceId ? selection : selected ? defaultSelection(selected) : undefined;
   const entry = snapshot.entries.find(item => item.instance.instanceId === selected?.instanceId);
   const claim = entry && snapshot.claims.get(entry.instance.instanceId);
+  const creation = usePluginCreation(catalog, entry, instance => {
+    setFilter('');
+    const added = catalog.snapshot().entries.find(item => item.instance.instanceId === instance.instanceId)!;
+    setSelection(defaultSelection({ instanceId: instance.instanceId, manifest: added.discovered.manifest } as WorkbenchPackage));
+  });
   const selectedExport = current?.exportId ? registry.exports.find(item => item.identity === `${selected.manifest.id}/${current.exportId}`) : undefined;
   const showRuntime = claim?.status === 'active' && current?.contribution === 'runtime' && selectedExport?.effectiveStatus === 'active' && entry?.discovered.runtime;
   const report = (work: Promise<unknown>) => { setError(''); void work.catch(reason => setError(String(reason))); };
@@ -84,14 +90,19 @@ export function CatalogWorkbench({ catalog }: { catalog: PluginCatalog }) {
       {theme.saveError ? <span className="pe-theme-notice" role="status">Preference not saved</span> : null}
     </>}
     sources={<>
+      {creation.form}
       {error ? <p role="alert">{error}</p> : null}
       <WorkbenchSourceTree packages={packages} selection={current} onSelect={setSelection} registry={registry}
+        onMove={(id, before) => report(catalog.move(id, before))}
         filter={filter} onFilter={setFilter} onTogglePackage={togglePackage} onToggleExport={toggleExport} />
     </>}
     sourceHint={String(packages.length)}
+    sourceActions={creation.actions}
     stage={showRuntime ? <RuntimeStage key={catalog.runtimeKey(`${selected.manifest.id}/${current.exportId}`)} source={entry.discovered}
       activation={catalog} screen={current.screen} onScreenChange={onScreenChange} /> : <>
       {claim.reason ? <p role="status">{claim.reason}</p> : null}
+      {claim.owner ? <div className="pe-plugin-conflict"><small>Owner: {claim.owner}</small>
+        <button type="button" disabled={Boolean(filter.trim())} onClick={() => report(catalog.move(entry.instance.instanceId, claim.owner!))}>Move above owner</button></div> : null}
       <ActivationInspector record={selected} selection={current} registry={ownRegistry}
         onTogglePackage={togglePackage} onToggleExport={toggleExport} />
       {!claim.desired ? <button type="button" onClick={() => togglePackage(selected.instanceId!, true)}>Enable package</button> : null}

@@ -67,7 +67,7 @@ function ExportChoices({ record, contribution, selection, onSelect, registry, on
 
 export function WorkbenchSourceTree({
   packages, selection, onSelect,
-  registry, onTogglePackage, onToggleExport, filter, onFilter,
+  registry, onTogglePackage, onToggleExport, filter, onFilter, onMove,
 }: {
   packages: readonly WorkbenchPackage[];
   selection: WorkbenchSelection;
@@ -77,6 +77,7 @@ export function WorkbenchSourceTree({
   onToggleExport?(identity: string, enabled: boolean): void;
   filter?: string;
   onFilter?(value: string): void;
+  onMove?(id: string, before: string | null): void;
 }) {
   const [localQuery, setLocalQuery] = useState('');
   const query = filter ?? localQuery;
@@ -111,6 +112,13 @@ export function WorkbenchSourceTree({
             </button>
           </div>
           {selected ? <div className="pe-workbench-contributions">
+            {onMove ? <div className="pe-plugin-order">
+              <button type="button" aria-label={`Move ${record.manifest.name} up`} disabled={Boolean(query.trim()) || packages.indexOf(record) === 0}
+                onClick={() => onMove(record.instanceId!, packages[packages.indexOf(record) - 1].instanceId!)}>↑ Move up</button>
+              <button type="button" aria-label={`Move ${record.manifest.name} down`} disabled={Boolean(query.trim()) || packages.indexOf(record) === packages.length - 1}
+                onClick={() => onMove(record.instanceId!, packages[packages.indexOf(record) + 2]?.instanceId ?? null)}>↓ Move down</button>
+              {query.trim() ? <small>Clear the filter to change plugin order.</small> : null}
+            </div> : null}
             {packageContributions(record.manifest).map(contribution => <div key={contribution}>
               <button
                 className="pe-workbench-tree-link pe-workbench-contribution-link"
