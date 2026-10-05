@@ -38,6 +38,21 @@
   --radius: 0;
   --radius-tag: 2px;
   --radius-full: 9999px;
+  --color-scheme: dark;
+  --panel-radius: 0px;
+  --frame-radius: 0px;
+  --line-width: 1px;
+  --panel-shadow: none;
+  --control-shadow: none;
+  --shadow-panel: 0 8px 24px rgb(0 0 0 / 25%);
+  --shell-bar-background: var(--background);
+  --source-header: var(--muted);
+  --stage-header: var(--muted);
+  --agent-header: var(--muted);
+  --selection-background: var(--muted);
+  --button-outline: var(--primary);
+  --ground-image: linear-gradient(var(--grid-major) 1px, transparent 1px), linear-gradient(90deg, var(--grid-major) 1px, transparent 1px), linear-gradient(var(--grid-minor) 1px, transparent 1px), linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+  --ground-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px;
   --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }

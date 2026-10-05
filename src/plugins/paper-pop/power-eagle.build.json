@@ -1,0 +1,7 @@
+{
+  "format": "power-eagle/build",
+  "formatVersion": 1,
+  "manifest": "manifest.json",
+  "providers": { "styling": "styling.ts" },
+  "externalDependencies": []
+}

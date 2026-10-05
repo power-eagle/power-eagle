@@ -12,6 +12,7 @@ import { WorkbenchActivationModel } from './workbench-activation';
 import { defaultSelection, selectionMatchesRecord, type WorkbenchPackage } from './workbench-selection';
 import { WorkbenchShell } from './workbench-shell';
 import { RuntimeStage } from './runtime-stage';
+import { useWorkbenchTheme } from './workbench-theme';
 
 const manifests = [exampleManifest as PackageManifest, ...builtinContributionManifests];
 const discoveredPackages: DiscoveredPackage[] = manifests.map(manifest => {
@@ -40,6 +41,7 @@ export default function App({ capabilities: suppliedCapabilities }: { capabiliti
     discoveredPackages, enablementPersistence(),
   ));
   const [registry, setRegistry] = useState(() => activation.snapshot());
+  const theme = useWorkbenchTheme(registry);
   const packages = basePackages.map(record => ({
     ...record, status: registry.packages.get(record.manifest.id)?.effectiveStatus ?? record.status,
   }));
@@ -54,6 +56,22 @@ export default function App({ capabilities: suppliedCapabilities }: { capabiliti
   const togglePackage = (packageId: string, enabled: boolean) => setRegistry(activation.setPackage(packageId, enabled));
   const toggleExport = (identity: string, enabled: boolean) => setRegistry(activation.setExport(identity, enabled));
   return <WorkbenchShell
+    themeStyle={theme.style} themeIdentity={theme.effective || 'blueprint'}
+    themeControl={<>
+      <label className="pe-theme-picker"><span>Theme</span>
+        <select aria-label="Theme" value={theme.selected} onChange={event => theme.choose(event.currentTarget.value)}>
+          <option value="">Blueprint</option>
+          {theme.options.map(option => <option key={option.identity} value={option.identity}>
+            {option.label}{option.active ? '' : ' (off)'}
+          </option>)}
+          {theme.selected && !theme.options.some(option => option.identity === theme.selected)
+            ? <option value={theme.selected}>Unavailable theme</option> : null}
+        </select>
+      </label>
+      {theme.unavailable || theme.error ? <span className="pe-theme-notice" role="status"
+        title={theme.error || 'The selected theme is unavailable. Re-enable its package or export in Sources.'}>Using Blueprint</span> : null}
+      {theme.saveError ? <span className="pe-theme-notice" role="status" title={theme.saveError}>Preference not saved</span> : null}
+    </>}
     sources={<WorkbenchSourceTree
       packages={packages} selection={selection} onSelect={setSelection} registry={registry}
       onTogglePackage={togglePackage} onToggleExport={toggleExport}

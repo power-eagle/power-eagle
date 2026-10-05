@@ -1,4 +1,4 @@
-import { Component, useEffect, useState, type ReactNode } from 'react';
+import { Component, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, Input, Panel, SectionLabel } from '../components/ui';
 
 interface StageBoundaryProps { children: ReactNode; resetKey?: string }
@@ -32,6 +32,9 @@ export interface WorkbenchShellProps {
   stageCaption?: string;
   stageMode?: string;
   stageStatus?: string;
+  themeStyle?: CSSProperties;
+  themeIdentity?: string;
+  themeControl?: ReactNode;
   active?: number;
   total?: number;
 }
@@ -41,6 +44,7 @@ function compactWindow(): boolean { return typeof window !== 'undefined' && wind
 export function WorkbenchShell({
   stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
   stageMode = 'live view', stageStatus = 'active',
+  themeStyle, themeIdentity = 'blueprint', themeControl,
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
   const [agentCollapsed, setAgentCollapsed] = useState(compactWindow);
@@ -58,11 +62,12 @@ export function WorkbenchShell({
     return () => window.removeEventListener('resize', resize);
   }, []);
 
-  return <main className="pe-shell pe-ground" aria-label="Power Eagle workbench">
+  return <main className="pe-shell pe-ground" aria-label="Power Eagle workbench" style={themeStyle} data-theme={themeIdentity}>
     <div className="pe-shell-frame">
       <header className="pe-shell-bar">
         <strong className="pe-wordmark pe-shell-wordmark">power<span>eagle</span></strong>
         <span className="pe-shell-count"><span className="pe-shell-live" aria-hidden="true" />{active} of {total} active</span>
+        {themeControl}
       </header>
       <div className="pe-shell-panels" data-layout="sources-stage-agent">
         <Panel

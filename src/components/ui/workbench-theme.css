@@ -1,0 +1,65 @@
+/* Theme providers supply values; these shared surfaces define where they apply. */
+.pe-shell {
+  color: var(--foreground);
+  color-scheme: var(--color-scheme);
+  font-family: var(--font-sans);
+  background-image: var(--ground-image);
+  background-size: var(--ground-size);
+}
+.pe-shell-frame {
+  border-width: var(--line-width);
+  border-radius: var(--frame-radius);
+  overflow: hidden;
+}
+.pe-shell-bar { min-height: 42px; background: var(--shell-bar-background); border-bottom-width: var(--line-width); }
+.pe-shell .pe-panel {
+  border-width: var(--line-width);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-shadow);
+  background: var(--card);
+  overflow: hidden;
+}
+.pe-shell .pe-panel-bar { border-bottom-width: var(--line-width); }
+.pe-panel-source > .pe-panel-bar { background: var(--source-header); }
+.pe-panel-stage > .pe-panel-bar { background: var(--stage-header); }
+.pe-panel-agent > .pe-panel-bar { background: var(--agent-header); }
+.pe-shell .pe-workbench-stage-viewport {
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.pe-shell .pe-workbench-package-head,
+.pe-shell .pe-workbench-tree-link { border-radius: var(--radius); }
+.pe-shell .pe-workbench-package-head[data-selected="true"] {
+  background: var(--selection-background);
+  border-color: var(--outline);
+  box-shadow: var(--control-shadow);
+}
+.pe-shell .pe-workbench-tree-link[aria-current="page"] { background: var(--selection-background); }
+.pe-shell .pe-btn:not(.pe-btn-ghost) { border-width: var(--line-width); box-shadow: var(--control-shadow); }
+.pe-shell .pe-btn-default { border-color: var(--button-outline); }
+.pe-shell .pe-btn-default:hover { background: var(--secondary); color: var(--secondary-foreground); }
+.pe-shell .pe-btn-destructive:hover { background: var(--foreground); color: var(--background); }
+.pe-shell .pe-input,
+.pe-shell .pe-agent-composer textarea { border-width: var(--line-width); background: var(--card); }
+.pe-shell .pe-asset-surface,
+.pe-shell .pe-asset-card,
+.pe-shell .pe-card,
+.pe-shell .pe-activation-exports,
+.pe-shell .pe-workbench-stage-error { border-radius: var(--radius); }
+.pe-shell .pe-asset-card { overflow: hidden; }
+.pe-shell .pe-dialog,
+.pe-shell .pe-popover,
+.pe-shell .pe-toast { border-radius: var(--panel-radius); border-width: var(--line-width); }
+.pe-theme-picker { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--muted-foreground); font: 500 11px/16px var(--font-sans); }
+.pe-theme-picker select {
+  max-width: 160px; min-height: 28px; padding: 2px 6px;
+  border: var(--line-width) solid var(--outline); border-radius: var(--radius);
+  background: var(--card); color: var(--foreground); font: 500 12px/18px var(--font-sans);
+}
+.pe-theme-picker select:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.pe-theme-notice { color: var(--muted-foreground); font: 400 10px/14px var(--font-sans); }
+@media (max-width: 540px) {
+  .pe-theme-picker > span, .pe-shell-count { display: none; }
+  .pe-shell-bar { gap: 8px; }
+  .pe-theme-picker select { max-width: 125px; }
+}

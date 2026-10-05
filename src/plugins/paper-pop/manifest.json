@@ -1,0 +1,152 @@
+{
+  "format": "power-eagle/package",
+  "formatVersion": 1,
+  "id": "power-eagle.paper-pop",
+  "name": "Paper Pop",
+  "version": "1.0.0",
+  "description": "Warm paper, pastel panels, and bold ink outlines for your workbench.",
+  "sdk": "^1.0.0",
+  "contributions": {
+    "styling": "styling.cjs"
+  },
+  "exports": [
+    {
+      "id": "paper",
+      "kind": "styling",
+      "tokens": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "color-scheme": {
+            "type": "string"
+          },
+          "background": {
+            "type": "string"
+          },
+          "foreground": {
+            "type": "string"
+          },
+          "card": {
+            "type": "string"
+          },
+          "card-foreground": {
+            "type": "string"
+          },
+          "muted": {
+            "type": "string"
+          },
+          "muted-foreground": {
+            "type": "string"
+          },
+          "secondary": {
+            "type": "string"
+          },
+          "secondary-foreground": {
+            "type": "string"
+          },
+          "accent": {
+            "type": "string"
+          },
+          "accent-foreground": {
+            "type": "string"
+          },
+          "border": {
+            "type": "string"
+          },
+          "input": {
+            "type": "string"
+          },
+          "outline": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "string"
+          },
+          "primary-foreground": {
+            "type": "string"
+          },
+          "destructive": {
+            "type": "string"
+          },
+          "destructive-foreground": {
+            "type": "string"
+          },
+          "ring": {
+            "type": "string"
+          },
+          "grid-minor": {
+            "type": "string"
+          },
+          "grid-major": {
+            "type": "string"
+          },
+          "ground-image": {
+            "type": "string"
+          },
+          "ground-size": {
+            "type": "string"
+          },
+          "iris-glow": {
+            "type": "string"
+          },
+          "iris-glow-failed": {
+            "type": "string"
+          },
+          "radius": {
+            "type": "string"
+          },
+          "radius-tag": {
+            "type": "string"
+          },
+          "panel-radius": {
+            "type": "string"
+          },
+          "frame-radius": {
+            "type": "string"
+          },
+          "line-width": {
+            "type": "string"
+          },
+          "panel-shadow": {
+            "type": "string"
+          },
+          "control-shadow": {
+            "type": "string"
+          },
+          "shadow-panel": {
+            "type": "string"
+          },
+          "shell-bar-background": {
+            "type": "string"
+          },
+          "source-header": {
+            "type": "string"
+          },
+          "stage-header": {
+            "type": "string"
+          },
+          "agent-header": {
+            "type": "string"
+          },
+          "selection-background": {
+            "type": "string"
+          },
+          "button-outline": {
+            "type": "string"
+          },
+          "font-sans": {
+            "type": "string"
+          },
+          "font-mono": {
+            "type": "string"
+          }
+        }
+      },
+      "targets": [
+        "power-eagle/shell"
+      ]
+    }
+  ],
+  "dependencies": [],
+  "assets": []
+}

@@ -6,10 +6,11 @@ import { eagleWidgetActionManifest } from './eagle-widget-actions';
 import { clipboardServiceManifest } from './clipboard-service';
 import { fileCreatorTool } from './file-creator';
 import { recentLibrariesTool } from './recent-libraries';
+import { paperPopManifest } from './paper-pop';
 
 export const builtinTools = [assetBrowserTool, fileCreatorTool, recentLibrariesTool] as const;
 export const builtinContributionManifests = [
-  ...builtinTools.map(tool => tool.manifest), clipboardServiceManifest, eagleWidgetActionManifest,
+  ...builtinTools.map(tool => tool.manifest), clipboardServiceManifest, eagleWidgetActionManifest, paperPopManifest,
 ] as const;
 
 export function getBuiltinTool(id: string): BuiltinTool | undefined {

@@ -1,5 +1,6 @@
 @import './components/ui/tokens.css';
 @import './components/ui/components.css';
+@import './components/ui/workbench-theme.css';
 
 * { box-sizing: border-box; }
 

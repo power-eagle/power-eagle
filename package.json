@@ -10,6 +10,7 @@
     "fixture:check": "tsc --noEmit -p tsconfig.fixture.json && npm run fixture:build && vitest run --config vitest.fixture.config.ts",
     "fixture:eagle": "npm run fixture:build && npm run build",
     "package:build": "node scripts/provider-package.mjs",
+    "theme:build": "node scripts/provider-package.mjs src/plugins/paper-pop/power-eagle.build.json .artifacts/paper-pop",
     "package:examples": "tsc --noEmit -p tsconfig.package-examples.json && node scripts/package-examples.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

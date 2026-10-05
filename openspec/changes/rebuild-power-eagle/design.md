@@ -126,6 +126,8 @@ Alternative: infer dependency usage dynamically or mutate shared registries in p
 
 `styling.cjs` publishes named token sets, widget variants, and explicitly targeted style overrides. Widget implementation replacement belongs to the widget contribution contract and is never implied by a style entry. Style precedence is host defaults, selected package theme, selected view theme, then explicit node style. Multiple entries within a layer require an explicit ordered selection; filesystem order is irrelevant. Disabling a selected optional style removes its layer; a declared required style dependency makes its consumer unavailable.
 
+Workbench themes explicitly target `power-eagle/shell` and supply supported CSS token values through the same styling provider, manifest, activation, and composition contracts. Their variables are scoped to the workbench root and inherited by runtime widgets; they do not inject global CSS or replace widget implementations. Ship a standalone compiled Paper Pop styling package plus its bundled built-in instance. Paper Pop uses warm paper, pastel panels, and bold ink outlines and is the initial selection. A persisted theme picker selects either it or the Blueprint base. Disabling the selected package/export removes its styling while retaining the user's choice for recovery. Panel widths, scrolling, keyboard semantics, and runtime session state survive theme changes.
+
 Use the design scaffold's complete CSS colors directly, with matching Tailwind/token mappings. Do not wrap full colors in the old `hsl(var(...))` convention. Package IBM Plex Sans/Mono and licenses locally. Translate demo globals into typed production components rather than importing the demo bundle as the application architecture.
 
 The `widget-catalog` spec enumerates the required release vocabulary. Each type has schema, defaults, slots, events, binding rules, theme hooks, keyboard/semantic behavior, and at least one runnable example. Organize delivery into coherent groups: layout/content; forms/interactions; data/collections/media; Eagle-specific widgets. Names inspired by Flutter carry documented web layout semantics rather than pretending to duplicate Flutter's pixel/layout engine. Native dialogs/actions are adapted to Eagle; extension dialogs stay scoped to the stage and do not cover the host source/agent panels.
@@ -158,7 +160,7 @@ Retain the root Eagle manifest's role, `dist/index.html` entry, icon, localizati
 - Native addons and package-manager links reduce portability -> ship self-contained production dependencies and declare supported runtime/platform builds.
 - Broad catalog increases scope -> verify complete widget families incrementally; no placeholder types count toward completion.
 - Legacy reset targets the wrong location or repeats -> resolve and compare the exact home-relative path, require the new-format sentinel for subsequent launches, and exercise deletion only with disposable storage roots in tests.
-- Shell styling leaks into dependency widgets or vice versa -> scope package CSS/assets to the stage and expose explicit SDK style hooks.
+- Shell styling leaks into dependency widgets or vice versa -> scope extension CSS/assets to the stage, with explicitly selected `power-eagle/shell` theme tokens scoped to the workbench root and inherited by controls through SDK style hooks.
 
 ## Migration Plan
 

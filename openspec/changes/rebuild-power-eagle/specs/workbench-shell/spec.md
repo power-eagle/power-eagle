@@ -7,11 +7,11 @@ Present package sources, live runtime views, contribution controls, and AI conve
 ## ADDED Requirements
 
 ### Requirement: Three-panel design system
-The shell SHALL implement the supplied dark blueprint design using Sources, Stage, and Agent panels in that order. Sources and Agent SHALL collapse to accessible rails; Stage SHALL remain visible. Panels SHALL scroll independently and the window SHALL not scroll. The initial 910 by 750 window SHALL follow the scaffold's source/agent proportions and flexible stage. Resizing SHALL retain access to panel controls and stage content. Typography and visual assets SHALL be packaged locally.
+The shell SHALL retain the supplied Sources, Stage, and Agent arrangement with selectable styling plugins. Sources and Agent SHALL collapse to accessible rails; Stage SHALL remain visible. Panels SHALL scroll independently and the window SHALL not scroll. The initial 910 by 750 window SHALL follow the scaffold's source/agent proportions and flexible stage. Resizing SHALL retain access to panel controls and stage content. Typography and visual assets SHALL be packaged locally.
 
 #### Scenario: Render the default window
 - **WHEN** the workbench opens at 910 by 750
-- **THEN** the three framed panels, grid, square controls, typography, and amber activity signal match the design reference without remote asset dependencies
+- **THEN** the three framed panels retain their reference proportions and use the selected theme without remote asset dependencies
 
 #### Scenario: Collapse a side panel
 - **WHEN** Sources or Agent is collapsed and restored
@@ -55,11 +55,26 @@ Stage SHALL display preview or activation inspection as appropriate and distingu
 - **THEN** the stage shows its activation content rather than a broken or fabricated preview
 
 ### Requirement: Visual and keyboard consistency
-The shell SHALL use the scaffold's token colors, outlined selection, visible focus, lowercase terse chrome, and textual active/off/failed states. Amber SHALL denote activity and the primary action rather than general selection. Send SHALL be the shell's primary action. Source selection, export toggles, panel collapse, version selection, and the composer SHALL be keyboard operable with accessible names. Host shell dialogs/drawers MUST NOT obscure Stage; extension overlays SHALL follow the widget catalog's stage-scoping rules.
+The shell SHALL use theme tokens, outlined selection, visible focus, lowercase terse chrome, and textual active/off/failed states. Activity, selection, and primary actions SHALL remain distinguishable in every theme. Send SHALL be the shell's primary action. Source selection, export toggles, panel collapse, version selection, and the composer SHALL be keyboard operable with accessible names. Host shell dialogs/drawers MUST NOT obscure Stage; extension overlays SHALL follow the widget catalog's stage-scoping rules.
 
 #### Scenario: Navigate the workbench by keyboard
 - **WHEN** a user selects a source, toggles an export, chooses a version, and sends a prompt using the keyboard
 - **THEN** every focused control is visible, named, and operable and status remains understandable without color
+
+#### Scenario: Drag across navigation labels
+- **WHEN** a user drags across source entries, panel headers, or control labels
+- **THEN** app chrome does not create a text selection, while editable fields and readable tool content remain selectable
+
+### Requirement: Selectable theme plugins
+Styling exports explicitly targeting `power-eagle/shell` SHALL supply supported scoped tokens for the workbench and inheriting runtime controls. Paper Pop SHALL ship as a compiled styling-only package and a bundled built-in with warm paper, pastel panels, and bold ink outlines. It SHALL be the initial theme. Users SHALL be able to select Blueprint or an available theme and retain that choice across reloads. Theme changes SHALL preserve runtime state and layout. Package and export disablement SHALL remove the selected styling layer and retain the choice for re-enablement.
+
+#### Scenario: Switch appearance while using a tool
+- **WHEN** the user changes from Paper Pop to Blueprint with a runtime open
+- **THEN** the shell and inheriting controls change appearance without losing tool state or selection
+
+#### Scenario: Disable a selected theme
+- **WHEN** the user disables Paper Pop's package or styling export
+- **THEN** Blueprint supplies the base appearance with an unavailable-theme explanation and re-enabling restores Paper Pop
 
 ### Requirement: Recoverable host state
 Failures in installation, a runtime view, a contribution, or an AI turn SHALL remain contained to the relevant surface. The workbench SHALL retain other available sources, controls, and conversations and SHALL not replace the whole window with the failed view.

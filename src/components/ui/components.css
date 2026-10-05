@@ -548,7 +548,29 @@
 .pe-text-label { color: var(--muted-foreground); font: 500 10px/16px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; }
 .pe-text-meta { color: var(--muted-foreground); font: 400 10.5px/16px var(--font-mono); }
 .pe-text-code { font: 400 12px/16px var(--font-mono); }
-.pe-selectable-text { user-select: text; cursor: text; }
+/* App chrome is operated, while tool content and editable fields remain copyable. */
+.pe-shell-bar,
+.pe-panel-bar,
+.pe-panel-rail,
+.pe-shell nav[aria-label="Package sources"],
+.pe-shell button,
+.pe-shell [role="button"],
+.pe-shell [role="tab"],
+.pe-shell [role="switch"],
+.pe-shell [role="checkbox"],
+.pe-shell [role="menuitem"],
+.pe-shell summary {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pe-shell input,
+.pe-shell textarea,
+.pe-shell [contenteditable="true"],
+.pe-selectable-text {
+  -webkit-user-select: text;
+  user-select: text;
+}
+.pe-selectable-text { cursor: text; }
 .pe-selectable-text:focus-visible, .pe-tooltip-trigger:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .pe-rich-tone-muted { color: var(--muted-foreground); }
 .pe-rich-tone-primary { color: var(--primary); }
