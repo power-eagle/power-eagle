@@ -25,7 +25,16 @@ The browser preview has no Eagle Node/AI bridge and therefore explicitly reports
 
 ## Remaining live Eagle check
 
-Task 6.2 is intentionally incomplete: native apps are unavailable to this session. In the rebuilt Eagle plugin, create a blank plugin through Sources +, generate a simple interface, and refine an older version. Duplicate File Creator and a mixed private-dependency plugin, enable/promote/reorder copies, then switch plugins during generation and reload. Confirm owner explanations, separate conversations, retained revisions, callable providers and persisted order. No configured Eagle model was invoked during this implementation.
+User-supplied live Eagle screenshot, received 2026-10-10, confirms these visible-state checks:
+
+- [x] Paper Pop renders on all three workbench panels with the theme selected.
+- [x] A local Untitled plugin is active at revision 1, with its empty home view and matching Agent heading/version chip.
+- [x] Runtime flow copy appears in Sources, labelled persistent and off.
+- [x] The submitted Agent instruction appears as a failed turn from v1; the shell and revision-1 view remain visible.
+
+This is screenshot evidence, not an observed interaction sequence. It does not establish how the plugin/copy was created, disk persistence, independent copy contents, successful generation, or conversation isolation across selection changes. “Failed to fetch” appears twice (in history and above Send); the screenshot does not identify whether the failure came from the configured model, transport, or another integration layer. It is not a successful live AI acceptance result.
+
+Task 6.2 therefore remains open. Still verify creation through Sources +, successful generation and older-version refinement, duplication of a built-in and a mixed private-dependency package, enable/promote/reorder behavior including the native menu, switching plugins during generation, and reload. Confirm owner explanations, separate conversations, retained revisions, callable providers and persisted order. The agent has not directly exercised Eagle or invoked its configured model; the screenshot adds user-observed host evidence to the deterministic checks above.
 
 Powerspec could not resolve the optional computer-use skill (plugin-qualified names are unsupported). That skill step remains unresolved; visual verification used the browser tool's documented API. The required OpenSpec/Powerspec and commit-authoring steps were followed.
 
