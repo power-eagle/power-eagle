@@ -6,6 +6,8 @@ Let users create independent plugin workspaces from scratch or from existing pac
 
 ## ADDED Requirements
 
+Scope note (2026-10-10): the requirements below preserve the implemented foundation. The user transferred further creation/duplication and Agent workflow changes plus their outstanding live acceptance to `overhaul-plugin-authoring-consistency`; the follow-on must reconcile any changed requirements before implementation. This deferral is not evidence that those end-to-end scenarios passed. Instance identity, namespace ownership, activation handoff, list ordering, and non-authoring persistence remain acceptance scope here.
+
 ### Requirement: Independent instance identity
 Each plugin instance SHALL have a unique persistent identity independent of its public package namespace. Selection, enablement, conversation history, and revision ownership SHALL distinguish instances even when their namespaces match. A spin-off SHALL retain its source namespace and declare its namespace conflict and source revision provenance.
 

@@ -25,6 +25,12 @@ The browser preview has no Eagle Node/AI bridge and therefore explicitly reports
 
 ## Remaining live Eagle check
 
+Archive status (2026-10-10): at the user's explicit request, both baselines were synced to nine main capability specs and archived. Archival records the contracts and evidence; it does not certify full implementation or acceptance. No incomplete checkbox was changed to complete.
+
+- `openspec/changes/archive/2026-10-10-rebuild-power-eagle/tasks.md` retains six incomplete tasks: acquisition UI integration (11.4), non-authoring workbench coverage/accessibility (11.5), release assembly (13.1), clean-install/catalog verification (13.2), packaged Eagle acceptance (13.3), and final capability audit (13.4).
+- `openspec/changes/archive/2026-10-10-add-plugin-spin-offs/tasks.md` retains incomplete task 6.2 for existing-instance ownership, native ordering, and reload persistence.
+- `overhaul-plugin-authoring-consistency` remains an active local, uncommitted scaffold for the explicitly deferred AI/creation work. The seven archived incomplete tasks remain unresolved; they have not been silently completed or reassigned to that authoring overhaul.
+
 User-supplied live Eagle screenshot, received 2026-10-10, confirms these visible-state checks:
 
 - [x] Paper Pop renders on all three workbench panels with the theme selected.

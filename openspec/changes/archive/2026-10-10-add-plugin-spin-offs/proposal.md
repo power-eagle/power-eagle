@@ -1,5 +1,9 @@
 # Proposal
 
+## Scope transfer (2026-10-10)
+
+At the user's request, further AI authoring improvements and blank/duplicate creation workflow consistency work are deferred to `overhaul-plugin-authoring-consistency`. Existing implementation, contracts below, and completed checkpoints remain the delivered foundation; they do not constitute live acceptance of those workflows. The follow-on owns the outstanding creation/AI portion of task 6.2, including successful refinement, mixed-package creation, conversation switching during generation, and authored-history reload. This change retains instance identity, namespace arbitration, activation handoff, ordering, and non-authoring workspace persistence verification. Deferral neither removes existing features nor marks unexecuted checks passed.
+
 ## Why
 
 Users need to start a blank plugin or spin off an existing one without editing the original or registering competing implementations accidentally. The selected plugin should own the Agent conversation, making Sources, Stage, and Agent one editing context.

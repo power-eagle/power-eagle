@@ -1,5 +1,9 @@
 # Design
 
+## Scope transfer (2026-10-10)
+
+The user deferred further AI and plugin creation workflow work to `overhaul-plugin-authoring-consistency` because the interaction consistency needs a major overhaul. Decisions 4-6 below record the implemented baseline, not an approved design for that overhaul. Outstanding live creation/duplication, AI refinement, asynchronous conversation isolation, and authored-history reload acceptance now belong to the follow-on. Retain the completed storage/identity contracts and their automated evidence. This change still requires live namespace handoff, native ordering, and order/enablement persistence checks against existing instances; it does not require successful AI or a new creation flow to run those checks.
+
 ## Context
 
 See proposal.md for scope and motivation. Current evidence:
@@ -43,7 +47,7 @@ Rejected: last-loaded wins, alphabetical/discovery priority, and combining expor
 
 Build an immutable claim result and effective graph before publishing. Registration identity includes owner instance/revision as well as qualified export so equal public names cannot hide a handoff. Revoke old handles and dispose affected consumers before their provider, then activate the new owner and its valid consumers. Remount affected runtime sessions; preserve unrelated sessions, services, caches, and conversation drafts. Superseded asynchronous work may not publish into the new owner.
 
-Never activate the losing copy merely because it is selected for inspection or conversation. Its Stage explains the conflict and offers “Move above owner”; keyboard-accessible move-up/down controls expose normal ordering. Disable ordering while a search is active, with a clear-filter action, so hidden rows cannot change precedence unexpectedly.
+Never activate the losing copy merely because it is selected for inspection or conversation. Its Stage explains the conflict and offers “Move above owner”; Eagle native context-menu commands expose normal move-up/down ordering on plugin rows through right-click, Shift+F10, or the Menu key, without permanent inline order buttons or changing the current selection. Disable ordering while a search is active, with a clear-filter action, so hidden rows cannot change precedence unexpectedly.
 
 ### 4. Create durable local snapshots
 
@@ -81,4 +85,4 @@ Use `Panel.actions` for a named New plugin button with a + icon at the right of 
 
 This remains a breaking development rebuild, with no legacy importer. Persist explicit versioned instance/order/enablement/conversation formats; incompatible old host preferences receive an actionable reset path rather than being misread or mapped ambiguously. Keep new plugin artifacts intact if preferences fail to load. Paper Pop defaults off and Blueprint remains the default. Do not rerun the existing legacy data reset or touch shared Saucepan content.
 
-Integrate verified slices in the task order. Before release, rebuild the shipped artifacts and exercise duplicate ownership and plugin-bound Agent behavior in Eagle. If a slice is reverted during development, preserve authored snapshots for recovery; older code must not interpret newer workspace records as old package records.
+Integrate verified slices in the task order. Before closing this change, rebuild the shipped artifacts and exercise duplicate ownership and ordering of existing instances in Eagle. Live plugin-bound Agent and creation workflow acceptance is transferred to `overhaul-plugin-authoring-consistency`. If a slice is reverted during development, preserve authored snapshots for recovery; older code must not interpret newer workspace records as old package records.

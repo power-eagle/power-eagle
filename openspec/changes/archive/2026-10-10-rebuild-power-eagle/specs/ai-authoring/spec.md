@@ -6,6 +6,8 @@ Generate and refine new-format runtime documents through Eagle's AI integration 
 
 ## ADDED Requirements
 
+Scope note (2026-10-10): these requirements describe the implemented authoring baseline. The user transferred outstanding AI improvements, workflow consistency redesign, AI BDD completion, and successful live authoring acceptance to `overhaul-plugin-authoring-consistency`. Keep the contracts and evidence; do not treat deferral as fulfilled acceptance. Any redesign must reconcile these requirements and the `plugin-spin-offs` baseline before implementation.
+
 ### Requirement: Registry-aware generation
 The Agent SHALL generate canonical runtime documents using the new language schema and the effective widget, action, service, and styling catalog. Prompts SHALL include relevant type contracts and examples and respect the Eagle API and Web API context toggles. Disabled or failed exports MUST NOT be advertised as available. The initial Agent workflow MUST NOT execute generated TypeScript/CommonJS or install dependencies automatically; new executable providers SHALL enter through the compiled package workflow.
 

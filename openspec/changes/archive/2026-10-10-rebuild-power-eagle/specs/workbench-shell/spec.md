@@ -6,6 +6,8 @@ Present package sources, live runtime views, contribution controls, and AI conve
 
 ## ADDED Requirements
 
+Scope note (2026-10-10): further AI/creation workflow consistency work and live authoring acceptance are deferred to `overhaul-plugin-authoring-consistency`. The current shared-selection, theme, layout, accessibility, acquisition, and activation contracts remain in force. The follow-on owns interaction changes to creation forms, Agent feedback/composer, and authoring/version flows; it must reconcile the baseline below rather than silently overriding it. Non-authoring shell verification remains part of this change.
+
 ### Requirement: Three-panel design system
 The shell SHALL retain the supplied Sources, Stage, and Agent arrangement with selectable styling plugins. Sources and Agent SHALL collapse to accessible rails; Stage SHALL remain visible. Panels SHALL scroll independently and the window SHALL not scroll. The initial 910 by 750 window SHALL follow the scaffold's source/agent proportions and flexible stage. Resizing SHALL retain access to panel controls and stage content. Typography and visual assets SHALL be packaged locally.
 

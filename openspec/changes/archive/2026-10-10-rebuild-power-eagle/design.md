@@ -1,5 +1,9 @@
 # Design
 
+## Scope transfer (2026-10-10)
+
+Further AI authoring and plugin creation/duplication interaction design and acceptance belong to `overhaul-plugin-authoring-consistency`, at the user's request for a major consistency overhaul. Section 7 retains the implemented baseline and storage/selection invariants; it does not settle the follow-on interaction design. Existing deterministic AI evidence remains valid, while successful live generation and creation workflow acceptance remain deferred. Core package acquisition, activation, shell behavior, and release packaging stay in this change. The release audit must report the deferred authoring capability explicitly rather than claim all original AI scenarios were verified.
+
 ## Context
 
 See `proposal.md` for motivation and capability scope. The target retains React/Vite/TypeScript configuration and the Eagle manifest, but most tracked application files are already deleted. Those deletions are existing user work, not a request to restore the old application wholesale. No existing OpenSpec capabilities constrain the new language.

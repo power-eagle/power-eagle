@@ -1,5 +1,9 @@
 # Proposal
 
+## Scope transfer (2026-10-10)
+
+The user deferred further AI improvements and plugin creation/duplication workflow consistency work to `overhaul-plugin-authoring-consistency`. The AI capability described below remains the implemented baseline, with deterministic evidence; it is not a claim of successful live model integration. Outstanding task 12.5 and the authoring portion of release task 13.3 move to that change. Release assembly, acquisition UI, non-authoring workbench coverage, catalog verification, and core packaged Eagle acceptance remain here. Do not remove current features or mark deferred work complete.
+
 ## Why
 
 Power Eagle needs a coherent extensible language and workbench rather than the current small, executable v3 widget grammar and tabbed shell. The new design scaffold and a deliberately breaking rebuild make it possible to adopt Stac's typed-authoring, serializable-document, registry-and-parser architecture while retaining the project's useful source organization and installation infrastructure.
