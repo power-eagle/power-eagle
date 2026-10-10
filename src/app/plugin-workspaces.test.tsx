@@ -23,7 +23,7 @@ beforeEach(async () => {
   catalog = new PluginCatalog(InstancePreferences.open({ read: () => null, write: () => {} }), { hostRequire, sharedModules }, store);
   await catalog.refresh();
 });
-afterEach(async () => { cleanup(); await catalog.dispose(); vi.restoreAllMocks(); rmSync(root, { recursive: true, force: true }); });
+afterEach(async () => { cleanup(); await catalog.dispose(); vi.restoreAllMocks(); vi.unstubAllGlobals(); rmSync(root, { recursive: true, force: true }); });
 
 it('creates once, clears a hiding filter, selects the new plugin and restores focus on cancellation', async () => {
   const user = userEvent.setup(); render(<App catalog={catalog} />);
@@ -62,7 +62,12 @@ it('captures the source before selection changes, starts disabled and promotes a
   await user.click(screen.getByRole('button', { name: 'Move above owner' }));
   await waitFor(() => expect(catalog.snapshot().owners.get(source.namespace)?.instance.instanceId).toBe(copy.instanceId));
   expect(catalog.snapshot().entries).toHaveLength(3);
-  await user.click(screen.getByRole('button', { name: 'Move Original copy down' }));
+  const open = vi.fn<typeof eagle.contextMenu.open>().mockResolvedValue();
+  vi.stubGlobal('eagle', { contextMenu: { open } });
+  await user.pointer({ target: screen.getByRole('button', { name: 'Select package Original copy' }), keys: '[MouseRight]' });
+  const moveDown = open.mock.calls[0][0].find(item => item.id === 'move-down')!;
+  expect(moveDown.enabled).toBe(true);
+  await act(async () => moveDown.click!());
   await waitFor(() => expect(catalog.snapshot().owners.get(source.namespace)?.instance.instanceId).toBe(source.instanceId));
 });
 

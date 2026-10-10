@@ -525,6 +525,7 @@ interface SmartFolderRuleSchema {
 interface MenuItem {
   id: string;
   label: string;
+  enabled?: boolean;
   submenu?: MenuItem[];
   click?: () => void;
 }

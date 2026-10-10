@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PackageManifest } from '../sdui/schema/model';
 import { WorkbenchSourceTree } from './source-tree';
 import { acquiredWorkbenchPackage, defaultSelection, groupWorkbenchPackages, packageContributions, type WorkbenchPackage } from './workbench-selection';
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 function manifest(id: string, contributions: PackageManifest['contributions']): PackageManifest {
   const exports: PackageManifest['exports'] = [];
@@ -36,6 +36,60 @@ function record(id: string, sourceKind: WorkbenchPackage['sourceKind'], status: 
 }
 
 describe('shared workbench selection and sources', () => {
+  it('uses native menus on the targeted row and guards boundaries, filters, and stale callbacks', async () => {
+    const first = { ...record('first', 'built-in', 'active', { runtime: 'run.json' }), instanceId: 'first' };
+    const last = { ...record('last', 'installed', 'off', { runtime: 'run.json' }), instanceId: 'last' };
+    const open = vi.fn<typeof eagle.contextMenu.open>().mockResolvedValue();
+    vi.stubGlobal('eagle', { contextMenu: { open } });
+    const onMove = vi.fn(), onSelect = vi.fn();
+    const props = { packages: [first, last], selection: defaultSelection(first), onSelect, onMove };
+    const { rerender } = render(<WorkbenchSourceTree {...props} />);
+    const user = userEvent.setup();
+    expect(screen.queryByRole('button', { name: /Move .* (up|down)/ })).toBeNull();
+    await user.pointer({ target: screen.getByRole('button', { name: 'Select package last' }), keys: '[MouseRight]' });
+    const menu = open.mock.calls[0][0];
+    expect(menu.map(item => [item.id, item.enabled])).toEqual([['move-up', true], ['move-down', false]]);
+    expect(onSelect).not.toHaveBeenCalled();
+    menu[1].click!(); expect(onMove).not.toHaveBeenCalled();
+    menu[0].click!(); expect(onMove).toHaveBeenLastCalledWith('last', 'first');
+    onMove.mockClear();
+    rerender(<WorkbenchSourceTree {...props} filter="last" />);
+    menu[0].click!(); expect(onMove).not.toHaveBeenCalled();
+    const onFilter = vi.fn();
+    rerender(<WorkbenchSourceTree {...props} filter="last" onFilter={onFilter} />);
+    fireEvent.contextMenu(screen.getByRole('button', { name: 'Select package last' }));
+    const filteredMenu = open.mock.calls[1][0];
+    expect(filteredMenu.slice(0, 2).every(item => item.enabled === false)).toBe(true);
+    filteredMenu[2].click!(); expect(onFilter).toHaveBeenCalledWith('');
+    rerender(<WorkbenchSourceTree {...props} packages={[last, first]} />);
+    menu[0].click!(); expect(onMove).not.toHaveBeenCalled();
+  });
+
+  it('opens the native menu from the keyboard and contains host failures without moving anything', async () => {
+    const first = { ...record('first', 'built-in', 'active', { runtime: 'run.json' }), instanceId: 'first' };
+    const last = { ...first, instanceId: 'last', manifest: { ...first.manifest, name: 'last' } };
+    const open = vi.fn<typeof eagle.contextMenu.open>().mockResolvedValue();
+    vi.stubGlobal('eagle', { contextMenu: { open } });
+    const onMove = vi.fn();
+    render(<WorkbenchSourceTree packages={[first, last]} selection={defaultSelection(first)} onSelect={vi.fn()} onMove={onMove} />);
+    const row = screen.getByRole('button', { name: 'Select package first' });
+    row.focus();
+    const user = userEvent.setup();
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    expect(open).toHaveBeenCalledOnce();
+    expect(open.mock.calls[0][0].map(item => item.enabled)).toEqual([false, true]);
+    expect(onMove).not.toHaveBeenCalled();
+    fireEvent.keyDown(row, { key: 'ContextMenu' });
+    expect(open).toHaveBeenCalledTimes(2);
+    open.mockRejectedValueOnce(new Error('Native menu failed'));
+    fireEvent.contextMenu(row);
+    expect((await screen.findByRole('alert')).textContent).toBe('Native menu failed');
+    vi.stubGlobal('eagle', undefined);
+    fireEvent.contextMenu(row);
+    expect((await screen.findByRole('alert')).textContent).toContain('available inside Eagle');
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
   it('filters included and agent-created plugins without changing selection or their identities', async () => {
     const builtIn = record('builtin.clipboard', 'built-in', 'active', { services: 'services.cjs' });
     const generated = record('generated.dashboard', 'generated', 'active', { runtime: 'run.json' });

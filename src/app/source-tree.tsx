@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Badge, Input } from '../components/ui';
 import type { EffectiveRegistry } from '../host/activation/enablement';
 import {
@@ -84,6 +84,29 @@ export function WorkbenchSourceTree({
   const [localQuery, setLocalQuery] = useState('');
   const query = filter ?? localQuery;
   const setQuery = onFilter ?? setLocalQuery;
+  const [menuError, setMenuError] = useState('');
+  const latest = useRef({ packages, query, onMove });
+  latest.current = { packages, query, onMove };
+  const openOrderMenu = async (record: WorkbenchPackage) => {
+    if (!onMove || !record.instanceId) return;
+    setMenuError('');
+    const id = record.instanceId;
+    const index = packages.indexOf(record);
+    const move = (direction: -1 | 1) => {
+      const current = latest.current;
+      const position = current.packages.findIndex(item => item.instanceId === id);
+      if (current.query.trim() || position < 0 || position + direction < 0 || position + direction >= current.packages.length) return;
+      current.onMove?.(id, direction === -1 ? current.packages[position - 1].instanceId! : current.packages[position + 2]?.instanceId ?? null);
+    };
+    try {
+      if (typeof eagle === 'undefined' || !eagle.contextMenu?.open) throw new Error('Plugin context menus are available inside Eagle.');
+      await eagle.contextMenu.open([
+        { id: 'move-up', label: 'Move up', enabled: !query.trim() && index > 0, click: () => move(-1) },
+        { id: 'move-down', label: 'Move down', enabled: !query.trim() && index < packages.length - 1, click: () => move(1) },
+        ...(query.trim() ? [{ id: 'clear-filter', label: 'Clear filter to change order', click: () => setQuery('') }] : []),
+      ]);
+    } catch (reason) { setMenuError(reason instanceof Error ? reason.message : String(reason)); }
+  };
   const terms = query.trim().toLocaleLowerCase().split(/\s+/u).filter(Boolean);
   const filtered = packages.filter(record => {
     const text = [record.manifest.name, record.manifest.id, record.manifest.description,
@@ -96,16 +119,25 @@ export function WorkbenchSourceTree({
         value={query} onChange={event => setQuery(event.currentTarget.value)} />
       {query ? <button type="button" aria-label="Clear plugin filter" onClick={() => setQuery('')}>×</button> : null}
     </div>
+    {menuError ? <p role="alert">{menuError}</p> : null}
     {filtered.length === 0 ? <p className="pe-plugin-search-empty" role="status">No matching plugins.</p> : null}
     {filtered.map(record => {
         const selected = selectionMatchesRecord(selection, record);
         const enabled = record.desired ?? registry?.packages.get(record.manifest.id)?.desired ?? record.status !== 'off';
         return <div className="pe-workbench-package" key={workbenchPackageKey(record)} data-status={record.status}>
-          <div className="pe-workbench-package-head" data-selected={selected}>
+          <div className="pe-workbench-package-head" data-selected={selected}
+            onContextMenu={onMove ? event => { event.preventDefault(); event.stopPropagation(); void openOrderMenu(record); } : undefined}>
             {onTogglePackage ? <SourceToggle name={`package ${record.manifest.name}`} enabled={enabled} status={record.status}
               onToggle={() => onTogglePackage(record.instanceId ?? record.manifest.id, !enabled)}
             /> : <span className="pe-workbench-tree-branch" aria-hidden="true" />}
-            <button className="pe-workbench-package-select" type="button" aria-label={`Select package ${record.manifest.name}`} aria-current={selected ? 'page' : undefined} onClick={() => onSelect(defaultSelection(record))}>
+            <button className="pe-workbench-package-select" type="button" aria-label={`Select package ${record.manifest.name}`} aria-current={selected ? 'page' : undefined} onClick={() => onSelect(defaultSelection(record))}
+              title={onMove ? 'Right-click for plugin order options · Shift+F10' : undefined}
+              aria-haspopup={onMove ? 'menu' : undefined}
+              onKeyDown={onMove ? event => {
+                if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+                  event.preventDefault(); event.stopPropagation(); void openOrderMenu(record);
+                }
+              } : undefined}>
               <span>
                 <span className="pe-workbench-package-title"><strong>{record.manifest.name}</strong>{record.fresh ? <Badge>new</Badge> : null}</span>
                 <small>{record.manifest.version} · {record.persistence}</small>
@@ -114,13 +146,6 @@ export function WorkbenchSourceTree({
             </button>
           </div>
           {selected ? <div className="pe-workbench-contributions">
-            {onMove ? <div className="pe-plugin-order">
-              <button type="button" aria-label={`Move ${record.manifest.name} up`} disabled={Boolean(query.trim()) || packages.indexOf(record) === 0}
-                onClick={() => onMove(record.instanceId!, packages[packages.indexOf(record) - 1].instanceId!)}>↑ Move up</button>
-              <button type="button" aria-label={`Move ${record.manifest.name} down`} disabled={Boolean(query.trim()) || packages.indexOf(record) === packages.length - 1}
-                onClick={() => onMove(record.instanceId!, packages[packages.indexOf(record) + 2]?.instanceId ?? null)}>↓ Move down</button>
-              {query.trim() ? <small>Clear the filter to change plugin order.</small> : null}
-            </div> : null}
             {packageContributions(record.manifest).map(contribution => <div key={contribution}>
               <button
                 className="pe-workbench-tree-link pe-workbench-contribution-link"

@@ -2,6 +2,8 @@
 
 Verified implementation: `add-plugin-spin-offs`, 2026-10-04.
 
+Follow-up, 2026-10-10: Sources ordering now uses `eagle.contextMenu.open` instead of inline Move up/down buttons. Fifteen focused workbench tests pass, covering native menu callbacks, keyboard entry, boundaries, filter restrictions, stale callbacks, host failures, and real catalog ownership handoff. Typecheck/release build, focused ESLint, and strict change validation pass. API reference: https://developer.eagle.cool/plugin-api/api/context-menu. The native popup itself has not been exercised in live Eagle; include right-click and Shift+F10 ordering in the remaining host check.
+
 - **Automated:** 284 tests pass in 59 files, including existing BDD suites and new namespace, artifact, storage, Agent and workbench regressions.
 - **Static/release:** lint passes; production build includes passing TypeScript check and assembly of seven built-in artifacts. Both active OpenSpec changes pass strict validation. Build warnings remain for the approximately 690 kB main bundle and old Browserslist data.
 - **Visual:** inspected Blueprint and Paper Pop at 910×750 and 600×750 through the browser preview. The Sources menu stays inside its panel; naming forms and Agent remain readable. Compact mode expands one side panel at a time. Measured compact panel scroll width equals its client width (574 px). Paper Pop was returned to off and Blueprint restored after inspection.
