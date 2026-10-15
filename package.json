@@ -38,7 +38,7 @@
     "react-dom": "^18.2.0",
     "react-markdown": "10.1.0",
     "remark-gfm": "4.0.1",
-    "saucepan-sdk": "https://github.com/ZackaryW/saucepan/releases/download/v0.9.0/saucepan-sdk-0.1.0.tgz",
+    "saucepan-sdk": "https://github.com/ZackaryW/saucepan/releases/download/v0.10.0/saucepan-sdk-0.2.0.tgz",
     "semver": "7.7.3",
     "tailwind-merge": "^3.5.0",
     "zod": "4.1.12"

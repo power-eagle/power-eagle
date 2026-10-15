@@ -250,28 +250,60 @@ var init_process = __esm({
   }
 });
 
+// node_modules/saucepan-sdk/dist/lifecycle.js
+function object(v) {
+  return v !== null && typeof v === "object" && !Array.isArray(v);
+}
+function receiptResult(value, exitCode, mode) {
+  const records = mode === "operation" ? [value] : value;
+  if (!Array.isArray(records))
+    throw new TransportError("protocol", true);
+  for (const item of records) {
+    if (!object(item) || !["operation", "app", "claim", "fingerprint"].every((k) => typeof item[k] === "string") || !["preparing", "commit_intent", "cleanup_pending", "complete", "failed", "conflict"].includes(String(item.status)) || typeof item.changed !== "boolean" || !object(item.action) || !["install", "update", "shim", "uninstall"].includes(String(item.action.type)) || !["pending", "leftovers"].every((k) => Array.isArray(item[k]) && item[k].every((v) => typeof v === "string")) || !Array.isArray(item.shims))
+      throw new TransportError("protocol", true);
+    for (const key of ["candidate", "desired", "desired_registry", "source_policy", "reason", "expected_revision"]) {
+      const v = item[key];
+      if (!(key in item) || v !== null && !(key === "candidate" ? typeof v === "string" : key === "expected_revision" ? Number.isSafeInteger(v) : object(v)))
+        throw new TransportError("protocol", true);
+    }
+  }
+  if (mode === "inspection") {
+    if (exitCode !== 0)
+      throw new TransportError("protocol", true);
+    return value;
+  }
+  if (exitCode !== (records.every((item) => item.status === "complete") ? 0 : 2))
+    throw new TransportError("protocol", true);
+  return { exit_code: exitCode, result: value };
+}
+var init_lifecycle = __esm({
+  "node_modules/saucepan-sdk/dist/lifecycle.js"() {
+    init_errors();
+  }
+});
+
 // node_modules/saucepan-sdk/dist/transport.js
 var transport_exports = {};
 __export(transport_exports, {
   NodeTransport: () => NodeTransport
 });
-function object(value) {
+function object2(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 function checkShape(value, call) {
   if (call.shape === "array") {
-    if (!Array.isArray(value) || !value.every((item) => call.argv[0] === "register-policies" ? typeof item === "string" : object(item)))
+    if (!Array.isArray(value) || !value.every((item) => ["register-policies", "profiles"].includes(String(call.argv[0])) ? typeof item === "string" : object2(item)))
       throw new TransportError("protocol", true);
     return;
   }
-  if (!object(value))
+  if (!object2(value))
     throw new TransportError("protocol", true);
-  const strings = /* @__PURE__ */ new Set(["uuid", "app", "root", "integrity", "type", "entry_uuid", "directory", "path", "verification", "released", "removed", "state"]);
-  const objects = /* @__PURE__ */ new Set(["source", "claim", "view", "acquired", "entry", "request", "descriptor", "ownership", "definition", "group", "resources", "paths", "outputs", "context", "deferred", "pending"]);
-  const arrays = /* @__PURE__ */ new Set(["sources", "claims", "policy_refs", "reclaimed", "stale"]);
+  const strings = /* @__PURE__ */ new Set(["uuid", "app", "root", "integrity", "type", "entry_uuid", "directory", "path", "verification", "released", "removed", "state", "name", "digest"]);
+  const objects = /* @__PURE__ */ new Set(["source", "claim", "view", "acquired", "entry", "request", "descriptor", "ownership", "definition", "group", "resources", "paths", "outputs", "context", "deferred", "pending", "axes"]);
+  const arrays = /* @__PURE__ */ new Set(["sources", "claims", "policy_refs", "reclaimed", "stale", "catalog", "retrieval_policy_refs", "acquisition_policy_refs", "combined_policy_refs", "restrictions"]);
   for (const key of call.required ?? []) {
     const item = value[key];
-    if (!(key in value) || strings.has(key) && typeof item !== "string" || objects.has(key) && !object(item) || arrays.has(key) && !Array.isArray(item) || ["revision", "generation", "policy_revision"].includes(key) && !Number.isSafeInteger(item) || key === "purged" && typeof item !== "boolean")
+    if (!(key in value) || strings.has(key) && typeof item !== "string" || objects.has(key) && !object2(item) || arrays.has(key) && !Array.isArray(item) || ["revision", "generation", "policy_revision"].includes(key) && !Number.isSafeInteger(item) || ["purged", "for_install"].includes(key) && typeof item !== "boolean")
       throw new TransportError("protocol", true);
   }
   if (call.required?.includes("type") && ![
@@ -306,6 +338,7 @@ var init_transport = __esm({
     init_json();
     init_payloads();
     init_process();
+    init_lifecycle();
     NodeTransport = class {
       async run(config2, call, options) {
         const prefix = ["--error-format", "json"];
@@ -350,15 +383,17 @@ var init_transport = __esm({
       async json(config2, call) {
         const result = await this.run(config2, call, { capture: true, timeout: config2.timeout });
         try {
-          if (result.exitCode !== 0) {
+          if (result.exitCode !== 0 && !(call.lifecycle && call.lifecycle !== "inspection" && result.exitCode === 2)) {
             const envelope = decode(result.stderr ?? new Uint8Array());
-            const error46 = object(envelope) ? envelope.error : void 0;
-            if (object(error46) && typeof error46.code === "string" && typeof error46.message === "string" && object(error46.details) && Object.values(error46.details).every((value2) => typeof value2 === "string")) {
+            const error46 = object2(envelope) ? envelope.error : void 0;
+            if (object2(error46) && typeof error46.code === "string" && typeof error46.message === "string" && object2(error46.details) && Object.values(error46.details).every((value2) => typeof value2 === "string")) {
               throw new SaucepanError(error46.code, error46.message, error46.details);
             }
             throw new TransportError("protocol", true);
           }
           const value = decode(result.stdout ?? new Uint8Array());
+          if (call.lifecycle)
+            return receiptResult(value, result.exitCode, call.lifecycle);
           checkShape(value, call);
           return value;
         } catch (error46) {
@@ -2364,6 +2399,53 @@ var Client = class _Client {
       throw new TransportError("context_mismatch");
     return app;
   }
+  profiles() {
+    return this.json(["profiles"], { shape: "array" });
+  }
+  profile(name, options = {}) {
+    return this.json([
+      "profile",
+      ...name === void 0 ? [] : [name],
+      ...options.forInstall ? ["--for-install"] : [],
+      ...flags({ catalog: options.catalog === void 0 ? void 0 : new Payload(options.catalog), retrieval_policy: options.retrievalPolicyRefs, acquisition_policy: options.acquisitionPolicyRefs })
+    ], { required: ["name", "digest", "catalog", "retrieval_policy_refs", "acquisition_policy_refs", "combined_policy_refs", "for_install"] });
+  }
+  explainPolicies(request, options = {}) {
+    if (request.operation === "claim")
+      this.identity(request.app);
+    return this.json(["explain-policies", new Payload(request)], { policies: options.policies, required: ["axes", "restrictions"] });
+  }
+  installApplication(name, request, probe, builtShim, options) {
+    return this.json([
+      "install",
+      name,
+      new Payload(request),
+      new Payload(probe),
+      builtShim,
+      ...flags({ scope: options.scope, shim: options.shim, operation: options.operation })
+    ], { mutates: true, lifecycle: "operation" });
+  }
+  bootstrap(request, builtShim, options = {}) {
+    return this.json(["bootstrap", new Payload(request), builtShim, ...flags({ operation: options.operation })], { mutates: true, lifecycle: "operation" });
+  }
+  updateApplication(app, claim, probe, options = {}) {
+    return this.json(["update-app", this.identity(app), claim, new Payload(probe), ...flags({ operation: options.operation })], { mutates: true, lifecycle: "operation" });
+  }
+  selfUpdate(app, claim, options = {}) {
+    return this.json(["self-update", this.identity(app), claim, ...flags({ operation: options.operation })], { mutates: true, lifecycle: "operation" });
+  }
+  rollback(app, claim, entry, probe, options = {}) {
+    return this.json(["rollback", this.identity(app), claim, entry, new Payload(probe), ...flags({ operation: options.operation })], { mutates: true, lifecycle: "operation" });
+  }
+  uninstall(app, options = {}) {
+    return this.json(["uninstall", this.identity(app), ...options.leaveUnmanagedShims ? ["--leave-unmanaged-shims"] : [], ...flags({ operation: options.operation })], { mutates: true, lifecycle: "operation" });
+  }
+  operations(options = {}) {
+    return this.json(["operations", ...flags({ app: options.app === void 0 ? void 0 : this.identity(options.app) })], { lifecycle: "inspection" });
+  }
+  reconcile(options = {}) {
+    return this.json(["reconcile", ...flags({ operation: options.operation })], { mutates: true, lifecycle: "reconcile" });
+  }
   async json(argv, call = {}) {
     return await this.transport.json(this.config, { ...call, argv });
   }
@@ -2851,7 +2933,7 @@ async function initializeSaucepan(options = {}) {
       )
     );
     const version2 = (await probe(["--version"])).trim();
-    if (!/^saucepan 0\.9\.\d+(?:[-+][\w.-]+)?$/.test(version2))
+    if (!/^saucepan 0\.10\.\d+(?:[-+][\w.-]+)?$/.test(version2))
       throw new Error(`Unsupported Saucepan executable: ${version2}`);
     const help = await probe(["--help"]);
     for (const command of [
@@ -2860,7 +2942,10 @@ async function initializeSaucepan(options = {}) {
       "register-group",
       "prepare-group",
       "pin",
-      "unpin"
+      "unpin",
+      "profiles",
+      "profile",
+      "explain-policies"
     ]) {
       if (!new RegExp(`\\b${command}\\b`).test(help))
         throw new Error(`Saucepan is missing ${command}`);
@@ -2883,7 +2968,7 @@ async function initializeSaucepan(options = {}) {
       builtInsAvailable: true,
       error: {
         message: error46 instanceof Error ? error46.message : String(error46),
-        recovery: "Install Saucepan 0.9 independently, or configure its executable path. Eagle must provide its Node host bridge."
+        recovery: "Install Saucepan 0.10 independently, or configure its executable path. Eagle must provide its Node host bridge."
       }
     };
   }
@@ -2891,10 +2976,10 @@ async function initializeSaucepan(options = {}) {
 
 // src/host/install/saucepan-client.ts
 var PIN_POLICY = "9fc47d63-4387-4212-8e0f-9d75e100ac0a";
-var object2 = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+var object3 = (v) => !!v && typeof v === "object" && !Array.isArray(v);
 var uuid = (v) => typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
 function stable(value) {
-  const ordered = (item) => Array.isArray(item) ? item.map(ordered) : object2(item) ? Object.fromEntries(
+  const ordered = (item) => Array.isArray(item) ? item.map(ordered) : object3(item) ? Object.fromEntries(
     Object.keys(item).sort().map((key) => [key, ordered(item[key])])
   ) : item;
   return JSON.stringify(ordered(value));
@@ -2930,16 +3015,16 @@ var PowerEagleSaucepan = class {
     const path = this.#require("path");
     if (fs.existsSync(path.join(this.options.stateRoot, ".saucepanhash")))
       throw new Error(
-        "Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with Saucepan 0.9. The shared store is not migrated."
+        "Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with Saucepan 0.10. The shared store is not migrated."
       );
     if (!fs.existsSync(this.#file)) return this.fresh();
     const state = JSON.parse(fs.readFileSync(this.#file, "utf8"));
-    if (!object2(state) || state.format !== "power-eagle/saucepan" || state.formatVersion !== 1 || !object2(state.receipts) || !object2(state.active) || !object2(state.pending) || !object2(state.readers) || !object2(state.retiring) || state.app !== void 0 && !uuid(state.app))
+    if (!object3(state) || state.format !== "power-eagle/saucepan" || state.formatVersion !== 1 || !object3(state.receipts) || !object3(state.active) || !object3(state.pending) || !object3(state.readers) || !object3(state.retiring) || state.app !== void 0 && !uuid(state.app))
       throw new Error(
         "Invalid Power Eagle Saucepan receipt state; inspect it before recovery"
       );
     for (const [key, value] of Object.entries(state.receipts))
-      if (!object2(value) || !uuid(key) || value.pinUuid !== key || !uuid(value.outputUuid) || !uuid(value.groupUuid) || typeof value.directory !== "string" || typeof value.slot !== "string" || !object2(value.request))
+      if (!object3(value) || !uuid(key) || value.pinUuid !== key || !uuid(value.outputUuid) || !uuid(value.groupUuid) || typeof value.directory !== "string" || typeof value.slot !== "string" || !object3(value.request))
         throw new Error("Invalid retained package receipt");
     for (const pin of Object.values(state.active))
       if (typeof pin !== "string" || !(pin in state.receipts))
@@ -3023,6 +3108,16 @@ var PowerEagleSaucepan = class {
   }
   registerPolicies(policies) {
     return this.options.client.registerPolicies(policies);
+  }
+  /** Read-only preview: no store initialization, policy registration or adoption. */
+  previewProfile(name = "managed", options = {}) {
+    return this.options.client.profile(name, options);
+  }
+  /** Explicit local setup; callers attach the returned UUIDs to their intent. */
+  async registerProfile(name = "managed", options = {}) {
+    const profile = await this.previewProfile(name, options);
+    await this.options.client.registerPolicies(profile.catalog);
+    return profile;
   }
   async adoptPolicies(expectedRevision, policyRefs) {
     return this.transaction(
@@ -3417,7 +3512,7 @@ __export(external_exports, {
   nullable: () => nullable,
   nullish: () => nullish2,
   number: () => number2,
-  object: () => object3,
+  object: () => object4,
   optional: () => optional,
   overwrite: () => _overwrite,
   parse: () => parse2,
@@ -3935,9 +4030,9 @@ function floatSafeRemainder(val, step) {
   return valInt % stepInt / 10 ** decCount;
 }
 var EVALUATING = Symbol("evaluating");
-function defineLazy(object4, key, getter) {
+function defineLazy(object5, key, getter) {
   let value = void 0;
-  Object.defineProperty(object4, key, {
+  Object.defineProperty(object5, key, {
     get() {
       if (value === EVALUATING) {
         return void 0;
@@ -3949,7 +4044,7 @@ function defineLazy(object4, key, getter) {
       return value;
     },
     set(v) {
-      Object.defineProperty(object4, key, {
+      Object.defineProperty(object5, key, {
         value: v
         // configurable: true,
       });
@@ -15258,7 +15353,7 @@ var ZodObject = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
   inst.partial = (...args) => util_exports.partial(ZodOptional, inst, args[0]);
   inst.required = (...args) => util_exports.required(ZodNonOptional, inst, args[0]);
 });
-function object3(shape, params) {
+function object4(shape, params) {
   const def = {
     type: "object",
     shape: shape ?? {},
@@ -15914,7 +16009,7 @@ var packageSchema = external_exports.strictObject({
 var import_semver = __toESM(require_semver2(), 1);
 var escape = (key) => String(key).replace(/~/g, "~0").replace(/\//g, "~1");
 var at = (path, key) => `${path}/${escape(key)}`;
-var own = (object4, key) => Object.prototype.hasOwnProperty.call(object4, key);
+var own = (object5, key) => Object.prototype.hasOwnProperty.call(object5, key);
 function serializableDiagnostics(value) {
   const diagnostics = [];
   const ancestors = /* @__PURE__ */ new Set();

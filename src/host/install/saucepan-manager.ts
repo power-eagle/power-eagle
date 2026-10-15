@@ -49,7 +49,7 @@ export async function initializeSaucepan(
         ),
       );
     const version = (await probe(['--version'])).trim();
-    if (!/^saucepan 0\.9\.\d+(?:[-+][\w.-]+)?$/.test(version))
+    if (!/^saucepan 0\.10\.\d+(?:[-+][\w.-]+)?$/.test(version))
       throw new Error(`Unsupported Saucepan executable: ${version}`);
     const help = await probe(['--help']);
     for (const command of [
@@ -59,6 +59,9 @@ export async function initializeSaucepan(
       'prepare-group',
       'pin',
       'unpin',
+      'profiles',
+      'profile',
+      'explain-policies',
     ]) {
       if (!new RegExp(`\\b${command}\\b`).test(help))
         throw new Error(`Saucepan is missing ${command}`);
@@ -82,7 +85,7 @@ export async function initializeSaucepan(
       error: {
         message: error instanceof Error ? error.message : String(error),
         recovery:
-          'Install Saucepan 0.9 independently, or configure its executable path. Eagle must provide its Node host bridge.',
+          'Install Saucepan 0.10 independently, or configure its executable path. Eagle must provide its Node host bridge.',
       },
     };
   }

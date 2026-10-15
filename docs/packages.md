@@ -1,8 +1,8 @@
 # Package acquisition and contribution contract
 
-Power Eagle targets Saucepan 0.9 through the independently installed executable at `~/.saucepan/bin/saucepan[.exe]` or an explicit override. Install the manager ZIP containing Saucepan and its shim independently, then initialize the shared store deliberately with `saucepan init`. Startup only probes `--version` and `--help`; it does not initialize a store or replace binaries. Built-ins remain usable when native tooling is unavailable.
+Power Eagle targets Saucepan 0.10 through the independently installed executable at `~/.saucepan/bin/saucepan[.exe]` or an explicit override. Install the manager ZIP containing Saucepan and its shim independently, then initialize the shared store deliberately with `saucepan init`. Startup only probes `--version` and `--help`, including profile commands; it does not initialize a store or replace binaries. Built-ins remain usable when native tooling is unavailable.
 
-The bundled `saucepan-sdk` 0.1.0 client comes from release v0.9.0, commit `041e4f90634e6007b58054a59604396f8fbebd21`, with artifact integrity recorded in package-lock.json. Eagle uses an injected public SDK transport because the default SDK transport requires Node 22. The standalone host bundle has been exercised on Node 16.17.1 with the real manager. Real packaged Eagle acceptance remains pending.
+The bundled `saucepan-sdk` 0.2.0 client comes from release v0.10.0, commit `8a2d04e7d2e393c035715520254bdd5955651873`, with artifact integrity recorded in package-lock.json. Eagle uses an injected public SDK transport because the default SDK transport requires Node 22. The standalone bundle passed the profile-based resource lifecycle harness on Node 16.17.1 with the published Windows x64 manager. Real packaged Eagle acceptance remains pending; a standalone Node host harness does not establish GUI acceptance.
 
 ## Host integration
 
@@ -29,6 +29,24 @@ The adapter accepts source and selector objects from the SDK. For example:
 For exact content use `{"type":"commit","commit":"<full commit>"}`. Local inputs use `source.type=local`, a path and `selector.type=local`; acquisition reads a manager-owned copy. URL inputs use `source.type=url`, a URL and `selector.type=url`. Select `format=zip` with an optional folder, or `format=raw` with a filename. The [local example](../examples/saucepan-recipes/local-runtime.json) uses this current shape.
 
 Register immutable policy records explicitly through `registerPolicies`; attach their UUIDs through `policyRefs` for acquisition and `groupPolicyRefs` for group access/path verification. Refresh, update and revision history remain distinct policies. App policy adoption uses `adoptPolicies(expectedRevision, refs)`, an explicit local administration operation. Source and policy registration are also explicit local setup. Actual persistent retrieval remains app-bound and never retries through unbound access after denial. Changing a claim's policy intent requires explicit manager adoption; acquisition never silently changes it.
+
+### Profile-assisted setup
+
+`previewProfile('managed')` asks the manager for a read-only recipe without initializing a store or registering an application. `registerProfile('managed')` explicitly registers the expanded immutable catalog; attach its `combined_policy_refs` to a package request. Neither method adopts policies on existing applications or claims. Omitting profile setup preserves the manager's ordinary defaults.
+
+```ts
+const profile = await app.registerProfile('managed');
+const installed = await repository.acquirePersistent({
+  source: { type: 'git', origin: 'https://github.com/example/packages.git' },
+  selector: { type: 'ref', reference: 'main' },
+  selection: { folder: 'packages/example' },
+  policyRefs: profile.combined_policy_refs,
+});
+```
+
+`managed` uses cached retrieval with a 24-hour refresh age, manual acquisition updates, identical-output reuse and ten recent revisions. `explicit-update` checks the source each time but still keeps acquisition updates manual. To update the selected output during repeated acquisition, pass an explicit `update_policy` override in `catalog` and its UUID in `acquisitionPolicyRefs`. The manager validates and expands stage overrides; Eagle does not duplicate recipes. Existing claims still require explicit policy adoption before changing their intent.
+
+These are resource profiles: no `forInstall`, shims, executable probes or managed application installation are added. Scope, credentials, verification and pins remain independent. Session previews use retained managed outputs; a `temporary` profile can be inspected with `previewProfile('temporary')`, but temporary/no-store retrieval is not a retained-package preview. Use the direct SDK retrieval/run APIs for those lifetimes.
 
 ## Retention and publication
 

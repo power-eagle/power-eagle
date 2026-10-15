@@ -5,6 +5,7 @@ import type {
   ApplicationRegistration,
 } from 'saucepan-sdk/models/claim';
 import type { Policy } from 'saucepan-sdk/models/policy';
+import type { ProfileName } from 'saucepan-sdk/models/setup';
 import type { GroupRecord } from 'saucepan-sdk/models/group';
 import type { GroupPinRequest } from 'saucepan-sdk/models/pin';
 import { resolveHostRequire } from './runtime-modules';
@@ -57,6 +58,11 @@ export interface PowerEagleSaucepanOptions {
   scope?: string;
   credentialFile?: string;
 }
+/** Stage overrides are evaluated by Saucepan, never merged by the host. */
+export type PackageProfileOptions = Pick<
+  NonNullable<Parameters<Client['profile']>[1]>,
+  'catalog' | 'retrievalPolicyRefs' | 'acquisitionPolicyRefs'
+>;
 const PIN_POLICY = '9fc47d63-4387-4212-8e0f-9d75e100ac0a';
 const object = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === 'object' && !Array.isArray(v);
@@ -109,7 +115,7 @@ export class PowerEagleSaucepan {
     const path = this.#require('path') as typeof import('node:path');
     if (fs.existsSync(path.join(this.options.stateRoot, '.saucepanhash')))
       throw new Error(
-        'Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with Saucepan 0.9. The shared store is not migrated.',
+        'Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with Saucepan 0.10. The shared store is not migrated.',
       );
     if (!fs.existsSync(this.#file)) return this.fresh();
     const state: unknown = JSON.parse(fs.readFileSync(this.#file, 'utf8'));
@@ -227,6 +233,19 @@ export class PowerEagleSaucepan {
   }
   registerPolicies(policies: Policy[]) {
     return this.options.client.registerPolicies(policies);
+  }
+  /** Read-only preview: no store initialization, policy registration or adoption. */
+  previewProfile(name: ProfileName = 'managed', options: PackageProfileOptions = {}) {
+    return this.options.client.profile(name, options);
+  }
+  /** Explicit local setup; callers attach the returned UUIDs to their intent. */
+  async registerProfile(
+    name: Exclude<ProfileName, 'temporary'> = 'managed',
+    options: PackageProfileOptions = {},
+  ) {
+    const profile = await this.previewProfile(name, options);
+    await this.options.client.registerPolicies(profile.catalog);
+    return profile;
   }
   async adoptPolicies(expectedRevision: number, policyRefs: string[]) {
     return this.transaction(async (state) =>

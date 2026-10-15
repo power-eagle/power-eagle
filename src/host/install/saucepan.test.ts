@@ -198,11 +198,18 @@ describe('read-only manager probe', () => {
   });
   it('accepts build suffixes and only version/help calls', async () => {
     const hostRequire = host(
-      `const arg=process.argv[2];if(arg==='--version')console.log('saucepan 0.9.0+dev');else if(arg==='--help')console.log('register-application register-source register-group prepare-group pin unpin');else process.exit(99);`,
+      `const arg=process.argv[2];if(arg==='--version')console.log('saucepan 0.10.0+dev');else if(arg==='--help')console.log('register-application register-source register-group prepare-group pin unpin profiles profile explain-policies');else process.exit(99);`,
     );
     expect(
       await initializeSaucepan({ hostRequire, binaryPath: 'fixture' }),
-    ).toMatchObject({ status: 'ready', version: 'saucepan 0.9.0+dev' });
+    ).toMatchObject({ status: 'ready', version: 'saucepan 0.10.0+dev' });
+  });
+  it('rejects pre-profile managers and incomplete 0.10 command surfaces', async () => {
+    for (const version of ['0.9.0', '0.10.0']) {
+      const hostRequire = host(`if(process.argv[2]==='--version')console.log('saucepan ${version}');else console.log('register-application register-source register-group prepare-group pin unpin');`);
+      expect(await initializeSaucepan({ hostRequire, binaryPath: 'fixture' }))
+        .toMatchObject({ status: 'unavailable', builtInsAvailable: true });
+    }
   });
   it('rejects old protocols before any mutation', async () => {
     const hostRequire = host(`console.log('saucepan 0.6.0')`);

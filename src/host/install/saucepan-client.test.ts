@@ -65,6 +65,29 @@ function fixture() {
 describe.skipIf(!existsSync(executable))(
   'current manager ownership integration',
   () => {
+    integrationIt('previews root-free profiles and registers explicit flat references without adopting them', async () => {
+      const f = fixture();
+      const preview = await f.app.previewProfile();
+      expect(existsSync(join(f.root, 'manager'))).toBe(false);
+      expect(existsSync(f.options.stateRoot)).toBe(false);
+      expect(preview.name).toBe('managed');
+      expect(preview.for_install).toBe(false);
+      expect(preview.catalog.map((policy) => policy.type)).not.toContain('useable_app_policy');
+      expect(preview.catalog.map((policy) => policy.type)).not.toContain('access_policy');
+      await f.app.initializeStore();
+      const registered = await f.app.registerProfile();
+      expect(registered).toEqual(preview);
+      expect(await f.app.registerProfile()).toEqual(registered);
+      expect(existsSync(f.options.stateRoot)).toBe(false);
+      await f.app.ensureRegistration();
+      const request = { ...f.request, policyRefs: registered.combined_policy_refs };
+      const first = await f.app.acquirePersistent(request);
+      writeFileSync(join(f.source, 'package', 'hello.txt'), 'changed');
+      await f.app.registerProfile('explicit-update');
+      const second = await f.app.acquirePersistent(request);
+      expect(second.outputUuid).toBe(first.outputUuid);
+      expect(readFileSync(join(second.directory, 'hello.txt'), 'utf8')).toBe('original');
+    });
     integrationIt(
       'reuses scoped claims, retains exact copied outputs and restores published receipts',
       async () => {
@@ -307,17 +330,19 @@ describe.skipIf(!existsSync(executable))(
           '-m',
           'first',
         );
-        const refs = [randomUUID(), randomUUID(), randomUUID()];
-        await f.app.registerPolicies([
-          { uuid: refs[0], type: 'refresh_policy', mode: 'always' },
-          { uuid: refs[1], type: 'update_policy', mode: 'always' },
-          { uuid: refs[2], type: 'revision_policy', history: 'none' },
-        ]);
+        const refs = [randomUUID(), randomUUID()];
+        const profile = await f.app.registerProfile('explicit-update', {
+          catalog: [
+            { uuid: refs[0], type: 'update_policy', mode: 'always' },
+            { uuid: refs[1], type: 'revision_policy', history: 'none' },
+          ],
+          acquisitionPolicyRefs: refs,
+        });
         const request: PackageRequest = {
           source: { type: 'git', origin: f.source },
           selector: { type: 'ref', reference: 'main' },
           selection: { folder: 'package' },
-          policyRefs: refs,
+          policyRefs: profile.combined_policy_refs,
         };
         const a = await f.app.acquirePersistent(request);
         await f.app.publish(a);

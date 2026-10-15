@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 const executable=process.env.POWER_EAGLE_TEST_SAUCEPAN;
-if(!executable) throw new Error('Set POWER_EAGLE_TEST_SAUCEPAN to a separately installed 0.9 executable');
+if(!executable) throw new Error('Set POWER_EAGLE_TEST_SAUCEPAN to a separately installed 0.10 executable');
 const root=await mkdtemp(join(tmpdir(),'power-eagle-packaged-sdk-'));
 try {
   await copyFile('dist/saucepan-host.cjs',join(root,'host.cjs'));
@@ -15,9 +15,10 @@ const {Client,EagleTransport,PowerEagleSaucepan,AcquiredPackageRepository}=requi
  const client=new Client({executable:process.argv[2],root:path.join(__dirname,'manager'),transport:new EagleTransport(require)});
  const options={client,stateRoot:path.join(__dirname,'state'),hostRequire:require};
  const app=new PowerEagleSaucepan(options);await app.initializeStore();await app.ensureRegistration();
- const refs=[crypto.randomUUID(),crypto.randomUUID(),crypto.randomUUID()];
- await app.registerPolicies([{uuid:refs[0],type:'refresh_policy',mode:'always'},{uuid:refs[1],type:'update_policy',mode:'always'},{uuid:refs[2],type:'revision_policy',history:'none'}]);
- const request={source:{type:'local',path:path.join(__dirname,'source')},selector:{type:'local'},policyRefs:refs};
+ const refs=[crypto.randomUUID(),crypto.randomUUID()];
+ const profile=await app.registerProfile('explicit-update',{catalog:[{uuid:refs[0],type:'update_policy',mode:'always'},{uuid:refs[1],type:'revision_policy',history:'none'}],acquisitionPolicyRefs:refs});
+ assert.equal(profile.for_install,false);
+ const request={source:{type:'local',path:path.join(__dirname,'source')},selector:{type:'local'},policyRefs:profile.combined_policy_refs};
  const repository=new AcquiredPackageRepository(app,require);
  const first=await repository.acquirePersistent(request);const reader=await repository.reader(first);
  fs.writeFileSync(path.join(__dirname,'source','manifest.json'),'{}');
