@@ -1,91 +1,52 @@
 # Package acquisition and contribution contract
 
-Power Eagle targets Saucepan 0.9's shared central store. It does not download a private executable, create `saucepan.toml`, maintain buckets, read the encrypted index, or reconstruct a content path. Install or build a compatible Saucepan executable independently at `~/.saucepan/bin/saucepan[.exe]`, or configure an explicit executable path. Initialize the user store deliberately once with:
+Power Eagle targets Saucepan 0.9 through the independently installed executable at `~/.saucepan/bin/saucepan[.exe]` or an explicit override. Install the manager ZIP containing Saucepan and its shim independently, then initialize the shared store deliberately with `saucepan init`. Startup only probes `--version` and `--help`; it does not initialize a store or replace binaries. Built-ins remain usable when native tooling is unavailable.
 
-```sh
-saucepan init
-```
+The bundled `saucepan-sdk` 0.1.0 client comes from release v0.9.0, commit `041e4f90634e6007b58054a59604396f8fbebd21`, with artifact integrity recorded in package-lock.json. Eagle uses an injected public SDK transport because the default SDK transport requires Node 22. The standalone host bundle has been exercised on Node 16.17.1 with the real manager. Real packaged Eagle acceptance remains pending.
 
-Acquisition never initializes a missing store. The bundled saucepan-sdk 0.1.0 client is pinned to the v0.9.0 release built from commit 041e4f90634e6007b58054a59604396f8fbebd21; npm lockfile integrity fixes its bytes. Its default transport requires Node 22, so Power Eagle injects its own host transport through the public SDK contract. Standalone Node 16.17.1 bundle and real-manager checks pass; packaged Eagle acceptance is still required. Power Eagle calls the executable asynchronously through Eagle's Node 16 bridge with literal arguments and temporary JSON files. The executable owns provider behavior, encryption, credentials, locking, content verification, snapshots, and its index. A missing executable or unavailable store disables package controls while built-in runtimes remain available.
+## Host integration
 
-## Clean Power Eagle state
+`npm run build` includes `dist/saucepan-host.cjs`, a self-contained host entry exporting the manager probe, application adapter and retained package repository. It loads without the checkout or installed npm dependencies. The current workbench has no acquisition-management UI; connecting these APIs to installation controls remains part of `rebuild-power-eagle`.
 
-The first revised launch removes the complete legacy Power Eagle-owned `~/.powereagle` tree and obsolete browser enablement keys. This deliberately deletes old conversations, themes, cached Saucepan binaries, workspace configuration/indexes, managed clones, and generated package data inside that root. There is no migration or compatibility fallback.
+`initializeSaucepan({ binaryPath, root, hostRequire })` returns a ready SDK client or an unavailable diagnostic. Construct `PowerEagleSaucepan` with that client, the existing owned Power Eagle state root and an explicit scope (default `library`). Then call `ensureRegistration()` before persistent acquisition. Registration uses stable application UUID ownership; credentials are independently opt-in via `credentials_required`, `credentialOut` and a configured `credentialFile`. Basic integrity does not need a native keyring.
 
-The reset never deletes a local source outside `~/.powereagle` and never deletes the shared `~/.saucepan` store. After cleanup, Power Eagle recreates its root with a versioned sentinel. Later launches retain the new state only when that sentinel is valid; an unreadable or unknown sentinel fails startup rather than risking another deletion.
+App-owned `saucepan.json` contains UUID receipts, pending operation identities and validated active selections. It is not a copy of the manager index. Old token state and malformed receipts fail with an actionable diagnostic; there is no legacy transport or shared-store migration. The existing one-time Power Eagle state reset still owns its sentinel and its exact private root; it does not reset Saucepan.
 
-```text
-~/.powereagle/
-  .power-eagle-state.json       # power-eagle/state version 1 sentinel
-  .saucepanhash                 # stable Power Eagle Saucepan app token
+## Package requests
 
-~/.saucepan/
-  bin/saucepan[.exe]            # independently installed shared executable
-  index.json.enc                # owned exclusively by Saucepan
-  index.lock
-  sources/<source-id>/...       # shared central content and snapshots
-```
-
-Power Eagle writes neither `index.json.enc` nor a companion installed-package index. Its durable package list is the marker-scoped Saucepan view.
-
-## Recipes and persistence
-
-Acquisition accepts the current Git, URL, and local recipe shapes. The local runtime example is checked in at [`examples/saucepan-recipes/local-runtime.json`](../examples/saucepan-recipes/local-runtime.json):
-
-```json
-{"source":{"provider":"local","path":"examples/runtime-only"}}
-```
-
-Git can track a ref or pin a full commit:
+The adapter accepts source and selector objects from the SDK. For example:
 
 ```json
 {
-  "source": {
-    "provider": "git",
-    "origin": "https://github.com/example/power-eagle-packages.git",
-    "reference": "main"
-  },
-  "folder": "packages/example"
+  "source": { "type": "git", "origin": "https://github.com/example/packages.git" },
+  "selector": { "type": "ref", "reference": "main" },
+  "selection": { "folder": "packages/example" },
+  "policyRefs": [],
+  "groupPolicyRefs": []
 }
 ```
 
-URL recipes declare whether the result is one named file or a ZIP:
+For exact content use `{"type":"commit","commit":"<full commit>"}`. Local inputs use `source.type=local`, a path and `selector.type=local`; acquisition reads a manager-owned copy. URL inputs use `source.type=url`, a URL and `selector.type=url`. Select `format=zip` with an optional folder, or `format=raw` with a filename. The [local example](../examples/saucepan-recipes/local-runtime.json) uses this current shape.
 
-```json
-{
-  "source": {
-    "provider": "url",
-    "url": "https://example.com/power-eagle-package.zip",
-    "download": {"format":"zip"}
-  }
-}
-```
+Register immutable policy records explicitly through `registerPolicies`; attach their UUIDs through `policyRefs` for acquisition and `groupPolicyRefs` for group access/path verification. Refresh, update and revision history remain distinct policies. App policy adoption uses `adoptPolicies(expectedRevision, refs)`, an explicit local administration operation. Source and policy registration are also explicit local setup. Actual persistent retrieval remains app-bound and never retries through unbound access after denial. Changing a claim's policy intent requires explicit manager adoption; acquisition never silently changes it.
 
-Local inputs are copied into Saucepan's central store. Power Eagle validates and loads the `directory` returned by acquisition; it never assumes that the original local path is the installed package.
+## Retention and publication
 
-Persistent acquisition registers the `power-eagle` app once, stores its stable marker under the clean state root, and uses that marker for acquire, view, path, history, snapshot, mirror, configure, and verify. Successfully validated artifacts return through the scoped view after restart.
+`AcquiredPackageRepository.acquirePersistent(request, activate?)` prepares an app-owned group and an exact generation pin, validates static package metadata, optionally awaits activation, then publishes the selection. A failed replacement keeps the prior selected package and pin. Persistent active selections are verified against authenticated pin/group receipts on restart; paths are derived from the manager's retained output, checked against the saved selection, and never invented from store layout.
 
-Session-only acquisition omits app, marker, and authoritative flags. It shares Saucepan's verified retained content but creates no Power Eagle touch. Power Eagle keeps a validated session artifact only in memory and labels it session-only; it does not return after restart. Use this path for preview or validation, not installation.
+`acquireSession` prepares an unbound group with a pin and no application claim. It is not an installed entry. Preview receipts remain inspectable for cleanup after a crash.
 
-Artifacts are grouped by Saucepan's canonical `source_id` and full `source` descriptor. Two Git origins remain separate even though both use the `git` provider. Package discovery uses only Saucepan-returned directories and static files. It does not execute provider code.
+A returned path alone is not a lifetime guarantee. Provider owners must await `repository.reader(record)`, retain that handle until provider disposal finishes, and then await `handle.close()`. Replacements retain old pins until explicit `repository.dispose(oldRecord)`; disposal waits for outstanding reader handles before unpinning. Durable reader markers in the shared app-owned receipt file coordinate Eagle windows using the same state root. Opening a handle registers its marker under the receipt transaction lock before reading; retiring a receipt prevents new readers. Final close removes its marker and retries deferred release idempotently. Crash markers never expire automatically: inspect them before explicit recovery. `copyToWorkspace(record, store)` holds a reader through the existing workspace copy transaction and returns an independent editable copy. Editing that workspace never changes the shared output.
 
-## Acquisition validation and recovery
+Uninstall or preview close calls `dispose(record)` after initiating provider disposal. The adapter releases its own pin and removes its final group/claim references only when no other owned receipt or pending generation needs them. It never deletes central payload directories. Failed validation/activation can leave safe retained candidates: inspect `retainedReceipts()` and release them after confirming their readers have stopped.
 
-Every acquired directory must pass the new manifest, runtime, entry, asset, SDK, host-target, and path-containment checks before Power Eagle publishes it. When `package.json` declares production dependencies, discovery resolves and version-checks them from inside that acquired directory without evaluating provider modules. Power Eagle never builds acquired source or runs a package manager.
+## Failure recovery
 
-A persistent package occupies a canonical source-and-folder slot. If a newly acquired or refreshed artifact fails validation, the error names the failing layer and the previously validated package in that slot remains active. Transport success alone never publishes partial package state.
+Structured manager errors retain their domain code. A timeout, invalid response or cancelled mutation after process launch is potentially committed. Group preparation journals its original group revision and pin key before launch; retrying the same request reconciles that identity rather than generating a second pin. Other uncertain administrative calls require inspection of their stable registration key/UUID before retry. No automatic privilege fallback occurs.
 
-| Failure layer | Meaning | Recovery |
-| --- | --- | --- |
-| state reset | target or sentinel is unsafe/invalid | inspect the exact `~/.powereagle` path; do not bypass the guard |
-| tooling launch | shared executable is missing or cannot start | install Saucepan 0.6 or configure its exact executable path |
-| central store | initialization, credentials, locking, source, or policy failed | run explicit setup when needed and follow Saucepan's stderr diagnostic |
-| transport/protocol | process terminated or returned non-JSON/incompatible output | use a compatible Saucepan 0.6 executable and retry |
-| package format | manifest/runtime/entry/asset path is invalid or legacy | publish a `power-eagle/package` version 1 artifact |
-| dependency | a declared production dependency is absent, external, or has the wrong version | rebuild the artifact with its complete production `node_modules` |
-| host compatibility | SDK, platform, architecture, or Node target excludes Eagle | rebuild for the recorded Eagle runtime or correct the manifest target |
+A busy `saucepan.json.lock` reports the exact file. Following a crash, first confirm that the owning process has stopped, inspect pending receipts, and only then remove that private lock. Pins and durable reader markers deliberately survive crashes; process-ID guesses never authorize unpinning. Windows must share the configured Power Eagle state root to coordinate the same receipts. Do not copy receipt files into another state root. Static package validation remains separate from acquisition errors and never runs provider code or package installation scripts.
 
-Raw Saucepan stderr remains attached to command failures. Package diagnostics remain distinct from acquisition failures, so repairing a manifest does not masquerade as a network or credential problem.
+## Contribution format
 
 `manifest.json` uses `format: "power-eagle/package"` and `formatVersion: 1`. Required metadata is `id`, `name`, full semantic `version`, `description`, and supported host `sdk` range. IDs use letters followed by letters, digits, dots, underscores, or hyphens. An export is identified as `package.id/exportId`.
 
@@ -307,4 +268,4 @@ The same manifest-first layout is used by `examples/layout-widgets`, `examples/c
 
 ## Source organization
 
-Implementation stays under `src/app`, `src/sdui`, `src/host/install`, `src/plugins`, `src/ai`, and `src/components/ui`. Host installation code owns only the CLI transport, Power Eagle marker, acquisition result validation, and in-memory publication. Saucepan owns the shared executable location and central storage. Old Power Eagle payloads and storage records are deleted by the reset rather than converted or retained.
+Implementation stays under `src/app`, `src/sdui`, `src/host/install`, `src/plugins`, `src/ai`, and `src/components/ui`. Host installation code owns the injected SDK transport, application UUID receipts, retained acquisition, validation and publication. Saucepan owns the shared executable location and central storage. Old Power Eagle payloads and storage records are deleted by the reset rather than converted or retained.

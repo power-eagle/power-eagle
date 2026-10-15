@@ -100,8 +100,8 @@ export function acquiredWorkbenchPackage(
   status: WorkbenchStatus = 'active',
 ): WorkbenchPackage {
   return {
-    sourceId: record.persistence === 'session' ? 'session' : record.acquired.artifact.source_id,
-    sourceLabel: record.persistence === 'session' ? 'session only' : record.acquired.artifact.source_id,
+    sourceId: record.persistence === 'session' ? 'session' : record.acquired.sourceUuid,
+    sourceLabel: record.persistence === 'session' ? 'session only' : record.acquired.sourceUuid,
     sourceKind: record.persistence === 'session' ? 'session' : 'installed',
     persistence: record.persistence, manifest: record.discovered.manifest, status,
   };
