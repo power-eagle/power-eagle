@@ -1,12 +1,12 @@
 # Package acquisition and contribution contract
 
-Power Eagle uses Saucepan 0.6's shared central store. It does not download a private executable, create `saucepan.toml`, maintain buckets, read the encrypted index, or reconstruct a content path. Install or build a compatible Saucepan executable independently at `~/.saucepan/bin/saucepan[.exe]`, or configure an explicit executable path. Initialize the user store deliberately once with:
+Power Eagle targets Saucepan 0.9's shared central store. It does not download a private executable, create `saucepan.toml`, maintain buckets, read the encrypted index, or reconstruct a content path. Install or build a compatible Saucepan executable independently at `~/.saucepan/bin/saucepan[.exe]`, or configure an explicit executable path. Initialize the user store deliberately once with:
 
 ```sh
 saucepan init
 ```
 
-Acquisition never initializes a missing store. Power Eagle calls the executable asynchronously through Eagle's Node 16 bridge with literal arguments and temporary JSON files. The executable owns provider behavior, encryption, credentials, locking, content verification, snapshots, and its index. A missing executable or unavailable store disables package controls while built-in runtimes remain available.
+Acquisition never initializes a missing store. The bundled saucepan-sdk 0.1.0 client is pinned to the v0.9.0 release built from commit 041e4f90634e6007b58054a59604396f8fbebd21; npm lockfile integrity fixes its bytes. Its default transport requires Node 22, so Power Eagle injects its own host transport through the public SDK contract. Standalone Node 16.17.1 bundle and real-manager checks pass; packaged Eagle acceptance is still required. Power Eagle calls the executable asynchronously through Eagle's Node 16 bridge with literal arguments and temporary JSON files. The executable owns provider behavior, encryption, credentials, locking, content verification, snapshots, and its index. A missing executable or unavailable store disables package controls while built-in runtimes remain available.
 
 ## Clean Power Eagle state
 
