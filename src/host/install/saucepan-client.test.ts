@@ -231,13 +231,28 @@ describe.skipIf(!existsSync(executable))(
         const app = await f.app.ensureRegistration();
         const a = randomUUID(),
           b = randomUUID();
+        const allowed = await f.client.registerSource(f.request.source);
         await f.app.registerPolicies([
-          { uuid: a, type: 'access_policy', scopes: ['library'] },
+          {
+            uuid: a,
+            type: 'access_policy',
+            scopes: ['library'],
+            sources: [allowed.uuid],
+          },
           { uuid: b, type: 'access_policy', scopes: ['another-project'] },
         ]);
         await f.app.adoptPolicies(0, [a]);
         const ok = await f.app.acquirePersistent(f.request);
         expect(ok.claimUuid).toBeTruthy();
+        const other = join(f.root, 'restricted-source');
+        mkdirSync(other);
+        writeFileSync(join(other, 'hello.txt'), 'restricted');
+        await expect(
+          f.app.acquirePersistent({
+            source: { type: 'local', path: other },
+            selector: { type: 'local' },
+          }),
+        ).rejects.toMatchObject({ code: 'access_denied' });
         await f.app.adoptPolicies((await f.client.inspect(app)).revision!, [b]);
         await expect(f.app.acquirePersistent(f.request)).rejects.toMatchObject({
           code: 'access_denied',
@@ -246,6 +261,29 @@ describe.skipIf(!existsSync(executable))(
           (await f.client.pins()).filter((pin) => pin.owner === null),
         ).toHaveLength(0);
         expect(app).toBeTruthy();
+      },
+    );
+    integrationIt(
+      'reuses a parent claim and preserves the selected subpath view',
+      async () => {
+        const f = fixture();
+        await f.app.initializeStore();
+        await f.app.ensureRegistration();
+        const parent = await f.app.acquirePersistent({
+          ...f.request,
+          selection: undefined,
+        });
+        const child = await f.app.acquirePersistent(f.request);
+        expect(child.claimUuid).toBe(parent.claimUuid);
+        expect(child.outputUuid).toBe(parent.outputUuid);
+        expect(child.relative).toBe('package');
+        expect(readFileSync(join(child.directory, 'hello.txt'), 'utf8')).toBe(
+          'original',
+        );
+        await f.app.publish(child);
+        expect(
+          await new PowerEagleSaucepan(f.options).retainedPackages(),
+        ).toEqual([child]);
       },
     );
     integrationIt(
