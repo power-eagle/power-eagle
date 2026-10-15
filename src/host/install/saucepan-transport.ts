@@ -245,7 +245,7 @@ export class EagleTransport implements Transport {
         if (
           !Array.isArray(value) ||
           !value.every((item) =>
-            call.argv[0] === 'register-policies'
+            ['register-policies', 'profiles'].includes(String(call.argv[0]))
               ? typeof item === 'string'
               : record(item),
           )
@@ -266,6 +266,8 @@ export class EagleTransport implements Transport {
           'released',
           'removed',
           'state',
+          'name',
+          'digest',
         ]);
         const objects = new Set([
           'source',
@@ -284,6 +286,7 @@ export class EagleTransport implements Transport {
           'context',
           'deferred',
           'pending',
+          'axes',
         ]);
         const arrays = new Set([
           'sources',
@@ -291,6 +294,11 @@ export class EagleTransport implements Transport {
           'policy_refs',
           'reclaimed',
           'stale',
+          'catalog',
+          'retrieval_policy_refs',
+          'acquisition_policy_refs',
+          'combined_policy_refs',
+          'restrictions',
         ]);
         for (const key of call.required ?? []) {
           if (
@@ -300,7 +308,7 @@ export class EagleTransport implements Transport {
             (arrays.has(key) && !Array.isArray(value[key])) ||
             (['revision', 'generation', 'policy_revision'].includes(key) &&
               !Number.isSafeInteger(value[key])) ||
-            (key === 'purged' && typeof value[key] !== 'boolean')
+            (['purged', 'for_install'].includes(key) && typeof value[key] !== 'boolean')
           )
             throw new TransportError('protocol', true);
         }

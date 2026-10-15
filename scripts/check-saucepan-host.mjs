@@ -13,11 +13,14 @@ const assert=require('assert/strict'),fs=require('fs'),path=require('path'),cryp
 const {Client,EagleTransport,PowerEagleSaucepan,AcquiredPackageRepository}=require('./host.cjs');
 (async()=>{
  const client=new Client({executable:process.argv[2],root:path.join(__dirname,'manager'),transport:new EagleTransport(require)});
+ assert.deepEqual(await client.profiles(),['managed','explicit-update','temporary']);
  const options={client,stateRoot:path.join(__dirname,'state'),hostRequire:require};
  const app=new PowerEagleSaucepan(options);await app.initializeStore();await app.ensureRegistration();
  const refs=[crypto.randomUUID(),crypto.randomUUID()];
  const profile=await app.registerProfile('explicit-update',{catalog:[{uuid:refs[0],type:'update_policy',mode:'always'},{uuid:refs[1],type:'revision_policy',history:'none'}],acquisitionPolicyRefs:refs});
  assert.equal(profile.for_install,false);
+ const explanation=await client.explainPolicies({operation:'retrieve',request:{source:{kind:'inline',source:{type:'local',path:path.join(__dirname,'source')}},selector:{type:'local'},policy_refs:profile.retrieval_policy_refs}},{policies:profile.catalog});
+ assert.ok(explanation.axes);assert.ok(Array.isArray(explanation.restrictions));
  const request={source:{type:'local',path:path.join(__dirname,'source')},selector:{type:'local'},policyRefs:profile.combined_policy_refs};
  const repository=new AcquiredPackageRepository(app,require);
  const first=await repository.acquirePersistent(request);const reader=await repository.reader(first);

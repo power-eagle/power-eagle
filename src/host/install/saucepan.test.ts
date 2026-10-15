@@ -82,6 +82,34 @@ describe('Eagle SDK transport', () => {
     });
     expect(await client.querySources()).toEqual({ generation: 1, sources: [] });
   });
+  it('accepts profile-name arrays and rejects malformed profile and explanation shapes', async () => {
+    const names = ['managed', 'explicit-update', 'temporary'];
+    const client = new Client({
+      transport: new EagleTransport(host(`console.log('${JSON.stringify(names)}')`)),
+    });
+    expect(await client.profiles()).toEqual(names);
+    const profile = {
+      name: 'managed', digest: 'digest', catalog: [], for_install: false,
+      retrieval_policy_refs: [], acquisition_policy_refs: [], combined_policy_refs: [],
+    };
+    for (const [key, wrong] of Object.entries({
+      name: 1, digest: false, catalog: {}, for_install: 'false',
+      retrieval_policy_refs: {}, acquisition_policy_refs: null, combined_policy_refs: '',
+    })) {
+      const malformed = new Client({ transport: new EagleTransport(host(
+        `console.log('${JSON.stringify({ ...profile, [key]: wrong })}')`,
+      )) });
+      await expect(malformed.profile()).rejects.toMatchObject({ kind: 'protocol', indeterminate: false });
+    }
+    for (const response of [{ axes: [], restrictions: [] }, { axes: {}, restrictions: {} }]) {
+      const malformed = new Client({ transport: new EagleTransport(host(
+        `console.log('${JSON.stringify(response)}')`,
+      )) });
+      await expect(malformed.explainPolicies({
+        operation: 'retrieve', request: { source: { kind: 'inline', source: { type: 'local', path: 'fixture' } }, selector: { type: 'local' } },
+      })).rejects.toMatchObject({ kind: 'protocol', indeterminate: false });
+    }
+  });
   it('preserves structured errors without marking a known denial uncertain', async () => {
     const transport = new EagleTransport(
       host(

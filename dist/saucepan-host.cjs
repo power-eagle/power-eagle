@@ -2805,7 +2805,7 @@ var EagleTransport = class {
       const value = decode4(result.stdout);
       if (call.shape === "array") {
         if (!Array.isArray(value) || !value.every(
-          (item) => call.argv[0] === "register-policies" ? typeof item === "string" : record(item)
+          (item) => ["register-policies", "profiles"].includes(String(call.argv[0])) ? typeof item === "string" : record(item)
         ))
           throw new TransportError("protocol", true);
       } else {
@@ -2822,7 +2822,9 @@ var EagleTransport = class {
           "verification",
           "released",
           "removed",
-          "state"
+          "state",
+          "name",
+          "digest"
         ]);
         const objects = /* @__PURE__ */ new Set([
           "source",
@@ -2840,17 +2842,23 @@ var EagleTransport = class {
           "outputs",
           "context",
           "deferred",
-          "pending"
+          "pending",
+          "axes"
         ]);
         const arrays = /* @__PURE__ */ new Set([
           "sources",
           "claims",
           "policy_refs",
           "reclaimed",
-          "stale"
+          "stale",
+          "catalog",
+          "retrieval_policy_refs",
+          "acquisition_policy_refs",
+          "combined_policy_refs",
+          "restrictions"
         ]);
         for (const key of call.required ?? []) {
-          if (!(key in value) || strings.has(key) && typeof value[key] !== "string" || objects.has(key) && !record(value[key]) || arrays.has(key) && !Array.isArray(value[key]) || ["revision", "generation", "policy_revision"].includes(key) && !Number.isSafeInteger(value[key]) || key === "purged" && typeof value[key] !== "boolean")
+          if (!(key in value) || strings.has(key) && typeof value[key] !== "string" || objects.has(key) && !record(value[key]) || arrays.has(key) && !Array.isArray(value[key]) || ["revision", "generation", "policy_revision"].includes(key) && !Number.isSafeInteger(value[key]) || ["purged", "for_install"].includes(key) && typeof value[key] !== "boolean")
             throw new TransportError("protocol", true);
         }
       }
