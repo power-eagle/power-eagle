@@ -11,6 +11,7 @@ export const pluginInstanceSchema = z.strictObject({
   instanceId: identifier, namespace: identifier, name: z.string().trim().min(1).max(120),
   origin: z.strictObject({ kind: z.enum(['built-in', 'acquired', 'local', 'agent']), sourceId: z.string().min(1) }),
   currentRevision: revisionId, revisions: z.array(pluginRevisionSchema).min(1),
+  acquisition: z.strictObject({ slot: z.string().min(1), pinUuid: z.string().uuid(), outputUuid: z.string().uuid(), revision: revisionId }).optional(),
   forkOf: z.strictObject({ instanceId: identifier, revision: revisionId }).optional(),
   namespaceConflict: z.strictObject({ namespace: identifier, sourceInstanceId: identifier }).optional(),
 }).superRefine((instance, context) => {
@@ -22,6 +23,7 @@ export const pluginInstanceSchema = z.strictObject({
     seen.add(revision.id);
   }
   if (!seen.has(instance.currentRevision)) context.addIssue({ code: 'custom', message: 'Current revision does not belong to this instance' });
+  if (instance.acquisition && !seen.has(instance.acquisition.revision)) context.addIssue({ code: 'custom', message: 'Acquired revision does not belong to this instance' });
   if (instance.forkOf && instance.forkOf.instanceId === instance.instanceId) context.addIssue({ code: 'custom', message: 'An instance cannot fork itself' });
   if (Boolean(instance.forkOf) !== Boolean(instance.namespaceConflict)
     || (instance.namespaceConflict && (instance.namespaceConflict.namespace !== instance.namespace

@@ -2345,7 +2345,9 @@ __export(entry_exports, {
   PowerEagleSaucepan: () => PowerEagleSaucepan,
   SaucepanError: () => SaucepanError,
   TransportError: () => TransportError,
-  initializeSaucepan: () => initializeSaucepan
+  WorkbenchAcquisition: () => WorkbenchAcquisition,
+  initializeSaucepan: () => initializeSaucepan,
+  openWorkbenchAcquisition: () => openWorkbenchAcquisition
 });
 module.exports = __toCommonJS(entry_exports);
 
@@ -16417,8 +16419,13 @@ var AcquiredPackageRepository = class {
     const guard = await this.saucepan.retainReader(acquired);
     try {
       const record3 = this.discover(acquired);
-      await activate?.(record3);
-      await this.saucepan.publish(acquired);
+      let published = false;
+      const publish = async () => {
+        await this.saucepan.publish(acquired);
+        published = true;
+      };
+      await activate?.(record3, publish);
+      if (!published) await publish();
       (persistence === "persistent" ? this.#persistent : this.#session).set(
         persistence === "persistent" ? acquired.slot : acquired.pinUuid,
         record3
@@ -16540,6 +16547,160 @@ var AcquiredPackageRepository = class {
     };
   }
 };
+
+// src/host/install/workbench-acquisition.ts
+var EXPLICIT_UPDATE = "67cfcb22-8741-48cd-a464-55f1076a77b9";
+var WorkbenchAcquisition = class {
+  constructor(catalog, manager, stateRoot) {
+    this.catalog = catalog;
+    this.manager = manager;
+    if (manager.status === "ready" && catalog.store && stateRoot) {
+      this.app = new PowerEagleSaucepan({ client: manager.client, stateRoot, hostRequire: catalog.store.hostRequire });
+      this.repository = new AcquiredPackageRepository(this.app, catalog.store.hostRequire);
+    }
+  }
+  app;
+  repository;
+  #tail = Promise.resolve();
+  #closed = false;
+  #sessions = /* @__PURE__ */ new Map();
+  get unavailable() {
+    return this.manager.status === "unavailable" ? `${this.manager.error.message}. ${this.manager.error.recovery}` : !this.app ? "Open Power Eagle in Eagle to manage packages." : void 0;
+  }
+  enqueue(run) {
+    if (this.#closed) return Promise.reject(new Error("Package management is closing."));
+    const work = this.#tail.then(async () => {
+      if (this.unavailable) throw new Error(this.unavailable);
+      return run();
+    });
+    this.#tail = work.catch(() => {
+    });
+    return work;
+  }
+  setup() {
+    return this.enqueue(async () => {
+      await this.app.initializeStore();
+    });
+  }
+  async explicitRequest(request) {
+    if (request.policyRefs) return request;
+    const profile = await this.app.registerProfile("explicit-update", {
+      catalog: [{ uuid: EXPLICIT_UPDATE, type: "update_policy", mode: "always" }],
+      acquisitionPolicyRefs: [EXPLICIT_UPDATE]
+    });
+    return { ...request, policyRefs: profile.combined_policy_refs };
+  }
+  install(request) {
+    return this.enqueue(() => this.installNow(request));
+  }
+  async installNow(request) {
+    await this.app.ensureRegistration();
+    const selected = await this.explicitRequest(request);
+    let installed;
+    let previous;
+    await this.repository.acquirePersistent(selected, async (record3, publish) => {
+      const current = this.catalog.store.read().instances.find((item) => item.acquisition?.slot === record3.acquired.slot);
+      previous = current?.acquisition && this.app.retainedReceipts().find((item) => item.pinUuid === current.acquisition.pinUuid);
+      installed = await this.catalog.importAcquired(record3, publish);
+    });
+    if (previous && previous.pinUuid !== installed.acquisition.pinUuid) {
+      try {
+        await this.app.forget(previous);
+        await this.app.release(previous);
+      } catch (error46) {
+        throw new Error(`The new revision is installed, but prior retention needs cleanup: ${String(error46)}`);
+      }
+    }
+    return installed;
+  }
+  refresh(instanceId) {
+    return this.enqueue(async () => {
+      const instance = this.catalog.store.read().instances.find((item) => item.instanceId === instanceId);
+      if (!instance?.acquisition) throw new Error("Select an installed source package to refresh.");
+      if (instance.currentRevision !== instance.acquisition.revision) throw new Error("This plugin has a selected local edit. Select its acquired revision before refreshing from source.");
+      const receipt = this.receipt(instance);
+      return this.installNow(receipt.request);
+    });
+  }
+  receipt(instance) {
+    const receipt = this.app.retainedReceipts().find((item) => item.pinUuid === instance.acquisition?.pinUuid);
+    if (!receipt || receipt.slot !== instance.acquisition?.slot) throw new Error("The installed revision has no matching retained receipt. Inspect acquisition state before recovery.");
+    return receipt;
+  }
+  remove(instanceId) {
+    return this.enqueue(async () => {
+      const instance = this.catalog.store.read().instances.find((item) => item.instanceId === instanceId);
+      if (!instance?.acquisition) throw new Error("Select an acquired installation to remove.");
+      const receipt = this.receipt(instance);
+      await this.catalog.removeAcquired(instanceId);
+      try {
+        await this.app.forget(receipt);
+        await this.app.release(receipt);
+      } catch (error46) {
+        throw new Error(`The installation was removed; its retained receipt needs cleanup: ${String(error46)}`);
+      }
+    });
+  }
+  preview(request) {
+    return this.enqueue(async () => {
+      let id = "";
+      await this.repository.acquireSession(await this.explicitRequest(request), async (record3) => {
+        const reader = await this.repository.reader(record3);
+        try {
+          id = await this.catalog.openPreview(record3);
+          this.#sessions.set(id, { record: record3, reader });
+        } catch (error46) {
+          await reader.close();
+          throw error46;
+        }
+      });
+      return id;
+    });
+  }
+  closePreview(id) {
+    return this.enqueue(() => this.closeNow(id));
+  }
+  copyPreview(id, name, options) {
+    return this.enqueue(async () => {
+      const session = this.#sessions.get(id);
+      const entry = this.catalog.snapshot().entries.find((item) => item.instance.instanceId === id);
+      if (!session || !entry) throw new Error("The preview has closed.");
+      const reader = await this.repository.reader(session.record);
+      try {
+        const copy = await this.catalog.store.copyPreview(name, entry.instance, reader.directory, options);
+        await this.catalog.refresh();
+        return copy;
+      } finally {
+        await reader.close();
+      }
+    });
+  }
+  async closeNow(id) {
+    const session = this.#sessions.get(id);
+    if (!session) return;
+    if (session.disposalError) throw session.disposalError;
+    try {
+      await this.catalog.closePreview(id);
+    } catch (error46) {
+      session.disposalError = new Error(`Preview disposal failed; its reader and pin remain retained for recovery: ${String(error46)}`);
+      throw session.disposalError;
+    }
+    await session.reader.close();
+    await this.repository.dispose(session.record);
+    this.#sessions.delete(id);
+  }
+  async dispose() {
+    this.#closed = true;
+    await this.#tail;
+    for (const id of this.#sessions.keys()) await this.closeNow(id);
+  }
+};
+async function openWorkbenchAcquisition(catalog, options = {}) {
+  const hostRequire = catalog.store?.hostRequire;
+  const stateRoot = catalog.store?.bounded("acquisition");
+  const manager = await initializeSaucepan({ ...options, ...hostRequire ? { hostRequire } : {} });
+  return new WorkbenchAcquisition(catalog, manager, stateRoot);
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AcquiredPackageRepository,
@@ -16548,5 +16709,7 @@ var AcquiredPackageRepository = class {
   PowerEagleSaucepan,
   SaucepanError,
   TransportError,
-  initializeSaucepan
+  WorkbenchAcquisition,
+  initializeSaucepan,
+  openWorkbenchAcquisition
 });

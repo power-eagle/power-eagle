@@ -14,6 +14,7 @@ import { InstancePreferences } from '../host/workspaces/preferences';
 import { newPluginInstance } from '../host/workspaces/model';
 import type { PackageManifest } from '../sdui/schema/model';
 import { pluginRootFromEagleUrl } from './provider-experiment-path';
+import type { openWorkbenchAcquisition } from '../host/install/workbench-acquisition';
 
 export const INSTANCE_PREFERENCES_KEY = 'power-eagle.instances.v1';
 export const sharedModules = { react: React, 'react-dom': ReactDOM, 'react/jsx-runtime': jsx };
@@ -38,7 +39,24 @@ export function openPluginCatalog(capabilities: EagleCapabilities): Promise<Plug
       const preferences = InstancePreferences.open({ read: () => fs.existsSync(preferenceFile) ? fs.readFileSync(preferenceFile, 'utf8') : null,
         write: value => store.atomicWrite('preferences.json', JSON.parse(value)) });
       const catalog = new PluginCatalog(preferences, { hostRequire, sharedModules, host: { eagle: capabilities } }, store);
-      await catalog.refresh(); return catalog;
+      await catalog.refresh();
+      try {
+        const settingsPath = store.bounded('saucepan-settings.json');
+        let settings: { binaryPath?: string; root?: string } = {};
+        if (fs.existsSync(settingsPath)) {
+          const input = JSON.parse(fs.readFileSync(settingsPath, 'utf8')) as Record<string, unknown>;
+          if (!input || typeof input !== 'object' || Array.isArray(input)
+            || Object.entries(input).some(([key, value]) => !['binaryPath', 'root'].includes(key) || typeof value !== 'string' || !value.trim())) {
+            throw new Error('Invalid Saucepan settings; expected optional binaryPath and root strings.');
+          }
+          settings = input;
+        }
+        const integration = hostRequire(path.join(directory, 'saucepan-host.cjs')) as { openWorkbenchAcquisition: typeof openWorkbenchAcquisition };
+        catalog.acquisition = await integration.openWorkbenchAcquisition(catalog, settings);
+      } catch (error) {
+        catalog.acquisitionError = `Package management could not open: ${String(error)}. Check the packaged host bundle and Saucepan settings, then reopen Power Eagle.`;
+      }
+      return catalog;
     }
     // Browser development surface: common providers and registry, with durable operations explicitly unavailable.
     const manifests = [exampleManifest as PackageManifest, ...builtinContributionManifests];
@@ -58,7 +76,8 @@ export function openPluginCatalog(capabilities: EagleCapabilities): Promise<Plug
         assetUrl: () => { throw new Error('Package assets require Eagle'); }, host: { eagle: capabilities } });
       return [{ entry: contribution, contribution, kind: provider.kind, exports: provider.exports }];
     });
-    await catalog.refresh(); return catalog;
+    await catalog.refresh();
+    return catalog;
   });
   boot = operation.catch(() => {}); return operation;
 }

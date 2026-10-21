@@ -46,7 +46,7 @@ export class PackageAcquisitionError extends Error {
     this.name = 'PackageAcquisitionError';
   }
 }
-type Activation = (record: AcquiredContributionPackage) => Promise<void>;
+type Activation = (record: AcquiredContributionPackage, publish: () => Promise<void>) => Promise<void>;
 /** Retention follows readers. Replaced packages stay pinned until explicit disposal. */
 export class AcquiredPackageRepository {
   readonly #persistent = new Map<string, AcquiredContributionPackage>();
@@ -77,8 +77,10 @@ export class AcquiredPackageRepository {
     const guard = await this.saucepan.retainReader(acquired);
     try {
       const record = this.discover(acquired);
-      await activate?.(record);
-      await this.saucepan.publish(acquired);
+      let published = false;
+      const publish = async () => { await this.saucepan.publish(acquired); published = true; };
+      await activate?.(record, publish);
+      if (!published) await publish();
       (persistence === 'persistent' ? this.#persistent : this.#session).set(
         persistence === 'persistent' ? acquired.slot : acquired.pinUuid,
         record,

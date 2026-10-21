@@ -11,6 +11,7 @@ import { openPluginCatalog } from './plugin-catalog';
 import { usePluginCreation } from './plugin-creation';
 import { PluginAgent, type RuntimeModel } from '../host/workspaces/agent';
 import { PluginAgentPanel } from './plugin-agent';
+import { PackageControls } from './package-controls';
 
 export default function App({ capabilities: suppliedCapabilities, catalog: suppliedCatalog, model }: { capabilities?: EagleCapabilities; catalog?: PluginCatalog; model?: RuntimeModel } = {}) {
   const [capabilities] = useState(() => suppliedCapabilities ?? createEagleCapabilities());
@@ -20,11 +21,13 @@ export default function App({ capabilities: suppliedCapabilities, catalog: suppl
     if (suppliedCatalog) return;
     let cancelled = false;
     let current: PluginCatalog | undefined;
+    const close = () => { void current?.dispose().catch(reason => console.error('Package cleanup retained recovery state:', reason)); };
+    window.addEventListener('pagehide', close);
     void openPluginCatalog(capabilities).then(value => {
       current = value;
       if (cancelled) void value.dispose(); else setCatalog(value);
     }).catch(reason => { if (!cancelled) setError(String(reason)); });
-    return () => { cancelled = true; void current?.dispose(); };
+    return () => { cancelled = true; window.removeEventListener('pagehide', close); close(); };
   }, [capabilities, suppliedCatalog]);
   if (error) return <div role="alert"><h1>Plugin workspaces could not open</h1><p>{error}</p><p>Your stored artifacts have been retained. Correct the reported storage or format problem and reopen Power Eagle.</p></div>;
   if (!catalog) return <p role="status">Opening plugin workspaces…</p>;
@@ -40,10 +43,10 @@ export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; m
   useEffect(() => { void agent.recoverInterrupted().catch(reason => setError(String(reason))); }, [agent]);
   const { registry } = snapshot;
   const theme = useWorkbenchTheme(registry, catalog.controller, snapshot.entries);
-  const packages: WorkbenchPackage[] = snapshot.entries.map(({ instance, discovered }) => ({
+  const packages: WorkbenchPackage[] = snapshot.entries.map(({ instance, discovered, session }) => ({
     instanceId: instance.instanceId, sourceId: instance.origin.sourceId, sourceLabel: instance.origin.kind,
-    sourceKind: instance.origin.kind === 'built-in' ? 'built-in' : instance.origin.kind === 'agent' ? 'generated' : 'installed',
-    persistence: instance.origin.kind === 'built-in' ? 'built-in' : 'persistent',
+    sourceKind: session ? 'session' : instance.origin.kind === 'built-in' ? 'built-in' : instance.origin.kind === 'agent' ? 'generated' : 'installed',
+    persistence: session ? 'session' : instance.origin.kind === 'built-in' ? 'built-in' : 'persistent',
     manifest: { ...discovered.manifest, name: instance.name }, status: snapshot.claims.get(instance.instanceId)!.status,
     desired: snapshot.claims.get(instance.instanceId)!.desired,
     exportPreferences: Object.fromEntries(discovered.manifest.exports.map(item => [item.id, catalog.preferences.exportEnabled(instance.instanceId, item.id)])),
@@ -110,7 +113,12 @@ export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; m
     </>}
     sourceHint={String(packages.length)}
     sourceActions={creation.actions}
-    agent={<PluginAgentPanel key={entry.instance.instanceId} agent={agent} entry={entry} />}
+    sourceFooter={<PackageControls acquisition={catalog.acquisition} unavailableReason={catalog.acquisitionError} selected={entry} onSelect={id => {
+      setFilter('');
+      const added = catalog.snapshot().entries.find(item => item.instance.instanceId === id);
+      if (added) setSelection(defaultSelection({ instanceId: id, manifest: added.discovered.manifest, version: added.instance.currentRevision } as WorkbenchPackage));
+    }} />}
+    agent={entry.session ? <p>Duplicate this preview to create an editable plugin with its own Agent conversation.</p> : <PluginAgentPanel key={entry.instance.instanceId} agent={agent} entry={entry} />}
     stage={showRuntime ? <RuntimeStage key={catalog.runtimeKey(`${selected.manifest.id}/${current.exportId}`)} source={entry.discovered}
       activation={catalog} screen={current.screen} onScreenChange={onScreenChange} /> : <>
       {claim.reason ? <p role="status">{claim.reason}</p> : null}

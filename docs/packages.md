@@ -280,10 +280,24 @@ npm run language -- validate examples/clipboard-runtime/manifest.json
 npm run language -- validate examples/clipboard-runtime/run.json
 ```
 
-The typed source is unnecessary once compiled. The same static validator accepts its Saucepan-returned directory; workbench acquisition controls and final release packaging are later checkpoints.
+The typed source is unnecessary once compiled. The same static validator accepts its Saucepan-returned directory through the workbench's Add package controls.
+
+## Workbench package management
+
+Sources includes **Add package** for local folders, Git references or exact commits, and URL ZIP/raw downloads. Optional subfolders select the package within an output. **Package store setup → Initialize store** explicitly initializes the independent manager; opening Power Eagle only probes its version and command surface. A missing or incompatible manager leaves built-ins usable and shows recovery guidance. Browser development reports that package management requires Eagle.
+
+Optional `~/.powereagle/workspaces/saucepan-settings.json` accepts only `binaryPath` and `root` string overrides. Omit it for the shared executable and default manager store. Use a disposable manager root for acceptance checks; never point a reset fixture at live user state.
+
+**Install** retains an exact manager output and snapshots it into an immutable workspace revision. The instance records the acquisition slot, output UUID, pin UUID and acquired revision. **Refresh source** keeps the instance identity and publishes a new revision only after validation and activation. It rejects a selected local edit; select the acquired revision before refreshing. Duplicates are independent owned copies. **Remove installation** deactivates the instance, removes its catalog record, then releases its manager receipt. Copies, original sources and historical local revision directories remain intact.
+
+**Preview** uses no app registration and is session-only. **Duplicate** saves an independent workspace while an additional reader protects the copy. **Close preview** disposes consumers before closing readers and releasing the pin. Page exit starts best-effort disposal; the host cannot guarantee completion of asynchronous work during renderer termination. Explicitly close previews before exiting when immediate cleanup matters. A crash or failed disposal retains recoverable receipts instead of risking deletion of files still in use.
+
+Recovery evidence lives in `~/.powereagle/workspaces/acquisition/saucepan.json`; the workspace catalog retains the receipt identity of the selected acquired revision. Failed or uncertain publication can leave both old and candidate receipts. Preserve this file and the workspace catalog, inspect the original manager claim/group revision and pin identities, and reconcile before releasing anything. Do not infer failure from a lost response, delete central directories, or blindly retry destructive cleanup. A failed provider disposal leaves its preview reader and pin retained for investigation; restarting alone is not evidence that a pin is safe to release. No automatic reclaim or receipt repair is performed by the UI.
 
 The same manifest-first layout is used by `examples/layout-widgets`, `examples/content-widgets`, `examples/control-widgets`, and `examples/collection-feedback-media`. The control package is the public Section 7 acceptance example; the collection/feedback/media package is the Section 8 acceptance example. Their typed sources reference every widget in their checkpoints, while each generated `run.json` is the only runtime payload an installed package needs.
 
 ## Source organization
+
+Failed acquisition candidates can leave unpublished local revision directories. Their numbers stay reserved to avoid reusing paths containing cached provider code, so visible revision numbers can have gaps. See [the host validation record](saucepan-host-validation.md) for the verified Eagle boundary and lifecycle checks.
 
 Implementation stays under `src/app`, `src/sdui`, `src/host/install`, `src/plugins`, `src/ai`, and `src/components/ui`. Host installation code owns the injected SDK transport, application UUID receipts, retained acquisition, validation and publication. Saucepan owns the shared executable location and central storage. Old Power Eagle payloads and storage records are deleted by the reset rather than converted or retained.

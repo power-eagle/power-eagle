@@ -28,6 +28,7 @@ export interface WorkbenchShellProps {
   stage: ReactNode;
   sources?: ReactNode;
   sourceActions?: ReactNode;
+  sourceFooter?: ReactNode;
   agent?: ReactNode;
   sourceHint?: string;
   stageTitle?: string;
@@ -46,7 +47,7 @@ function compactWindow(): boolean { return typeof window !== 'undefined' && wind
 export function WorkbenchShell({
   stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
   stageMode = 'live view', stageStatus = 'active',
-  themeStyle, themeIdentity = 'blueprint', themeControl, sourceActions, agent,
+  themeStyle, themeIdentity = 'blueprint', themeControl, sourceActions, sourceFooter, agent,
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
   const [agentCollapsed, setAgentCollapsed] = useState(compactWindow);
@@ -80,7 +81,7 @@ export function WorkbenchShell({
             if (sourcesCollapsed && compactWindow()) setAgentCollapsed(true);
             setSourcesCollapsed(value => !value);
           }}
-          footer={<form className="pe-source-footer" onSubmit={event => event.preventDefault()}>
+          footer={sourceFooter ?? <form className="pe-source-footer" onSubmit={event => event.preventDefault()}>
             <Input
               size="sm" aria-label="Package source" placeholder="owner/repo or path"
               value={sourceDraft} onChange={event => setSourceDraft(event.currentTarget.value)}

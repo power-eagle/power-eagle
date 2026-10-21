@@ -78,7 +78,7 @@ describe('workbench activation stage', () => {
     render(<StrictMode><App capabilities={host} /></StrictMode>);
     await screen.findByRole('main');
     await user.click(screen.getByRole('button', { name: 'Select package Recent Libraries' }));
-    expect(screen.getByRole('status').textContent).toContain('Opening Recent Libraries');
+    expect(screen.getByText('Opening Recent Libraries…').getAttribute('role')).toBe('status');
     await user.click(screen.getByRole('button', { name: 'Select package File Creator' }));
     await act(async () => finish([]));
     expect(await screen.findByRole('textbox', { name: /File name/u })).toBeTruthy();

@@ -1,0 +1,83 @@
+{
+  "finalBuild": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "released manager probe",
+        "passed": true
+      },
+      {
+        "name": "startup did not create manager store",
+        "passed": true
+      },
+      {
+        "name": "installed and activated immutable revision",
+        "passed": true
+      },
+      {
+        "name": "workbench package controls rendered",
+        "passed": true
+      },
+      {
+        "name": "released manager probe",
+        "passed": true
+      },
+      {
+        "name": "rediscovered after renderer restart",
+        "passed": true
+      },
+      {
+        "name": "refresh kept identity and advanced revision",
+        "passed": true
+      },
+      {
+        "name": "failed replacement preserved active revision",
+        "passed": true
+      },
+      {
+        "name": "removal preserved independent copy and source",
+        "passed": true
+      },
+      {
+        "name": "removed installation pin released",
+        "passed": true
+      }
+    ],
+    "runtime": {
+      "node": "16.17.1",
+      "v8": "10.8.168.25-electron.0",
+      "uv": "1.43.0",
+      "zlib": "1.2.12.1-motley",
+      "brotli": "1.0.9",
+      "ares": "1.18.1",
+      "modules": "110",
+      "nghttp2": "1.47.0",
+      "napi": "8",
+      "llhttp": "6.0.9",
+      "openssl": "1.1.1",
+      "cldr": "41.0",
+      "icu": "71.1",
+      "tz": "2022e",
+      "unicode": "14.0",
+      "electron": "22.3.7",
+      "chrome": "108.0.5359.215"
+    },
+    "platform": "win32",
+    "arch": "x64",
+    "eagle": {
+      "version": "",
+      "build": ""
+    },
+    "timestamp": "2026-10-21T18:05:25.939Z",
+    "phase": "complete"
+  },
+  "hostVersionObservation": {
+    "eagle": {
+      "version": "4.0.0",
+      "build": 23
+    },
+    "timestamp": "2026-10-21T18:03:14.238Z",
+    "context": "First run in the same Eagle window"
+  },
+  "hostBundleSha256": "267c1af3f52a02901db8e579a3f27ea5516e014bf40f2ee0797fdff906a04e21"
+}

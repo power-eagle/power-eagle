@@ -47,3 +47,14 @@ button, input, textarea, select { font: inherit; }
 @media (max-width: 759px) {
   .pe-shell { --panel-agent: min(280px, 45vw); }
 }
+
+.pe-package-controls { display: grid; gap: 8px; max-height: 48vh; overflow: auto; padding: 10px; font-size: 12px; }
+.pe-package-controls details { border-top: 1px solid var(--pe-line, #d2d7df); padding-top: 8px; }
+.pe-package-controls summary { cursor: pointer; font-weight: 500; }
+.pe-package-controls form, .pe-package-controls fieldset, .pe-package-current { display: grid; gap: 8px; }
+.pe-package-controls fieldset { border: 0; padding: 8px 0 0; min-width: 0; }
+.pe-package-controls label { display: grid; gap: 4px; }
+.pe-package-controls select { width: 100%; min-height: 30px; color: inherit; background: var(--pe-surface, white); border: 1px solid var(--pe-line, #d2d7df); border-radius: 4px; }
+.pe-package-controls p { margin: 4px 0; overflow-wrap: anywhere; }
+.pe-package-controls [role=alert] { color: var(--pe-danger, #a12d24); }
+.pe-package-current > div, .pe-package-controls fieldset > div { display: flex; flex-wrap: wrap; gap: 6px; }

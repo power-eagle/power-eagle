@@ -3,6 +3,7 @@ import { foundationRuntimeCatalog } from '../../sdui/runtime/foundation';
 import { unwrap, validateRuntime, type ValidationCatalog } from '../../sdui/schema/validate';
 import { discoverContributionPackage } from '../install/contribution-package';
 import { POWER_EAGLE_STATE_SENTINEL } from '../install/state-reset';
+import type { RetainedPackage } from '../install/saucepan-client';
 import { snapshotArtifact, type CopyOptions } from './artifact-copy';
 import { newPluginInstance, parseWorkspaceCatalog, workspaceUuid, type PluginConversation, type PluginInstance, type WorkspaceCatalog } from './model';
 
@@ -135,6 +136,68 @@ export class WorkspaceStore {
     });
   }
   async reorder(order: string[]): Promise<void> { await this.transaction(async catalog => { await this.publish({ ...catalog, order }); }); }
+
+  /** The caller holds source retention; failed staged revisions remain unpublished and reserved. */
+  async importAcquired(receipt: RetainedPackage, activate: (candidate: WorkspaceCatalog, instance: PluginInstance) => Promise<void>,
+    publishReceipt: () => Promise<void>, restore: (previous: WorkspaceCatalog) => Promise<void>): Promise<PluginInstance> {
+    return this.transaction(async previous => {
+      const catalog: WorkspaceCatalog = JSON.parse(JSON.stringify(previous));
+      const existing = catalog.instances.find(item => item.acquisition?.slot === receipt.slot);
+      if (existing && existing.currentRevision !== existing.acquisition!.revision) throw new Error('This plugin has a selected local edit. Select its acquired revision before refreshing from source.');
+      const discovered = discoverContributionPackage(receipt.directory, this.hostRequire);
+      if (existing && existing.namespace !== discovered.manifest.id) throw new Error('A source refresh cannot change the installed package namespace.');
+      const instance = existing ?? newPluginInstance(discovered.manifest.name, { kind: 'acquired', sourceId: receipt.sourceUuid });
+      instance.namespace = discovered.manifest.id;
+      if (existing) {
+        const revisionRoot = this.bounded('instances', instance.instanceId, 'revisions');
+        const reserved = this.fs.readdirSync(revisionRoot).filter(name => /^\d+$/.test(name)).map(Number);
+        const id = Math.max(...instance.revisions.map(item => item.id), ...reserved) + 1;
+        instance.revisions.push({ id, basedOn: instance.currentRevision, artifact: `revisions/${id}`, createdAt: new Date().toISOString() });
+        instance.currentRevision = id;
+      } else { catalog.instances.push(instance); catalog.order.push(instance.instanceId); }
+      instance.acquisition = { slot: receipt.slot, pinUuid: receipt.pinUuid, outputUuid: receipt.outputUuid, revision: instance.currentRevision };
+      const destination = this.artifact(instance);
+      try {
+        await snapshotArtifact(receipt.directory, destination, this.root, this.hostRequire);
+        await activate(catalog, instance);
+        await publishReceipt();
+        await this.publish(catalog);
+        return instance;
+      } catch (error) {
+        // A failed manager publication can be indeterminate: preserve its receipt, never compensate remotely.
+        await restore(previous);
+        // Never reuse a staged provider path: Node can still cache its modules after failed activation.
+        // Unpublished revisions remain outside the catalog and reserve their immutable directory number.
+        throw error;
+      }
+    });
+  }
+
+  async removeAcquired(instanceId: string, activate: (candidate: WorkspaceCatalog) => Promise<void>, restore: (previous: WorkspaceCatalog) => Promise<void>): Promise<void> {
+    await this.transaction(async previous => {
+      const instance = previous.instances.find(item => item.instanceId === instanceId);
+      if (!instance?.acquisition) throw new Error('Only an acquired installation can be removed here.');
+      const candidate: WorkspaceCatalog = JSON.parse(JSON.stringify(previous));
+      candidate.instances = candidate.instances.filter(item => item.instanceId !== instanceId);
+      candidate.order = candidate.order.filter(id => id !== instanceId);
+      delete candidate.conversations[instanceId];
+      try { await activate(candidate); await this.publish(candidate); }
+      catch (error) { await restore(previous); throw error; }
+      // Immutable local history is retained for recovery; independent duplicates own their own copies.
+    });
+  }
+
+  async copyPreview(name: string, source: PluginInstance, directory: string, options: CopyOptions = {}): Promise<PluginInstance> {
+    return this.transaction(async catalog => {
+      const instance = newPluginInstance(name, { kind: 'local', sourceId: source.origin.sourceId }, source);
+      const destination = this.artifact(instance);
+      try {
+        await snapshotArtifact(directory, destination, this.root, this.hostRequire, options);
+        catalog.instances.push(instance); catalog.order.push(instance.instanceId);
+        await this.publish(catalog, options.signal); return instance;
+      } catch (error) { if (this.fs.existsSync(destination)) this.removeOwned(destination); throw error; }
+    });
+  }
 
   async conversation(instanceId: string, update: (conversation: PluginConversation) => void): Promise<PluginConversation> {
     return this.transaction(async catalog => {

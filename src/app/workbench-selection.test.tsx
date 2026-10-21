@@ -160,13 +160,13 @@ describe('shared workbench selection and sources', () => {
   it('preserves actual acquisition source identity and unscoped session lifetime', () => {
     const acquired = {
       acquired: {
-        artifact: { id: 'artifact-1', source_id: 'git:github.com/example/power-package' },
-        directory: 'C:/store/artifact-1', fallback: false, update_checked: true, content_verified: true,
+        sourceUuid: 'ba8fac61-b118-435c-9a0e-af4240dd5d4a',
+        directory: 'C:/store/artifact-1',
       },
       discovered: { root: 'C:/store/artifact-1', manifest: manifest('acquired.package', { widgets: 'types.cjs' }), entries: [] },
     };
     expect(acquiredWorkbenchPackage({ ...acquired, persistence: 'persistent' } as never)).toMatchObject({
-      sourceId: 'git:github.com/example/power-package', sourceKind: 'installed', persistence: 'persistent',
+      sourceId: 'ba8fac61-b118-435c-9a0e-af4240dd5d4a', sourceKind: 'installed', persistence: 'persistent',
     });
     expect(acquiredWorkbenchPackage({ ...acquired, persistence: 'session' } as never)).toMatchObject({
       sourceId: 'session', sourceLabel: 'session only', sourceKind: 'session', persistence: 'session',
