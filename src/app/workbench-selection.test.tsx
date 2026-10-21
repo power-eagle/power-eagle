@@ -86,7 +86,9 @@ describe('shared workbench selection and sources', () => {
     expect((await screen.findByRole('alert')).textContent).toBe('Native menu failed');
     vi.stubGlobal('eagle', undefined);
     fireEvent.contextMenu(row);
-    expect((await screen.findByRole('alert')).textContent).toContain('available inside Eagle');
+    expect(screen.getByRole('menu', { name: 'Plugin options' })).toBeTruthy();
+    await user.keyboard('{Escape}');
+    expect(document.activeElement).toBe(row);
     expect(onMove).not.toHaveBeenCalled();
   });
 
@@ -126,35 +128,48 @@ describe('shared workbench selection and sources', () => {
     expect(defaultSelection(groups[1].packages[0])).toEqual({ packageId: 'installed.mixed', contribution: 'runtime', exportId: 'main', screen: 'home' });
   });
 
-  it('inspects an off provider and mixed contributions without changing enablement', async () => {
+  it('keeps mixed plugins flat and opens inspection through the contextual fallback', async () => {
     const off = record('provider.off', 'installed', 'off', { widgets: 'types.cjs' });
     const mixed = record('provider.mixed', 'generated', 'active', { runtime: 'run.json', widgets: 'types.cjs', styling: 'styling.cjs' });
     mixed.fresh = true;
-    const onSelect = vi.fn();
+    const onSelect = vi.fn(), onInspect = vi.fn(), onTogglePackage = vi.fn();
     const user = userEvent.setup();
-    render(<WorkbenchSourceTree packages={[off, mixed]} selection={defaultSelection(mixed)} onSelect={onSelect} />);
-
+    render(<WorkbenchSourceTree packages={[off, mixed]} selection={defaultSelection(mixed)} onSelect={onSelect} onInspect={onInspect} onTogglePackage={onTogglePackage} />);
     expect(screen.getByText('new')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Select widgets contribution from provider.off' })).toBeNull();
-    await user.click(screen.getByRole('button', { name: 'Select package provider.off' }));
-    expect(onSelect).toHaveBeenCalledWith({ packageId: 'provider.off', contribution: 'widgets', exportId: 'card' });
-    await user.click(screen.getByRole('button', { name: 'Select styling contribution from provider.mixed' }));
-    expect(onSelect).toHaveBeenLastCalledWith({ packageId: 'provider.mixed', contribution: 'styling', exportId: 'theme' });
+    expect(screen.queryByRole('button', { name: /Select (widgets|runtime|styling|screen)/ })).toBeNull();
+    const row = screen.getByRole('button', { name: 'Select package provider.off' });
+    row.focus();
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    expect(document.activeElement).toBe(screen.getByRole('menuitem', { name: 'Inspect plugin…' }));
+    await user.keyboard('{Enter}');
+    expect(onInspect).toHaveBeenCalledWith(off);
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(onTogglePackage).not.toHaveBeenCalled();
+    expect(screen.queryByRole('menu')).toBeNull();
   });
 
-  it('selects runtime screens and provider exports through the same inert value', async () => {
-    const mixed = record('provider.mixed', 'installed', 'active', { runtime: 'run.json', widgets: 'types.cjs' });
-    const onSelect = vi.fn();
-    const user = userEvent.setup();
-    const { rerender } = render(<WorkbenchSourceTree packages={[mixed]} selection={defaultSelection(mixed)} onSelect={onSelect} />);
+  it('offers native inspection without selecting and ignores a removed target', () => {
+    const first = { ...record('first', 'built-in', 'active', { runtime: 'run.json' }), instanceId: 'first' };
+    const open = vi.fn<typeof eagle.contextMenu.open>().mockResolvedValue();
+    vi.stubGlobal('eagle', { contextMenu: { open } });
+    const onInspect = vi.fn(), onSelect = vi.fn();
+    const props = { packages: [first], selection: defaultSelection(first), onSelect, onInspect, onMove: vi.fn() };
+    const { rerender } = render(<WorkbenchSourceTree {...props} />);
+    fireEvent.contextMenu(screen.getByRole('button', { name: 'Select package first' }));
+    const items = open.mock.calls[0][0];
+    expect(items.map(item => item.id)).toEqual(['inspect-plugin', 'move-up', 'move-down']);
+    expect(onSelect).not.toHaveBeenCalled();
+    items[0].click!();
+    expect(onInspect).toHaveBeenCalledWith(first);
+    onInspect.mockClear();
+    rerender(<WorkbenchSourceTree {...props} packages={[]} />);
+    items[0].click!();
+    expect(onInspect).not.toHaveBeenCalled();
+  });
 
-    await user.click(screen.getByRole('button', { name: 'Select screen details from provider.mixed' }));
-    expect(onSelect).toHaveBeenLastCalledWith({ packageId: 'provider.mixed', contribution: 'runtime', exportId: 'main', screen: 'details' });
-
-    const widgetSelection = { packageId: 'provider.mixed', contribution: 'widgets' as const, exportId: 'card' };
-    rerender(<WorkbenchSourceTree packages={[mixed]} selection={widgetSelection} onSelect={onSelect} />);
-    await user.click(screen.getByRole('button', { name: 'Inspect widget card from provider.mixed' }));
-    expect(onSelect).toHaveBeenLastCalledWith(widgetSelection);
+  it('retains the instance and revision when a failed artifact has no readable contributions', () => {
+    const failed = { ...record('broken', 'installed', 'failed', {}), instanceId: 'broken-instance', version: 3 };
+    expect(defaultSelection(failed)).toMatchObject({ instanceId: 'broken-instance', packageId: 'broken', version: 3 });
   });
 
   it('preserves actual acquisition source identity and unscoped session lifetime', () => {
@@ -173,7 +188,7 @@ describe('shared workbench selection and sources', () => {
     });
   });
 
-  it('keeps generated conversation versions distinct across screen selection', async () => {
+  it('keeps generated conversation versions distinct across plugin selection', async () => {
     const older = record('generated.dashboard', 'generated', 'active', { runtime: 'run.json' });
     older.conversationId = 'conversation-7';
     older.version = 1;
@@ -183,10 +198,10 @@ describe('shared workbench selection and sources', () => {
     render(<WorkbenchSourceTree packages={[current, older]} selection={defaultSelection(older)} onSelect={onSelect} />);
 
     expect(screen.getAllByRole('button', { name: 'Select package generated.dashboard' })).toHaveLength(2);
-    await user.click(screen.getByRole('button', { name: 'Select screen details from generated.dashboard' }));
+    await user.click(screen.getAllByRole('button', { name: 'Select package generated.dashboard' })[1]);
     expect(onSelect).toHaveBeenLastCalledWith({
       packageId: 'generated.dashboard', conversationId: 'conversation-7', version: 1,
-      contribution: 'runtime', exportId: 'main', screen: 'details',
+      contribution: 'runtime', exportId: 'main', screen: 'home',
     });
   });
 });

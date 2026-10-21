@@ -58,3 +58,16 @@ button, input, textarea, select { font: inherit; }
 .pe-package-controls p { margin: 4px 0; overflow-wrap: anywhere; }
 .pe-package-controls [role=alert] { color: var(--pe-danger, #a12d24); }
 .pe-package-current > div, .pe-package-controls fieldset > div { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Inspection replaces the visible Stage without disposing its live session. */
+.pe-live-stage[hidden] { display: none !important; }
+.pe-plugin-details { display: grid; gap: var(--space-3); }
+.pe-plugin-origin { color: var(--muted-foreground); overflow-wrap: anywhere; }
+.pe-plugin-details .pe-tabs { flex-wrap: wrap; }
+.pe-inspector-screens { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.pe-inspector-screens button, .pe-plugin-summary button { padding: var(--space-2); border: 1px solid var(--outline); background: var(--card); color: var(--foreground); border-radius: var(--radius); }
+.pe-plugin-summary { display: grid; justify-items: start; gap: var(--space-3); }
+.pe-source-context-menu { position: fixed; z-index: 100; width: 224px; display: grid; padding: 6px; gap: 4px; background: var(--card); color: var(--foreground); border: var(--line-width) solid var(--border); border-radius: var(--panel-radius); box-shadow: var(--panel-shadow); }
+.pe-source-context-menu button { text-align: left; padding: 8px; background: transparent; color: inherit; }
+.pe-source-context-menu button:hover, .pe-source-context-menu button:focus-visible { background: var(--accent); }
+.pe-source-context-menu button:disabled { opacity: .45; }

@@ -1,4 +1,4 @@
-import { Component, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Component, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Button, Input, Panel, SectionLabel } from '../components/ui';
 
 interface StageBoundaryProps { children: ReactNode; resetKey?: string }
@@ -34,6 +34,7 @@ export interface WorkbenchShellProps {
   stageTitle?: string;
   stageCaption?: string;
   stageMode?: string;
+  onCloseDetails?(): void;
   stageStatus?: string;
   themeStyle?: CSSProperties;
   themeIdentity?: string;
@@ -46,13 +47,16 @@ function compactWindow(): boolean { return typeof window !== 'undefined' && wind
 
 export function WorkbenchShell({
   stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
-  stageMode = 'live view', stageStatus = 'active',
+  stageMode = 'live view', stageStatus = 'active', onCloseDetails,
   themeStyle, themeIdentity = 'blueprint', themeControl, sourceActions, sourceFooter, agent,
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
   const [agentCollapsed, setAgentCollapsed] = useState(compactWindow);
   const [sourceDraft, setSourceDraft] = useState('');
   const [agentDraft, setAgentDraft] = useState('');
+  const closeDetails = useRef<HTMLButtonElement>(null);
+  const inspecting = Boolean(onCloseDetails);
+  useEffect(() => { if (inspecting) closeDetails.current?.focus(); }, [inspecting, stageTitle]);
 
   useEffect(() => {
     const resize = () => {
@@ -106,8 +110,11 @@ export function WorkbenchShell({
           </nav>}
         </Panel>
 
-        <Panel index="02" label="Stage" hint={stageMode} className="pe-panel-stage">
-          <section className="pe-workbench-stage" aria-labelledby="workbench-stage-title">
+        <Panel index="02" label={onCloseDetails ? 'Plugin details' : 'Stage'} hint={stageMode} className="pe-panel-stage"
+          actions={onCloseDetails ? <button ref={closeDetails} type="button" className="pe-rail-btn" aria-label="Close plugin details"
+            onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); onCloseDetails(); } }} onClick={onCloseDetails}>×</button> : undefined}>
+          <section className="pe-workbench-stage" aria-labelledby="workbench-stage-title"
+            onKeyDown={event => { if (onCloseDetails && event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); onCloseDetails(); } }}>
             <header className="pe-workbench-stage-head">
               <span className="pe-workbench-stage-dot" data-status={stageStatus} aria-hidden="true" />
               <div>

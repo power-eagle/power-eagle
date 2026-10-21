@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { createEagleCapabilities, type EagleCapabilities } from '../host/eagle-capabilities';
 import { PluginCatalog } from '../host/workspaces/catalog';
-import { ActivationInspector } from './activation-inspector';
+import { PluginDetails } from './plugin-details';
 import { WorkbenchSourceTree } from './source-tree';
 import { defaultSelection, type WorkbenchPackage, type WorkbenchSelection } from './workbench-selection';
-import { WorkbenchShell } from './workbench-shell';
+import { StageBoundary, WorkbenchShell } from './workbench-shell';
 import { RuntimeStage } from './runtime-stage';
 import { useWorkbenchTheme } from './workbench-theme';
 import { openPluginCatalog } from './plugin-catalog';
@@ -37,6 +37,8 @@ export default function App({ capabilities: suppliedCapabilities, catalog: suppl
 export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; model?: RuntimeModel }) {
   const snapshot = useSyncExternalStore(catalog.subscribe, catalog.snapshot, catalog.snapshot);
   const [selection, setSelection] = useState<WorkbenchSelection>();
+  const [inspection, setInspection] = useState<WorkbenchSelection>();
+  const select = (value: WorkbenchSelection) => { setInspection(undefined); setSelection(value); };
   const [filter, setFilter] = useState('');
   const [error, setError] = useState('');
   const [agent] = useState(() => new PluginAgent(catalog, model));
@@ -52,17 +54,31 @@ export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; m
     exportPreferences: Object.fromEntries(discovered.manifest.exports.map(item => [item.id, catalog.preferences.exportEnabled(instance.instanceId, item.id)])),
     version: instance.currentRevision,
   }));
-  const selected = packages.find(record => record.instanceId === selection?.instanceId) ?? packages[0];
-  const current = selection?.instanceId === selected?.instanceId && selection?.version === selected?.version ? selection : selected ? defaultSelection(selected) : undefined;
+  const liveSelected = packages.find(record => record.instanceId === selection?.instanceId) ?? packages[0];
+  const liveCurrent = selection?.instanceId === liveSelected?.instanceId && selection?.version === liveSelected?.version ? selection : liveSelected ? defaultSelection(liveSelected) : undefined;
+  const inspected = packages.find(record => record.instanceId === inspection?.instanceId);
+  const selected = inspected ?? liveSelected;
+  const current = inspected ? inspection?.version === inspected.version ? inspection : defaultSelection(inspected) : liveCurrent;
+  const openInspection = (target: WorkbenchSelection) => {
+    setSelection(liveCurrent);
+    setInspection(target);
+  };
+  const closeInspection = () => {
+    setInspection(undefined);
+    const row = [...document.querySelectorAll<HTMLButtonElement>('.pe-workbench-package-select')].find(element => element.dataset.pluginId === liveSelected?.instanceId);
+    (row ?? document.querySelector<HTMLInputElement>('[aria-label="Filter plugins"]'))?.focus();
+  };
+  const liveEntry = snapshot.entries.find(item => item.instance.instanceId === liveSelected?.instanceId);
+  const liveClaim = liveEntry && snapshot.claims.get(liveEntry.instance.instanceId);
   const entry = snapshot.entries.find(item => item.instance.instanceId === selected?.instanceId);
   const claim = entry && snapshot.claims.get(entry.instance.instanceId);
   const creation = usePluginCreation(catalog, entry, instance => {
     setFilter('');
     const added = catalog.snapshot().entries.find(item => item.instance.instanceId === instance.instanceId)!;
-    setSelection(defaultSelection({ instanceId: instance.instanceId, manifest: added.discovered.manifest } as WorkbenchPackage));
+    select(defaultSelection({ instanceId: instance.instanceId, manifest: added.discovered.manifest, version: instance.currentRevision } as WorkbenchPackage));
   });
-  const selectedExport = current?.exportId ? registry.exports.find(item => item.identity === `${selected.manifest.id}/${current.exportId}`) : undefined;
-  const showRuntime = claim?.status === 'active' && current?.contribution === 'runtime' && selectedExport?.effectiveStatus === 'active' && entry?.discovered.runtime;
+  const liveExport = liveCurrent?.exportId ? registry.exports.find(item => item.identity === `${liveSelected.manifest.id}/${liveCurrent.exportId}`) : undefined;
+  const showRuntime = liveClaim?.status === 'active' && liveCurrent?.contribution === 'runtime' && liveExport?.effectiveStatus === 'active' && liveEntry?.discovered.runtime;
   const report = (work: Promise<unknown>) => { setError(''); void work.catch(reason => setError(String(reason))); };
   const togglePackage = (id: string, enabled: boolean) => {
     report(catalog.setEnabled(id, enabled));
@@ -78,9 +94,9 @@ export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; m
     if (instanceId) report(catalog.setExport(instanceId, exportId, enabled));
   };
   const onScreenChange = useCallback((screen: string) => setSelection(value => {
-    if (value && value.instanceId !== selected?.instanceId) return value;
-    return selected ? { ...(value ?? defaultSelection(selected)), screen } : value;
-  }), [selected]);
+    if (value && value.instanceId !== liveSelected?.instanceId) return value;
+    return liveSelected ? { ...(value ?? defaultSelection(liveSelected)), screen } : value;
+  }), [liveSelected]);
   if (!selected || !current || !entry || !claim) return <p>No plugins available.</p>;
   const ownRegistry = claim.status === 'off' ? {
     ...registry, packages: new Map(registry.packages).set(selected.manifest.id, { packageId: selected.manifest.id, desired: claim.desired, effectiveStatus: 'off' as const, exports: [], reason: { code: 'package-off' as const, message: claim.reason ?? 'Plugin is disabled' } }),
@@ -107,28 +123,41 @@ export function CatalogWorkbench({ catalog, model }: { catalog: PluginCatalog; m
     sources={<>
       {creation.form}
       {error ? <p role="alert">{error}</p> : null}
-      <WorkbenchSourceTree packages={packages} selection={current} onSelect={setSelection} registry={registry}
+      <WorkbenchSourceTree packages={packages} selection={current} onSelect={select} onInspect={record => openInspection(defaultSelection(record))} registry={registry}
         onMove={(id, before) => report(catalog.move(id, before))}
-        filter={filter} onFilter={setFilter} onTogglePackage={togglePackage} onToggleExport={toggleExport} />
+        filter={filter} onFilter={setFilter} onTogglePackage={togglePackage} />
     </>}
     sourceHint={String(packages.length)}
     sourceActions={creation.actions}
     sourceFooter={<PackageControls acquisition={catalog.acquisition} unavailableReason={catalog.acquisitionError} selected={entry} onSelect={id => {
       setFilter('');
       const added = catalog.snapshot().entries.find(item => item.instance.instanceId === id);
-      if (added) setSelection(defaultSelection({ instanceId: id, manifest: added.discovered.manifest, version: added.instance.currentRevision } as WorkbenchPackage));
+      if (added) select(defaultSelection({ instanceId: id, manifest: added.discovered.manifest, version: added.instance.currentRevision } as WorkbenchPackage));
     }} />}
     agent={entry.session ? <p>Duplicate this preview to create an editable plugin with its own Agent conversation.</p> : <PluginAgentPanel key={entry.instance.instanceId} agent={agent} entry={entry} />}
-    stage={showRuntime ? <RuntimeStage key={catalog.runtimeKey(`${selected.manifest.id}/${current.exportId}`)} source={entry.discovered}
-      activation={catalog} screen={current.screen} onScreenChange={onScreenChange} /> : <>
-      {claim.reason ? <p role="status">{claim.reason}</p> : null}
-      {claim.owner ? <div className="pe-plugin-conflict"><small>Owner: {claim.owner}</small>
-        <button type="button" disabled={Boolean(filter.trim())} onClick={() => report(catalog.move(entry.instance.instanceId, claim.owner!))}>Move above owner</button></div> : null}
-      <ActivationInspector record={selected} selection={current} registry={ownRegistry}
-        onTogglePackage={toggleNamespacePackage} onToggleExport={toggleExport} />
+    onCloseDetails={inspected ? closeInspection : undefined}
+    stage={<>
+      <div className="pe-live-stage" hidden={Boolean(inspected)}>
+        {showRuntime && liveEntry && liveCurrent ? <StageBoundary key={catalog.runtimeKey(`${liveSelected.manifest.id}/${liveCurrent.exportId}`)}>
+          <RuntimeStage source={liveEntry.discovered} activation={catalog} screen={liveCurrent.screen} onScreenChange={onScreenChange} />
+        </StageBoundary> : null}
+      </div>
+      {inspected || !showRuntime ? <>
+        {claim.reason ? <p role="status">{claim.reason}</p> : null}
+        {claim.owner ? <div className="pe-plugin-conflict"><small>Owner: {claim.owner}</small>
+          <button type="button" disabled={Boolean(filter.trim())} onClick={() => report(catalog.move(entry.instance.instanceId, claim.owner!))}>Move above owner</button></div> : null}
+        {inspected ? <PluginDetails record={selected} selection={current} registry={ownRegistry}
+          onSelectionChange={setInspection} onOpenScreen={select}
+          onTogglePackage={toggleNamespacePackage} onToggleExport={toggleExport} /> : <section className="pe-plugin-summary" aria-label={`${selected.manifest.name} summary`}>
+          <p>{selected.manifest.description}</p>
+          {!claim.desired ? <button type="button" onClick={() => togglePackage(entry.instance.instanceId, true)}>Enable package</button> : null}
+          {liveExport?.reason && liveExport.reason.message !== claim.reason ? <p role="status">{liveExport.reason.message}</p> : null}
+          <button type="button" onClick={() => openInspection(current)}>Inspect plugin…</button>
+        </section>}
+      </> : null}
     </>}
-    stageTitle={selected.manifest.name} stageMode={showRuntime ? 'live view' : 'activation'}
-    stageStatus={claim.status} stageCaption={[entry.instance.origin.kind, `revision ${entry.instance.currentRevision}`, showRuntime ? current.screen : current.contribution].filter(Boolean).join(' · ')}
+    stageTitle={selected.manifest.name} stageMode={inspected ? 'inspection' : showRuntime ? 'live view' : 'summary'}
+    stageStatus={claim.status} stageCaption={[entry.instance.origin.kind, `revision ${entry.instance.currentRevision}`, inspected ? current.contribution : showRuntime ? current.screen : undefined].filter(Boolean).join(' · ')}
     active={packages.filter(record => record.status === 'active').length} total={packages.length}
   />;
 }

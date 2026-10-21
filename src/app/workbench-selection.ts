@@ -77,7 +77,10 @@ export function workbenchPackageKey(record: WorkbenchPackage): string {
 
 export function defaultSelection(record: WorkbenchPackage): WorkbenchSelection {
   const contribution = packageContributions(record.manifest)[0];
-  return contribution ? contributionSelection(record, contribution) : { packageId: record.manifest.id };
+  return contribution ? contributionSelection(record, contribution) : {
+    instanceId: record.instanceId, packageId: record.manifest.id,
+    conversationId: record.conversationId, version: record.version,
+  };
 }
 
 export function groupWorkbenchPackages(records: readonly WorkbenchPackage[]): WorkbenchSourceGroup[] {

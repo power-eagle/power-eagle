@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { createRequire } from 'node:module';
@@ -10,6 +10,7 @@ import { PluginCatalog } from '../host/workspaces/catalog';
 import { InstancePreferences } from '../host/workspaces/preferences';
 import { sharedModules } from './plugin-catalog';
 import App from './App';
+import { foundationRuntimeCatalog } from '../sdui/runtime/foundation';
 
 const hostRequire = createRequire(import.meta.url);
 let root: string;
@@ -52,6 +53,7 @@ it('captures the source before selection changes, starts disabled and promotes a
   const copy = catalog.snapshot().entries.find(item => item.instance.name === 'Original copy')!.instance;
   expect(copy.forkOf?.instanceId).toBe(source.instanceId);
   expect(catalog.snapshot().order.slice(0, 2)).toEqual([source.instanceId, copy.instanceId]);
+  await user.click(screen.getByRole('button', { name: 'Inspect plugin…' }));
   const inspector = within(screen.getByRole('region', { name: 'Original copy activation' }));
   await user.click(inspector.getByRole('switch', { name: 'Enable package Original copy' }));
   expect(catalog.snapshot().claims.get(source.instanceId)?.desired).toBe(true);
@@ -112,3 +114,22 @@ it('keeps background Agent output with its plugin and restores drafts and select
   expect((screen.getByRole('textbox', { name: 'Describe this plugin' }) as HTMLTextAreaElement).value).toBe('Second draft');
 });
 
+
+it('keeps inspection visible across a live revision change and returns to the new revision', async () => {
+  const user = userEvent.setup();
+  const original = catalog.snapshot().entries[0].instance;
+  const newer = blankDocument(); newer.screens.home.body = { type: 'Text', props: { text: 'Revised runtime' } };
+  await catalog.store!.revise(original.instanceId, 1, newer, { widgets: Object.fromEntries(Object.entries(foundationRuntimeCatalog.widgets).map(([id, widget]) => [id, widget.contract])) });
+  await catalog.store!.selectRevision(original.instanceId, 1);
+  await catalog.refresh();
+  render(<App catalog={catalog} />);
+  await user.click(screen.getByRole('button', { name: 'Select package Original' }));
+  fireEvent.contextMenu(screen.getByRole('button', { name: 'Select package Original' }));
+  await user.click(screen.getByRole('menuitem', { name: 'Inspect plugin…' }));
+  await user.click(screen.getByRole('button', { name: 'v2' }));
+  await waitFor(() => expect(catalog.snapshot().entries[0].instance.currentRevision).toBe(2));
+  expect(screen.getByRole('region', { name: 'Plugin details' })).toBeTruthy();
+  await user.click(screen.getByRole('button', { name: 'Close plugin details' }));
+  expect(await screen.findByText('Revised runtime')).toBeTruthy();
+  expect(screen.getByText('local · revision 2 · home')).toBeTruthy();
+});

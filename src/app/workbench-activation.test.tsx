@@ -93,12 +93,13 @@ describe('workbench activation graph integration', () => {
     const user = userEvent.setup();
     render(<WorkbenchSourceTree
       packages={[record(provider, 'active')]} selection={defaultSelection(record(provider, 'active'))}
-      registry={registry} onSelect={onSelect} onTogglePackage={onTogglePackage} onToggleExport={onToggleExport}
+      registry={registry} onSelect={onSelect} onTogglePackage={onTogglePackage}
     />);
 
     await user.click(screen.getByRole('switch', { name: 'Disable package Provider' }));
     expect(onTogglePackage).toHaveBeenCalledWith('provider', false);
     expect(onSelect).not.toHaveBeenCalled();
+    render(<ActivationInspector record={record(provider, 'active')} selection={defaultSelection(record(provider, 'active'))} registry={registry} onTogglePackage={onTogglePackage} onToggleExport={onToggleExport} />);
     await user.click(screen.getByRole('switch', { name: 'Disable export provider/card' }));
     expect(onToggleExport).toHaveBeenCalledWith('provider/card', false);
     expect(onSelect).not.toHaveBeenCalled();

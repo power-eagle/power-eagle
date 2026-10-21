@@ -1,9 +1,8 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Badge, Input } from '../components/ui';
 import type { EffectiveRegistry } from '../host/activation/enablement';
 import {
-  contributionExports, contributionSelection, defaultSelection, packageContributions,
-  selectionMatchesRecord, workbenchPackageKey, type ContributionKind, type WorkbenchPackage, type WorkbenchSelection,
+  defaultSelection, selectionMatchesRecord, workbenchPackageKey, type WorkbenchPackage, type WorkbenchSelection,
 } from './workbench-selection';
 
 function SourceToggle({ name, enabled, status, onToggle }: {
@@ -21,62 +20,16 @@ function SourceToggle({ name, enabled, status, onToggle }: {
   </button>;
 }
 
-function ExportChoices({ record, contribution, selection, onSelect, registry, onToggleExport }: {
-  record: WorkbenchPackage;
-  contribution: ContributionKind;
-  selection: WorkbenchSelection;
-  onSelect(selection: WorkbenchSelection): void;
-  registry?: EffectiveRegistry;
-  onToggleExport?(identity: string, enabled: boolean): void;
-}) {
-  const descriptors = contributionExports(record.manifest, contribution);
-  const identity = {
-    instanceId: record.instanceId,
-    packageId: record.manifest.id,
-    ...(record.conversationId ? { conversationId: record.conversationId } : {}),
-    ...(record.version !== undefined ? { version: record.version } : {}),
-  };
-  return <div className="pe-workbench-exports">
-    {descriptors.map(descriptor => {
-      const identityValue = `${record.manifest.id}/${descriptor.id}`;
-      const effective = registry?.exports.find(item => item.identity === identityValue);
-      const state = { identity: identityValue, desiredExport: record.exportPreferences?.[descriptor.id] ?? effective?.desiredExport ?? true,
-        effectiveStatus: record.status === 'active' ? effective?.effectiveStatus ?? 'off' : record.status };
-      return <div className="pe-workbench-export" key={descriptor.id} data-status={state?.effectiveStatus}>
-        {state && onToggleExport ? <SourceToggle name={`export ${state.identity}`}
-          enabled={record.exportPreferences?.[descriptor.id] ?? state.desiredExport} status={state.effectiveStatus}
-          onToggle={() => onToggleExport(state.identity, !(record.exportPreferences?.[descriptor.id] ?? state.desiredExport))}
-        /> : <span className="pe-workbench-tree-branch" aria-hidden="true" />}
-        <div className="pe-workbench-export-links">{descriptor.kind === 'runtime'
-          ? descriptor.screens.map(screen => <button
-        className="pe-workbench-tree-link"
-        type="button" key={`${descriptor.id}/${screen}`}
-        aria-label={`Select screen ${screen} from ${record.manifest.name}`}
-        aria-current={selectionMatchesRecord(selection, record) && selection.exportId === descriptor.id && selection.screen === screen ? 'page' : undefined}
-        onClick={() => onSelect({ ...identity, contribution, exportId: descriptor.id, screen })}
-      >{screen}</button>)
-          : <button
-        className="pe-workbench-tree-link"
-        type="button"
-        aria-label={`Inspect ${descriptor.kind} ${descriptor.id} from ${record.manifest.name}`}
-        aria-current={selectionMatchesRecord(selection, record) && selection.exportId === descriptor.id ? 'page' : undefined}
-        onClick={() => onSelect({ ...identity, contribution, exportId: descriptor.id })}
-      >{descriptor.id}</button>}</div>
-      </div>;
-    })}
-  </div>;
-}
-
 export function WorkbenchSourceTree({
   packages, selection, onSelect,
-  registry, onTogglePackage, onToggleExport, filter, onFilter, onMove,
+  registry, onTogglePackage, filter, onFilter, onMove, onInspect,
 }: {
   packages: readonly WorkbenchPackage[];
   selection: WorkbenchSelection;
   onSelect(selection: WorkbenchSelection): void;
   registry?: EffectiveRegistry;
   onTogglePackage?(packageId: string, enabled: boolean): void;
-  onToggleExport?(identity: string, enabled: boolean): void;
+  onInspect?(record: WorkbenchPackage): void;
   filter?: string;
   onFilter?(value: string): void;
   onMove?(id: string, before: string | null): void;
@@ -85,26 +38,50 @@ export function WorkbenchSourceTree({
   const query = filter ?? localQuery;
   const setQuery = onFilter ?? setLocalQuery;
   const [menuError, setMenuError] = useState('');
-  const latest = useRef({ packages, query, onMove });
-  latest.current = { packages, query, onMove };
-  const openOrderMenu = async (record: WorkbenchPackage) => {
-    if (!onMove || !record.instanceId) return;
+  const [menu, setMenu] = useState<{ items: { id: string; label: string; enabled?: boolean; click(): void }[]; x: number; y: number; trigger: HTMLElement }>();
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    menuRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
+    const dismiss = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenu(undefined);
+    };
+    const close = () => setMenu(undefined);
+    document.addEventListener('pointerdown', dismiss);
+    window.addEventListener('resize', close);
+    return () => { document.removeEventListener('pointerdown', dismiss); window.removeEventListener('resize', close); };
+  }, [menu]);
+  const latest = useRef({ packages, query, onMove, onInspect });
+  latest.current = { packages, query, onMove, onInspect };
+  const openMenu = async (record: WorkbenchPackage, trigger: HTMLElement, x?: number, y?: number) => {
     setMenuError('');
+    setMenu(undefined);
     const id = record.instanceId;
     const index = packages.indexOf(record);
     const move = (direction: -1 | 1) => {
       const current = latest.current;
       const position = current.packages.findIndex(item => item.instanceId === id);
-      if (current.query.trim() || position < 0 || position + direction < 0 || position + direction >= current.packages.length) return;
+      if (!id || current.query.trim() || position < 0 || position + direction < 0 || position + direction >= current.packages.length) return;
       current.onMove?.(id, direction === -1 ? current.packages[position - 1].instanceId! : current.packages[position + 2]?.instanceId ?? null);
     };
-    try {
-      if (typeof eagle === 'undefined' || !eagle.contextMenu?.open) throw new Error('Plugin context menus are available inside Eagle.');
-      await eagle.contextMenu.open([
+    const items = [
+      ...(onInspect ? [{ id: 'inspect-plugin', label: 'Inspect plugin…', click: () => {
+        const target = latest.current.packages.find(item => workbenchPackageKey(item) === workbenchPackageKey(record));
+        if (target) latest.current.onInspect?.(target);
+      } }] : []),
+      ...(onMove && id ? [
         { id: 'move-up', label: 'Move up', enabled: !query.trim() && index > 0, click: () => move(-1) },
         { id: 'move-down', label: 'Move down', enabled: !query.trim() && index < packages.length - 1, click: () => move(1) },
         ...(query.trim() ? [{ id: 'clear-filter', label: 'Clear filter to change order', click: () => setQuery('') }] : []),
-      ]);
+      ] : []),
+    ];
+    if (!items.length) return;
+    try {
+      if (typeof eagle !== 'undefined' && eagle.contextMenu?.open) await eagle.contextMenu.open(items);
+      else {
+        const rect = trigger.getBoundingClientRect();
+        setMenu({ items, trigger, x: Math.max(8, Math.min(x ?? rect.left, window.innerWidth - 240)), y: Math.max(8, Math.min(y ?? rect.bottom, window.innerHeight - 180)) });
+      }
     } catch (reason) { setMenuError(reason instanceof Error ? reason.message : String(reason)); }
   };
   const terms = query.trim().toLocaleLowerCase().split(/\s+/u).filter(Boolean);
@@ -119,6 +96,22 @@ export function WorkbenchSourceTree({
         value={query} onChange={event => setQuery(event.currentTarget.value)} />
       {query ? <button type="button" aria-label="Clear plugin filter" onClick={() => setQuery('')}>×</button> : null}
     </div>
+    {menu ? <div ref={menuRef} className="pe-source-context-menu" role="menu" aria-label="Plugin options" style={{ left: menu.x, top: menu.y }}
+      onKeyDown={event => {
+        if (event.key === 'Escape' || event.key === 'Tab') {
+          if (event.key === 'Escape') event.preventDefault();
+          menu.trigger.focus(); setMenu(undefined);
+        } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+          event.preventDefault();
+          const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+          const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+          const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length;
+          buttons[next]?.focus();
+        }
+      }}>
+      {menu.items.map(item => <button type="button" role="menuitem" key={item.id} disabled={item.enabled === false}
+        onClick={() => { menu.trigger.focus(); setMenu(undefined); item.click(); }}>{item.label}</button>)}
+    </div> : null}
     {menuError ? <p role="alert">{menuError}</p> : null}
     {filtered.length === 0 ? <p className="pe-plugin-search-empty" role="status">No matching plugins.</p> : null}
     {filtered.map(record => {
@@ -126,16 +119,17 @@ export function WorkbenchSourceTree({
         const enabled = record.desired ?? registry?.packages.get(record.manifest.id)?.desired ?? record.status !== 'off';
         return <div className="pe-workbench-package" key={workbenchPackageKey(record)} data-status={record.status}>
           <div className="pe-workbench-package-head" data-selected={selected}
-            onContextMenu={onMove ? event => { event.preventDefault(); event.stopPropagation(); void openOrderMenu(record); } : undefined}>
+            onContextMenu={onMove || onInspect ? event => { event.preventDefault(); event.stopPropagation(); void openMenu(record, event.currentTarget.querySelector<HTMLButtonElement>('.pe-workbench-package-select')!, event.clientX, event.clientY); } : undefined}>
             {onTogglePackage ? <SourceToggle name={`package ${record.manifest.name}`} enabled={enabled} status={record.status}
               onToggle={() => onTogglePackage(record.instanceId ?? record.manifest.id, !enabled)}
             /> : <span className="pe-workbench-tree-branch" aria-hidden="true" />}
             <button className="pe-workbench-package-select" type="button" aria-label={`Select package ${record.manifest.name}`} aria-current={selected ? 'page' : undefined} onClick={() => onSelect(defaultSelection(record))}
-              title={onMove ? 'Right-click for plugin order options · Shift+F10' : undefined}
-              aria-haspopup={onMove ? 'menu' : undefined}
-              onKeyDown={onMove ? event => {
+              data-plugin-id={record.instanceId}
+              title={onMove || onInspect ? 'Right-click for plugin options · Shift+F10' : undefined}
+              aria-haspopup={onMove || onInspect ? 'menu' : undefined}
+              onKeyDown={onMove || onInspect ? event => {
                 if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
-                  event.preventDefault(); event.stopPropagation(); void openOrderMenu(record);
+                  event.preventDefault(); event.stopPropagation(); void openMenu(record, event.currentTarget);
                 }
               } : undefined}>
               <span>
@@ -145,20 +139,7 @@ export function WorkbenchSourceTree({
               </span>
             </button>
           </div>
-          {selected ? <div className="pe-workbench-contributions">
-            {packageContributions(record.manifest).map(contribution => <div key={contribution}>
-              <button
-                className="pe-workbench-tree-link pe-workbench-contribution-link"
-                type="button"
-                aria-label={`Select ${contribution} contribution from ${record.manifest.name}`}
-                aria-current={selected && selection.contribution === contribution ? 'page' : undefined}
-                onClick={() => onSelect(contributionSelection(record, contribution))}
-              ><span aria-hidden="true">{selection.contribution === contribution ? '⌄' : '›'}</span>{contribution}</button>
-              {selected && selection.contribution === contribution
-                ? <ExportChoices record={record} contribution={contribution} selection={selection} onSelect={onSelect} registry={registry} onToggleExport={onToggleExport} />
-                : null}
-            </div>)}
-          </div> : null}
+
         </div>;
       })}
   </nav>;

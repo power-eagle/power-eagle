@@ -1,6 +1,6 @@
 import { Switch } from '../components/ui';
 import type { EffectiveExport, EffectiveRegistry } from '../host/activation/enablement';
-import type { WorkbenchPackage, WorkbenchSelection } from './workbench-selection';
+import { contributionExports, type WorkbenchPackage, type WorkbenchSelection } from './workbench-selection';
 
 export interface ActivationInspectorProps {
   record: WorkbenchPackage;
@@ -8,6 +8,7 @@ export interface ActivationInspectorProps {
   registry: EffectiveRegistry;
   onTogglePackage(packageId: string, enabled: boolean): void;
   onToggleExport(identity: string, enabled: boolean): void;
+  onOpenScreen?(selection: WorkbenchSelection): void;
 }
 
 function Recovery({ node, registry, onTogglePackage, onToggleExport }: {
@@ -37,10 +38,11 @@ function Recovery({ node, registry, onTogglePackage, onToggleExport }: {
 }
 
 export function ActivationInspector({
-  record, selection, registry, onTogglePackage, onToggleExport,
+  record, selection, registry, onTogglePackage, onToggleExport, onOpenScreen,
 }: ActivationInspectorProps) {
   const packageState = registry.packages.get(record.manifest.id);
   const exports = registry.exports.filter(item => item.packageId === record.manifest.id &&
+    (!selection.contribution || contributionExports(record.manifest, selection.contribution).some(descriptor => descriptor.id === item.descriptor.id)) &&
     (selection.exportId ? item.descriptor.id === selection.exportId : true));
   return <section className="pe-activation-inspector" aria-label={`${record.manifest.name} activation`}>
     <header>
@@ -67,6 +69,10 @@ export function ActivationInspector({
         />
         {node.reason ? <code>{node.reason.message}</code> : null}
         <Recovery node={node} registry={registry} onTogglePackage={onTogglePackage} onToggleExport={onToggleExport} />
+        {onOpenScreen && node.descriptor.kind === 'runtime' ? <div className="pe-inspector-screens">
+          {node.descriptor.screens.map(screen => <button type="button" key={screen} disabled={node.effectiveStatus !== 'active'}
+            onClick={() => onOpenScreen({ ...selection, contribution: 'runtime', exportId: node.descriptor.id, screen })}>Open screen {screen}</button>)}
+        </div> : null}
       </article>)}
     </div>
   </section>;

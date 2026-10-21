@@ -67,10 +67,10 @@ it('revokes styling on package or export disablement and restores the remembered
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
   expect(screen.getByText('Count: 1')).toBeTruthy();
   await user.click(screen.getByRole('button', { name: 'Select package Paper Pop' }));
-  await user.click(sources.getByRole('button', { name: 'Select styling contribution from Paper Pop' }));
-  await user.click(sources.getByRole('switch', { name: `Disable export ${PAPER_POP_IDENTITY}` }));
+  await user.click(screen.getByRole('button', { name: 'Inspect plugin…' }));
+  await user.click(screen.getByRole('switch', { name: `Disable export ${PAPER_POP_IDENTITY}` }));
   expect(theme()).toBe('blueprint');
-  await user.click(sources.getByRole('switch', { name: `Enable export ${PAPER_POP_IDENTITY}` }));
+  await user.click(screen.getByRole('switch', { name: `Enable export ${PAPER_POP_IDENTITY}` }));
   await waitFor(() => expect(theme()).toBe(PAPER_POP_IDENTITY));
 });
 
