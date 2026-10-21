@@ -4,7 +4,22 @@
 
 Enable Power Eagle to acquire, validate and retain shared package resources through the current Saucepan contract without coupling built-in functionality to native tooling.
 
-## ADDED Requirements
+## Requirements
+
+### Requirement: Workbench acquisition lifecycle
+The workbench SHALL expose explicit store setup, Git/URL/local installation, session preview, source refresh and removal. Startup SHALL only inspect manager availability. Persistent installation SHALL publish a complete independent workspace revision with stable instance identity and acquisition provenance. Repeated installation of the same slot SHALL update that instance without duplicating it. Refresh SHALL preserve previous revisions and SHALL reject replacing a selected local edit. Failure SHALL retain the previous usable revision and report recovery information. Removing an installation SHALL preserve its independent duplicates and other applications' resources.
+
+#### Scenario: Restart an installed workspace
+- **WHEN** the application restarts after successful installation
+- **THEN** it restores the same instance, order, selected local revision and acquisition provenance without fetching or initializing the manager
+
+#### Scenario: Refresh after local editing
+- **WHEN** a selected installed instance has a local revision newer than its acquired revision
+- **THEN** source refresh reports the conflict without changing that revision or its conversation
+
+#### Scenario: Close a session preview
+- **WHEN** the user closes a preview or the application disposes it
+- **THEN** providers are disposed before its reader and retention are released, and no installed workspace remains
 
 ### Requirement: Host-compatible resource access
 Power Eagle SHALL use a tested current Saucepan executable through its host process boundary with literal arguments, bounded requests/responses and structured errors. Loading the application or browser preview SHALL NOT require Node-only transport modules or initialize a store. Missing or incompatible native tooling SHALL disable dependent acquisition controls with actionable diagnostics while built-ins remain usable. The shipped integration SHALL work in the declared Eagle runtime; passing tests on a newer standalone Node runtime SHALL NOT establish that support.

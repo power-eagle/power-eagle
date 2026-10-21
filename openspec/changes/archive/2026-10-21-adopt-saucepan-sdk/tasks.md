@@ -7,7 +7,7 @@ Checkpoint only coherent, verified slices. If replacing the SDK dependency break
 - [x] 1.1 Pin the reviewed SDK 0.1.0 package from upstream commit 041e4f90634e6007b58054a59604396f8fbebd21 and wire a bundled client with explicit host transport; verify reproducible package installation/build without a Git-subdirectory npm dependency or committed machine path.
 - [x] 1.2 Implement the Eagle Transport boundary using public SDK contracts and existing host modules; verify literal argv, credentials/root/app options, payload closure/cleanup, limits, errors, mutation uncertainty, cancellation and byte streams with focused transport tests.
 - [x] 1.3 Replace shared-executable probing with bounded 0.9 version/surface inspection; test missing/old executables, build suffixes, absent bridge and browser startup without store mutations.
-- [ ] 1.4 Verify the bundled client and host transport on the declared Node16.17/Eagle boundary, plus Vite build/import isolation; record concrete host evidence and stop dependent integration if an upstream public-export/runtime blocker remains.
+- [x] 1.4 Verify the bundled client and host transport on the declared Node16.17/Eagle boundary, plus Vite build/import isolation; record concrete host evidence and stop dependent integration if an upstream public-export/runtime blocker remains.
 - [x] 1.5 Update setup guidance in docs/packages.md for the independent manager and injected host client; verify instructions and compatibility diagnostics against the implemented probe.
 
 ## 2. Current ownership and policy checkpoint
@@ -15,7 +15,7 @@ Checkpoint only coherent, verified slices. If replacing the SDK dependency break
 - [x] 2.1 Replace marker/token and old artifact models with UUID registration, explicit scope and app-domain bindings; test repeated registration, corrupt old state, distinct scopes, private default visibility and no keyring requirement.
 - [x] 2.2 Register flat immutable policies and attach UUID references through current SDK operations; test explicit adoption, source restrictions, opt-in credentials/verification and denial without unbound fallback.
 - [x] 2.3 Map Git/ref/commit/subpath, URL file/ZIP and local inputs to registered source requests and covered relative views; verify with isolated real-manager fixtures and update example payloads.
-- [x] 2.4 Remove old configure/view/history/snapshot/mirror wire calls and update existing metadata callers to current operations (new workbench management controls remain in rebuild-power-eagle); run focused saucepan-client/package-repository tests and confirm unsupported legacy methods are absent from executable paths.
+- [x] 2.4 Remove old configure/view/history/snapshot/mirror wire calls and update existing metadata callers to current operations (workbench controls are now owned by section 6 below); run focused saucepan-client/package-repository tests and confirm unsupported legacy methods are absent from executable paths.
 
 ## 3. Retained package publication checkpoint
 
@@ -27,7 +27,7 @@ Checkpoint only coherent, verified slices. If replacing the SDK dependency break
 ## 4. Integration and spec reconciliation
 
 - [x] 4.1 Reconcile obsolete Saucepan-specific package-distribution requirements in the pending rebuild-power-eagle change with this capability; review the resulting deltas without completing unrelated rebuild or spin-off tasks.
-- [ ] 4.2 Run npm typecheck/build and the affected install/workspace/feature suites, then a packaged Eagle install -> restart -> refresh -> failed replacement -> remove flow against an isolated manager; record host/platform and any unavailable verification honestly.
+- [x] 4.2 Run npm typecheck/build and the affected install/workspace/feature suites, then a packaged Eagle install -> restart -> refresh -> failed replacement -> remove flow against an isolated manager; record host/platform and any unavailable verification honestly.
 - [x] 4.3 Verify the consumer package includes the reviewed SDK, runs outside its checkout and contains no legacy protocol transport or marker-state fallback; validate this OpenSpec change strictly before archive.
 
 ## 5. Profile contract upgrade checkpoint
@@ -37,7 +37,27 @@ Checkpoint only coherent, verified slices. If replacing the SDK dependency break
 - [x] 5.3 Verify focused suites/build and the outside-checkout Node16 host harness against released artifacts; retain the separate real Eagle acceptance gap.
 - [x] 5.4 Align the custom Eagle transport with profile-name array responses and profile/explanation field shapes; observe the failing profile-list regression, then pass focused transport checks and the released Node16 host harness.
 
-## Profile release verification (2026-10-15)
+## 6. Workbench integration continuation
+
+- [x] 6.1 Connect retained acquisition to atomic workspace revisions and catalog activation, preserving prior revisions on failure, rejecting refresh over local edits, and preserving copies on removal; verify with real-manager lifecycle and activation-failure tests and document ownership/recovery.
+- [x] 6.2 Wire read-only startup probing, explicit setup and Git/URL/local install/preview/refresh/remove controls into the workbench; verify session cleanup, browser/unavailable behavior and UI actions with focused tests.
+- [x] 6.3 Reconcile the synchronized package-distribution contract through this change's delta, run affected suites and production build, and prepare packaged Eagle acceptance evidence; keep 1.4/4.2 open until their real-host criteria pass.
+
+## Workbench completion evidence (2026-10-21)
+
+- Tasks 1.4, 4.2 and 6.1–6.3 passed. The production build, focused lint, strict change validation and all 165 affected tests passed against released Saucepan 0.10.0.
+- The final copied production host bundle and current workbench ran outside the checkout in actual Windows x64 Eagle 4.0.0 build 23, Electron 22.3.7 / Node16.17.1. Install → renderer restart → refresh → rejected replacement → removal passed against an isolated manager. Independent copies survived and the installed pin was released. See docs/saucepan-host-validation.md and its recorded report for exact scope and limitations; release archive installation and other operating systems were not exercised.
+- Real-provider regression observed a failed refresh followed by stale cached code on retry. Keeping unpublished candidate directories reserved fixes reuse; rollback, successful retry and failed-disposal retention now pass.
+- Workbench controls support explicit setup, Git/URL/local installation and preview, refresh, remove and close. Best-effort page-exit cleanup retains recoverable state if interrupted. No shared-store changes, automatic binary installation or background retrieval were introduced.
+- The package-distribution delta replaces obsolete synchronized 0.6 requirements. Both capabilities were synced to main specs before archive; all 10 main specs passed strict validation. Archived rebuild/spin-off work and the deferred authoring-consistency scaffold are untouched.
+- Implementation checkpoint committed as `8f01586`: `feat(packages): connect retained Saucepan acquisition to the workbench`. The installed legacy zmem engine accepted the message with no diagnostics and post-commit inspection returned the lesson as valid. The skill-targeted Node engine was unavailable. No push was made.
+
+## Archive closure (2026-10-21)
+
+- All 23 tasks and all planning artifacts were complete. Synced every delta requirement and verified the corresponding main spec before moving this change into its dated archive.
+- Ran the configured Powerspec state cleanup after archive success; it completed with no temporal values needing changes.
+
+## Profile release verification (2026-10-15; historical)
 
 - Published v0.10.0 SDK manifest identifies manager commit `8a2d04e7d2e393c035715520254bdd5955651873` and SDK 0.2.0. SDK tarball SHA256 `061281cf69b250281fe30cf9588e5411e40ac4fe026850c48eefca3af5fde581` matches the release manifest and SHA256SUMS; npm lockfile records its published URL and SHA512 integrity.
 - `npm ci --ignore-scripts --no-audit --no-fund --allow-remote=all` installed the exact lockfile from published assets (npm12 disables remote tarballs by default). No unrelated dependency lock changes.

@@ -22,8 +22,10 @@ The revised Eagle host still speaks Saucepan 0.6 through hand-written commands a
 
 ### Modified Capabilities
 
-None in the current main spec inventory. `rebuild-power-eagle` has an unarchived `package-distribution` delta requiring the old 0.6 bridge and token marker. This change replaces those Saucepan-specific contracts; its apply tasks must reconcile that pending delta before either change is archived, preserving unrelated package validation and release requirements. `add-plugin-spin-offs` remains responsible for local editable copies and namespace arbitration.
+- `package-distribution`: replace the synchronized obsolete 0.6 bridge, marker ownership and recipe identity requirements with the tested 0.10 resource contract. The rebuild and spin-off changes are already archived; this change owns the remaining acquisition controls and packaged acceptance. Preserve independent workspace revisions, instance ordering and namespace arbitration.
+
+The approved integration continuation connects explicit setup, Git/URL/local installation, retained session preview, source refresh and removal to the workbench. Installed artifacts become independent local revisions under the existing workspace boundary; manager retention covers copying and remains inspectable until explicit replacement/removal. Failed replacement preserves the previous local revision and its receipt.
 
 ## Impact
 
-Targets branch `revised`: `src/host/install/saucepan*.ts`, `package-repository.ts`, host transport/filesystem modules, package UI callers, workspace catalog provenance, tests, `package.json`/`package-lock.json`, Vite packaging and user documentation. No changes to Saucepan itself, no shared store reset, no automatic executable replacement, and no registry publishing or remote pushes. Planning only; existing unfinished changes are not marked complete.
+Targets branch `revised`: `src/host/install/`, workspace catalog/provenance, workbench acquisition controls, tests, Vite packaging and user documentation. No changes to Saucepan itself, no shared store reset, no automatic executable replacement, and no registry publishing or remote pushes. Existing unfinished acceptance is not marked complete by standalone verification.
