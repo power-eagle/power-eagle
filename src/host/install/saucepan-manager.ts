@@ -1,43 +1,91 @@
-import { SaucepanCli, SaucepanCommandError, type SaucepanCliOptions } from './saucepan';
+import { Client } from 'saucepan-sdk';
+import { EagleTransport } from './saucepan-transport';
+import { resolveHostRequire } from './runtime-modules';
+import { sharedSaucepanExecutablePath } from './saucepan-binary';
 
-export type SaucepanManagerState = {
-  status: 'ready';
-  binaryPath: string;
-  sharedExecutable: string;
-  cli: SaucepanCli;
-  builtInsAvailable: true;
-} | {
-  status: 'unavailable';
-  binaryPath: string;
-  builtInsAvailable: true;
-  error: {
-    operation: 'initialize';
-    kind: SaucepanCommandError['kind'] | 'unknown';
-    message: string;
-    recovery: string;
-  };
-};
+export interface ManagerOptions {
+  binaryPath?: string;
+  root?: string;
+  hostRequire?: NodeRequire;
+}
+export type SaucepanManagerState =
+  | {
+      status: 'ready';
+      binaryPath: string;
+      version: string;
+      client: Client;
+      builtInsAvailable: true;
+    }
+  | {
+      status: 'unavailable';
+      binaryPath?: string;
+      builtInsAvailable: true;
+      error: { message: string; recovery: string };
+    };
 
-/**
- * Probe the independently installed current executable without initializing or
- * modifying a Saucepan store. Package tooling can fail while built-ins continue.
- */
-export async function initializeSaucepan(options: SaucepanCliOptions = {}): Promise<SaucepanManagerState> {
-  const cli = new SaucepanCli(options);
+/** Deliberately read-only; constructing a browser preview never needs Node modules. */
+export async function initializeSaucepan(
+  options: ManagerOptions = {},
+): Promise<SaucepanManagerState> {
+  let binaryPath = options.binaryPath;
   try {
-    const sharedExecutable = await cli.execute<string>('shared executable', ['shared-executable']);
-    return { status: 'ready', binaryPath: cli.binaryPath, sharedExecutable, cli, builtInsAvailable: true };
+    const require = resolveHostRequire(options.hostRequire);
+    binaryPath ??= sharedSaucepanExecutablePath({ hostRequire: require });
+    const { execFile } =
+      require('child_process') as typeof import('node:child_process');
+    const probe = (args: string[]) =>
+      new Promise<string>((resolve, reject) =>
+        execFile(
+          binaryPath!,
+          args,
+          {
+            encoding: 'utf8',
+            shell: false,
+            windowsHide: true,
+            timeout: 5000,
+            maxBuffer: 1024 * 1024,
+          },
+          (error, stdout) => (error ? reject(error) : resolve(stdout)),
+        ),
+      );
+    const version = (await probe(['--version'])).trim();
+    if (!/^saucepan 0\.10\.\d+(?:[-+][\w.-]+)?$/.test(version))
+      throw new Error(`Unsupported Saucepan executable: ${version}`);
+    const help = await probe(['--help']);
+    for (const command of [
+      'register-application',
+      'register-source',
+      'register-group',
+      'prepare-group',
+      'pin',
+      'unpin',
+      'profiles',
+      'profile',
+      'explain-policies',
+    ]) {
+      if (!new RegExp(`\\b${command}\\b`).test(help))
+        throw new Error(`Saucepan is missing ${command}`);
+    }
+    return {
+      status: 'ready',
+      binaryPath,
+      version,
+      client: new Client({
+        executable: binaryPath,
+        root: options.root,
+        transport: new EagleTransport(require),
+      }),
+      builtInsAvailable: true,
+    };
   } catch (error) {
-    const known = error instanceof SaucepanCommandError ? error : undefined;
     return {
       status: 'unavailable',
-      binaryPath: cli.binaryPath,
+      binaryPath,
       builtInsAvailable: true,
       error: {
-        operation: 'initialize',
-        kind: known?.kind ?? 'unknown',
         message: error instanceof Error ? error.message : String(error),
-        recovery: known?.recovery ?? 'Check the configured Saucepan executable and retry',
+        recovery:
+          'Install Saucepan 0.10 independently, or configure its executable path. Eagle must provide its Node host bridge.',
       },
     };
   }

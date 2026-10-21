@@ -14,12 +14,13 @@
     "package:examples": "tsc --noEmit -p tsconfig.package-examples.json && node scripts/package-examples.mjs",
     "dev": "vite",
     "builtins:build": "node scripts/build-builtin-packages.mjs",
-    "build": "tsc --noEmit && npm run builtins:build && vite build",
+    "build": "tsc --noEmit && npm run builtins:build && vite build && npm run saucepan:build",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "saucepan:build": "node scripts/build-saucepan-host.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "5.3.0",
@@ -37,6 +38,7 @@
     "react-dom": "^18.2.0",
     "react-markdown": "10.1.0",
     "remark-gfm": "4.0.1",
+    "saucepan-sdk": "https://github.com/ZackaryW/saucepan/releases/download/v0.10.0/saucepan-sdk-0.2.0.tgz",
     "semver": "7.7.3",
     "tailwind-merge": "^3.5.0",
     "zod": "4.1.12"

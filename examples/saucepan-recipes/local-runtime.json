@@ -1,6 +1,4 @@
 {
-  "source": {
-    "provider": "local",
-    "path": "examples/runtime-only"
-  }
+  "source": { "type": "local", "path": "examples/runtime-only" },
+  "selector": { "type": "local" }
 }

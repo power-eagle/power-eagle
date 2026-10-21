@@ -25,8 +25,8 @@ The first revised launch SHALL remove the complete legacy Power Eagle-owned `~/.
 The host SHALL use the Saucepan 0.6 central-store protocol through an independently installed executable at `~/.saucepan/bin/saucepan[.exe]` or an explicit override. It SHALL invoke the executable asynchronously with literal argument arrays and temporary JSON request files through Eagle's Node bridge, without a shell and without importing a runtime SDK that requires a newer Node version than Eagle. The application MUST NOT read or rewrite `index.json.enc`, reconstruct central content paths, use removed workspace/TOML/bucket commands, or download an obsolete private binary. Missing tooling and store failures SHALL produce clear package-management diagnostics without preventing built-in functionality from loading.
 
 #### Scenario: Resolve a shared executable
-- **WHEN** the configured Saucepan 0.6 executable and initialized central store are available
-- **THEN** Power Eagle invokes the current recipe protocol and consumes returned artifact paths and metadata without inspecting the encrypted index
+- **WHEN** the configured Saucepan 0.9 executable and initialized central store are available
+- **THEN** Power Eagle uses the public SDK and consumes retained output paths and metadata without inspecting private manager state
 
 #### Scenario: Package manager unavailable
 - **WHEN** Saucepan is missing, incompatible, or its store cannot open
@@ -37,14 +37,14 @@ Power Eagle SHALL support authenticated app-scoped acquisition for packages that
 
 #### Scenario: Acquire a persistent package
 - **WHEN** a user adds a package to Power Eagle through a supported recipe
-- **THEN** the scoped acquisition touches Power Eagle's app view and the package can be rediscovered after restart
+- **THEN** the scoped acquisition creates or reuses its claim and the validated retained selection is rediscovered after restart
 
 #### Scenario: Preview without app scope
 - **WHEN** Power Eagle acquires a recipe in unscoped preview mode
 - **THEN** the returned package can be validated and staged for the current session without appearing in the persistent Power Eagle source view
 
 ### Requirement: Recipe source discovery
-Users SHALL be able to acquire Git, URL, and local recipes through the workbench. Discovery SHALL group artifacts using Saucepan's canonical `source_id` and full source descriptor, obtain package directories from acquisition/view/path results, and execute no provider code. Power Eagle SHALL honor Saucepan's copied-central-content semantics for local recipes rather than assuming that local inputs remain referenced in place.
+Users SHALL be able to acquire Git, URL, and local sources through the workbench. Discovery SHALL group packages by canonical source UUID, use source/selector/selection SDK requests and consume returned pinned directories without executing provider code. Local inputs SHALL be acquired copies, not editing destinations. Workbench management controls remain a pending rebuild task; the companion SDK change supplies the host integration API and does not by itself complete those controls.
 
 #### Scenario: Distinguish two sources
 - **WHEN** two acquired recipes use the same provider type but have different canonical sources
