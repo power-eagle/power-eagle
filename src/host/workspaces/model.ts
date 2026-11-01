@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { identifier, relativePath } from '../../sdui/schema/model';
+import { agentSettingsSchema, apiContextSchema, contextInfoSchema, defaultAgentSettings, providerChoiceSchema } from './agent-types';
 
 const revisionId = z.number().int().positive();
 export const pluginRevisionSchema = z.strictObject({
@@ -34,7 +35,7 @@ export const pluginInstanceSchema = z.strictObject({
 export type PluginInstance = z.infer<typeof pluginInstanceSchema>;
 export type PluginRevision = z.infer<typeof pluginRevisionSchema>;
 
-export const conversationSchema = z.strictObject({
+const oldConversationSchema = z.strictObject({
   format: z.literal('power-eagle/conversation'), formatVersion: z.literal(1), instanceId: identifier,
   draft: z.string(), selectedBase: revisionId,
   context: z.strictObject({ eagle: z.boolean(), web: z.boolean() }),
@@ -44,12 +45,24 @@ export const conversationSchema = z.strictObject({
     status: z.enum(['pending', 'success', 'failed']), revision: revisionId.optional(), error: z.string().optional(), hidden: z.boolean().optional(),
   })),
 });
+const turnSchema = oldConversationSchema.shape.turns.element.extend({
+  choice: providerChoiceSchema,
+  apiContext: apiContextSchema.optional(), retryOf: revisionId.optional(), currentFlagsOnRetry: z.boolean().optional(),
+  contextInfo: contextInfoSchema.optional(),
+});
+export const conversationSchema = oldConversationSchema.extend({
+  formatVersion: z.literal(2), settings: agentSettingsSchema, turns: z.array(turnSchema),
+});
+const readableConversationSchema = z.union([conversationSchema, oldConversationSchema.transform(record => ({
+  ...record, formatVersion: 2 as const, settings: defaultAgentSettings(),
+  turns: record.turns.map(turn => ({ ...turn, choice: { provider: 'eagle' as const } })),
+}))]).pipe(conversationSchema);
 export type PluginConversation = z.infer<typeof conversationSchema>;
 
 export const workspaceCatalogSchema = z.strictObject({
   format: z.literal('power-eagle/workspace-catalog'), formatVersion: z.literal(1),
   order: z.array(identifier), instances: z.array(pluginInstanceSchema),
-  conversations: z.record(identifier, conversationSchema).default({}),
+  conversations: z.record(identifier, readableConversationSchema).default({}),
 }).superRefine((catalog, context) => {
   const ids = catalog.instances.map(item => item.instanceId);
   for (const [id, conversation] of Object.entries(catalog.conversations)) {
@@ -57,7 +70,8 @@ export const workspaceCatalogSchema = z.strictObject({
     if (!instance || conversation.instanceId !== id || !instance.revisions.some(item => item.id === conversation.selectedBase)
       || new Set(conversation.turns.map(item => item.id)).size !== conversation.turns.length
       || conversation.turns.some(turn => turn.id >= conversation.nextTurnId || !instance.revisions.some(item => item.id === turn.base)
-        || (turn.revision !== undefined && !instance.revisions.some(item => item.id === turn.revision)))) {
+        || (turn.revision !== undefined && !instance.revisions.some(item => item.id === turn.revision))
+        || (turn.retryOf !== undefined && !conversation.turns.some(parent => parent.id === turn.retryOf && parent.id < turn.id && parent.status === 'failed')))) {
       context.addIssue({ code: 'custom', message: 'Conversation identity, turn IDs or revision ownership are invalid' });
     }
   }

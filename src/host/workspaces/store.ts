@@ -6,10 +6,11 @@ import { POWER_EAGLE_STATE_SENTINEL } from '../install/state-reset';
 import type { RetainedPackage } from '../install/saucepan-client';
 import { snapshotArtifact, type CopyOptions } from './artifact-copy';
 import { newPluginInstance, parseWorkspaceCatalog, workspaceUuid, type PluginConversation, type PluginInstance, type WorkspaceCatalog } from './model';
+import { defaultAgentSettings } from './agent-types';
 
 export const emptyCatalog = (): WorkspaceCatalog => ({ format: 'power-eagle/workspace-catalog', formatVersion: 1, order: [], instances: [], conversations: {} });
 export const newConversation = (instance: PluginInstance): PluginConversation => ({
-  format: 'power-eagle/conversation', formatVersion: 1, instanceId: instance.instanceId, draft: '', selectedBase: instance.currentRevision,
+  format: 'power-eagle/conversation', formatVersion: 2, instanceId: instance.instanceId, draft: '', selectedBase: instance.currentRevision, settings: defaultAgentSettings(),
   context: { eagle: true, web: false }, nextTurnId: 1, turns: [],
 });
 export function blankDocument(): RuntimeDocument {
@@ -82,6 +83,14 @@ export class WorkspaceStore {
   }
   private async publish(catalog: WorkspaceCatalog, signal?: AbortSignal): Promise<void> {
     const checked = parseWorkspaceCatalog(catalog);
+    const file = this.bounded('catalog.json');
+    if (this.fs.existsSync(file)) {
+      const previous = JSON.parse(this.fs.readFileSync(file, 'utf8'));
+      // Validate before retaining or replacing anything. Never overwrite a prior recovery copy.
+      parseWorkspaceCatalog(previous);
+      if (Object.values(previous.conversations ?? {}).some(value => (value as { formatVersion: number }).formatVersion === 1)
+        && !this.fs.existsSync(this.bounded('catalog.before-agent-v2.json'))) this.atomicWrite('catalog.before-agent-v2.json', previous);
+    }
     for (let attempt = 0; ; attempt += 1) {
       signal?.throwIfAborted();
       try { this.atomicWrite('catalog.json', checked); return; }

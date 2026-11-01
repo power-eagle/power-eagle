@@ -28,6 +28,38 @@ async function inspect(name: string, user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('workbench activation stage', () => {
+  it('retains runtime state and pending work through settings, restores details, and invalidates disabled sessions', async () => {
+    const user = userEvent.setup();
+    const host = createEagleCapabilities();
+    let finish!: (records: LibraryHistoryRecord[]) => void;
+    host.library.history = vi.fn(() => new Promise<LibraryHistoryRecord[]>(resolve => { finish = resolve; }));
+    render(<App capabilities={host} />);
+    await user.click(await screen.findByRole('button', { name: 'Increment' }));
+    await user.click(screen.getByRole('button', { name: 'Open details' }));
+    await screen.findByText('Opened at count 1');
+    await user.click(screen.getByRole('button', { name: 'Agent settings' }));
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
+    await user.keyboard('{Escape}'); expect(screen.getByText('Opened at count 1')).toBeTruthy();
+    await inspect('Recent Libraries', user); await user.click(screen.getByRole('tab', { name: 'actions' }));
+    await user.click(screen.getByRole('button', { name: 'Agent settings' })); await user.keyboard('{Escape}');
+    expect(screen.getByRole('tab', { name: 'actions' }).getAttribute('aria-selected')).toBe('true');
+    await user.click(screen.getByRole('button', { name: 'Select package Recent Libraries' }));
+    await user.click(screen.getByRole('button', { name: 'Agent settings' }));
+    await act(async () => finish([{ id: 'one', name: 'Design', path: 'C:/Design.library', status: 'available' }]));
+    expect(screen.queryByRole('button', { name: 'Open Design' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Close agent settings' }));
+    expect(await screen.findByRole('button', { name: 'Open Design' })).toBeTruthy();
+    expect(host.library.history).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: 'Select package Runtime flow' }));
+    await user.click(await screen.findByRole('button', { name: 'Increment' }));
+    await user.click(screen.getByRole('button', { name: 'Agent settings' }));
+    await user.click(screen.getByRole('switch', { name: 'Disable package Runtime flow' }));
+    await user.click(screen.getByRole('button', { name: 'Close agent settings' }));
+    expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Enable package' }));
+    expect(await screen.findByText('Count: 0')).toBeTruthy();
+  });
+
   it('keeps the running tool and its state while the source list is filtered', async () => {
     const user = userEvent.setup();
     render(<App />);

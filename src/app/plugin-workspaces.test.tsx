@@ -11,6 +11,7 @@ import { InstancePreferences } from '../host/workspaces/preferences';
 import { sharedModules } from './plugin-catalog';
 import App from './App';
 import { foundationRuntimeCatalog } from '../sdui/runtime/foundation';
+import type { AgentProviders } from '../host/workspaces/agent-types';
 
 const hostRequire = createRequire(import.meta.url);
 let root: string;
@@ -25,6 +26,55 @@ beforeEach(async () => {
   await catalog.refresh();
 });
 afterEach(async () => { cleanup(); await catalog.dispose(); vi.restoreAllMocks(); vi.unstubAllGlobals(); rmSync(root, { recursive: true, force: true }); });
+
+it('configures providers beside the conversation, restores details and focus, and persists independent preferences', async () => {
+  const providers: AgentProviders = { available: async () => true, discover: vi.fn(async () => [{ id: 'a', label: 'Model A', isDefault: true, efforts: ['low', 'high'] }]), generate: async () => JSON.stringify(blankDocument()) };
+  const user = userEvent.setup(); render(<App catalog={catalog} model={providers} />);
+  const original = catalog.snapshot().entries[0].instance.instanceId;
+  await user.type(screen.getByLabelText('Describe this plugin'), 'Keep draft');
+  await user.click(screen.getByRole('button', { name: 'Agent settings' }));
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close agent settings' }));
+  expect(screen.getByText(/chat model is managed in Eagle/)).toBeTruthy();
+  await user.selectOptions(screen.getByLabelText('Provider'), 'codex');
+  await screen.findByText('Model A');
+  await user.selectOptions(screen.getByLabelText('Model'), 'a');
+  await user.selectOptions(screen.getByLabelText('Effort'), 'high');
+  await waitFor(() => expect(catalog.store!.read().conversations[original].settings.codex).toEqual({ model: 'a', effort: 'high' }));
+  await user.click(screen.getByRole('button', { name: 'Close agent settings' }));
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Agent settings' }));
+  expect((screen.getByLabelText('Describe this plugin') as HTMLTextAreaElement).value).toBe('Keep draft');
+  const source = screen.getByRole('button', { name: 'Select package Original' });
+  fireEvent.contextMenu(source); await user.click(screen.getByRole('menuitem', { name: 'Inspect plugin…' }));
+  await user.click(screen.getByRole('button', { name: 'Agent settings' }));
+  expect(screen.queryByRole('button', { name: 'Close plugin details' })).toBeNull();
+  await user.keyboard('{Escape}');
+  expect(screen.getByRole('button', { name: 'Close plugin details' })).toBeTruthy();
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Agent settings' }));
+  await user.click(screen.getByRole('button', { name: 'Agent settings' }));
+  await user.click(screen.getByRole('button', { name: 'Select package Second' }));
+  expect(screen.queryByLabelText('Provider')).toBeNull();
+  expect(screen.getByRole('button', { name: 'Agent settings' }).textContent).toContain('Eagle supplied');
+  await user.click(source);
+  expect(screen.getByRole('button', { name: 'Agent settings' }).textContent).toContain('Codex');
+});
+
+it('retains a failed request, renders its error once and edits or retries without deleting history', async () => {
+  const model = vi.fn().mockRejectedValueOnce(Error('Connection failed')).mockResolvedValue(JSON.stringify(blankDocument()));
+  const user = userEvent.setup(); render(<App catalog={catalog} model={model} />);
+  await user.type(screen.getByLabelText('Describe this plugin'), 'Make a label'); await user.click(screen.getByRole('button', { name: 'Send' }));
+  await screen.findByRole('button', { name: 'Retry request 1' });
+  expect(screen.getAllByText('Connection failed')).toHaveLength(1); expect(screen.queryByText('Remove from history')).toBeNull();
+  await user.type(screen.getByLabelText('Describe this plugin'), 'Another draft');
+  await user.click(screen.getByRole('button', { name: 'Edit request 1' }));
+  expect((screen.getByLabelText('Describe this plugin') as HTMLTextAreaElement).value).toBe('Another draft');
+  await user.click(screen.getByRole('button', { name: 'Replace draft' }));
+  await waitFor(() => expect((screen.getByLabelText('Describe this plugin') as HTMLTextAreaElement).value).toBe('Make a label'));
+  expect(model).toHaveBeenCalledTimes(1);
+  await user.click(screen.getByRole('button', { name: 'Retry request 1' }));
+  await screen.findByRole('button', { name: 'Open revision 2' });
+  expect(screen.getAllByText('Connection failed')).toHaveLength(1);
+  expect(catalog.store!.read().conversations[catalog.snapshot().order[0]].turns).toHaveLength(2);
+});
 
 it('creates once, clears a hiding filter, selects the new plugin and restores focus on cancellation', async () => {
   const user = userEvent.setup(); render(<App catalog={catalog} />);

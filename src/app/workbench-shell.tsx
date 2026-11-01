@@ -34,7 +34,7 @@ export interface WorkbenchShellProps {
   stageTitle?: string;
   stageCaption?: string;
   stageMode?: string;
-  onCloseDetails?(): void;
+  temporaryPanel?: { label: string; onClose(): void };
   stageStatus?: string;
   themeStyle?: CSSProperties;
   themeIdentity?: string;
@@ -47,7 +47,7 @@ function compactWindow(): boolean { return typeof window !== 'undefined' && wind
 
 export function WorkbenchShell({
   stage, sources, sourceHint = 'built-ins', stageTitle = 'Language foundation', stageCaption = 'example.runtime-flow · built-in · runtime', active = 4, total = 4,
-  stageMode = 'live view', stageStatus = 'active', onCloseDetails,
+  stageMode = 'live view', stageStatus = 'active', temporaryPanel,
   themeStyle, themeIdentity = 'blueprint', themeControl, sourceActions, sourceFooter, agent,
 }: WorkbenchShellProps) {
   const [sourcesCollapsed, setSourcesCollapsed] = useState(compactWindow);
@@ -55,8 +55,14 @@ export function WorkbenchShell({
   const [sourceDraft, setSourceDraft] = useState('');
   const [agentDraft, setAgentDraft] = useState('');
   const closeDetails = useRef<HTMLButtonElement>(null);
-  const inspecting = Boolean(onCloseDetails);
-  useEffect(() => { if (inspecting) closeDetails.current?.focus(); }, [inspecting, stageTitle]);
+  const temporaryLabel = temporaryPanel?.label;
+  const previousTemporaryLabel = useRef(temporaryLabel);
+  useEffect(() => {
+    const returningToDetails = previousTemporaryLabel.current === 'Agent settings' && temporaryLabel === 'Plugin details'
+      && document.activeElement?.getAttribute('aria-label') === 'Agent settings';
+    if (temporaryLabel && !returningToDetails) closeDetails.current?.focus();
+    previousTemporaryLabel.current = temporaryLabel;
+  }, [temporaryLabel, stageTitle]);
 
   useEffect(() => {
     const resize = () => {
@@ -110,11 +116,11 @@ export function WorkbenchShell({
           </nav>}
         </Panel>
 
-        <Panel index="02" label={onCloseDetails ? 'Plugin details' : 'Stage'} hint={stageMode} className="pe-panel-stage"
-          actions={onCloseDetails ? <button ref={closeDetails} type="button" className="pe-rail-btn" aria-label="Close plugin details"
-            onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); onCloseDetails(); } }} onClick={onCloseDetails}>×</button> : undefined}>
+        <Panel index="02" label={temporaryPanel?.label ?? 'Stage'} hint={stageMode} className="pe-panel-stage"
+          actions={temporaryPanel ? <button ref={closeDetails} type="button" className="pe-rail-btn" aria-label={`Close ${temporaryPanel.label.toLowerCase()}`}
+            onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); temporaryPanel.onClose(); } }} onClick={temporaryPanel.onClose}>×</button> : undefined}>
           <section className="pe-workbench-stage" aria-labelledby="workbench-stage-title"
-            onKeyDown={event => { if (onCloseDetails && event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); onCloseDetails(); } }}>
+            onKeyDown={event => { if (temporaryPanel && event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); temporaryPanel.onClose(); } }}>
             <header className="pe-workbench-stage-head">
               <span className="pe-workbench-stage-dot" data-status={stageStatus} aria-hidden="true" />
               <div>
