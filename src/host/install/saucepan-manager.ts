@@ -2,6 +2,7 @@ import { Client } from 'saucepan-sdk';
 import { EagleTransport } from './saucepan-transport';
 import { resolveHostRequire } from './runtime-modules';
 import { sharedSaucepanExecutablePath } from './saucepan-binary';
+import { checkBridgeVersion } from '../../lib/bridge-version';
 
 export interface ManagerOptions {
   binaryPath?: string;
@@ -28,11 +29,13 @@ export async function initializeSaucepan(
   options: ManagerOptions = {},
 ): Promise<SaucepanManagerState> {
   let binaryPath = options.binaryPath;
+  let recovery = 'Open Power Eagle in Eagle with its Node host bridge available.';
   try {
     const require = resolveHostRequire(options.hostRequire);
     binaryPath ??= sharedSaucepanExecutablePath({ hostRequire: require });
     const { execFile } =
       require('child_process') as typeof import('node:child_process');
+    recovery = 'Install Saucepan independently (0.10.0 or later within major 0), or check the configured executable path and permissions.';
     const probe = (args: string[]) =>
       new Promise<string>((resolve, reject) =>
         execFile(
@@ -49,8 +52,17 @@ export async function initializeSaucepan(
         ),
       );
     const version = (await probe(['--version'])).trim();
-    if (!/^saucepan 0\.10\.\d+(?:[-+][\w.-]+)?$/.test(version))
-      throw new Error(`Unsupported Saucepan executable: ${version}`);
+    const reported = /^saucepan (\S+)$/.exec(version)?.[1] ?? '';
+    const issue = checkBridgeVersion(reported, { major: 0, minimum: '0.10.0' });
+    if (issue) {
+      recovery = issue === 'major'
+        ? 'This Saucepan major version needs bridge compatibility review. Use a supported major 0 executable until the bridge is updated.'
+        : issue === 'minimum'
+          ? 'Update Saucepan to 0.10.0 or later within major 0; older resource protocols are unsupported.'
+          : 'Check the selected Saucepan executable: --version must return saucepan followed by a semantic version.';
+      throw new Error(`${issue === 'invalid' ? 'Unrecognized Saucepan version' : 'Unsupported Saucepan executable'}: ${version.slice(0, 200)}`);
+    }
+    recovery = 'Check the selected Saucepan executable and its required resource commands; a compatible version must also implement the bridge protocol.';
     const help = await probe(['--help']);
     for (const command of [
       'register-application',
@@ -63,7 +75,7 @@ export async function initializeSaucepan(
       'profile',
       'explain-policies',
     ]) {
-      if (!new RegExp(`\\b${command}\\b`).test(help))
+      if (!new RegExp(`(?:^|\\s)${command}(?=\\s|$)`).test(help))
         throw new Error(`Saucepan is missing ${command}`);
     }
     return {
@@ -84,8 +96,7 @@ export async function initializeSaucepan(
       builtInsAvailable: true,
       error: {
         message: error instanceof Error ? error.message : String(error),
-        recovery:
-          'Install Saucepan 0.10 independently, or configure its executable path. Eagle must provide its Node host bridge.',
+        recovery,
       },
     };
   }

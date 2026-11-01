@@ -115,7 +115,7 @@ export class PowerEagleSaucepan {
     const path = this.#require('path') as typeof import('node:path');
     if (fs.existsSync(path.join(this.options.stateRoot, '.saucepanhash')))
       throw new Error(
-        'Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with Saucepan 0.10. The shared store is not migrated.',
+        'Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with a compatible Saucepan manager (0.10.0 or later within major 0). The shared store is not migrated.',
       );
     if (!fs.existsSync(this.#file)) return this.fresh();
     const state: unknown = JSON.parse(fs.readFileSync(this.#file, 'utf8'));

@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { spawn, execFile } from 'node:child_process';
+import { spawn, execFile, type ExecFileOptionsWithStringEncoding } from 'node:child_process';
 import { Client, Payload, SaucepanError, type Config } from 'saucepan-sdk';
 import { EagleTransport } from './saucepan-transport';
 import { initializeSaucepan } from './saucepan-manager';
@@ -27,10 +27,10 @@ function host(script: string): NodeRequire {
           execFile: (
             _exe: string,
             argv: string[],
-            options: object,
-            cb: unknown,
+            options: ExecFileOptionsWithStringEncoding,
+            cb: (error: Error | null, stdout: string, stderr: string) => void,
           ) =>
-            (execFile as Function)(
+            execFile(
               process.execPath,
               [fixture, ...argv],
               options,
@@ -216,33 +216,41 @@ describe('Eagle SDK transport', () => {
 });
 describe('read-only manager probe', () => {
   it('handles browser preview and missing executables', async () => {
-    expect((await initializeSaucepan()).status).toBe('unavailable');
+    expect(await initializeSaucepan()).toMatchObject({
+      status: 'unavailable', error: { recovery: expect.stringContaining('Node host bridge') },
+    });
     expect(
       await initializeSaucepan({
         hostRequire: require,
         binaryPath: 'missing-saucepan',
       }),
-    ).toMatchObject({ status: 'unavailable', builtInsAvailable: true });
+    ).toMatchObject({ status: 'unavailable', builtInsAvailable: true,
+      error: { recovery: expect.stringContaining('executable path') } });
   });
-  it('accepts build suffixes and only version/help calls', async () => {
+  it.each(['0.10.0+dev', '0.11.0+v0.11.0', '0.99.7', '0.12.0-rc.1+build'])('accepts %s with only version/help calls', async version => {
     const hostRequire = host(
-      `const arg=process.argv[2];if(arg==='--version')console.log('saucepan 0.10.0+dev');else if(arg==='--help')console.log('register-application register-source register-group prepare-group pin unpin profiles profile explain-policies');else process.exit(99);`,
+      `const arg=process.argv[2];if(arg==='--version')console.log('saucepan ${version}');else if(arg==='--help')console.log('register-application register-source register-group prepare-group pin unpin profiles profile explain-policies');else process.exit(99);`,
     );
     expect(
       await initializeSaucepan({ hostRequire, binaryPath: 'fixture' }),
-    ).toMatchObject({ status: 'ready', version: 'saucepan 0.10.0+dev' });
+    ).toMatchObject({ status: 'ready', version: `saucepan ${version}` });
   });
-  it('rejects pre-profile managers and incomplete 0.10 command surfaces', async () => {
-    for (const version of ['0.9.0', '0.10.0']) {
-      const hostRequire = host(`if(process.argv[2]==='--version')console.log('saucepan ${version}');else console.log('register-application register-source register-group prepare-group pin unpin');`);
-      expect(await initializeSaucepan({ hostRequire, binaryPath: 'fixture' }))
-        .toMatchObject({ status: 'unavailable', builtInsAvailable: true });
-    }
+  it.each(['0.10.0', '0.11.0', '0.99.0'])('reports missing command capabilities for %s', async version => {
+    const hostRequire = host(`if(process.argv[2]==='--version')console.log('saucepan ${version}');else console.log('register-application register-source register-group prepare-group pin unpin profiles profile-old explain-policies');`);
+    const result = await initializeSaucepan({ hostRequire, binaryPath: 'fixture' });
+    expect(result).toMatchObject({ status: 'unavailable', builtInsAvailable: true,
+      error: { message: 'Saucepan is missing profile', recovery: expect.stringContaining('required resource commands') } });
+    expect(JSON.stringify(result)).not.toContain('Node host bridge');
   });
-  it('rejects old protocols before any mutation', async () => {
-    const hostRequire = host(`console.log('saucepan 0.6.0')`);
-    expect(
-      await initializeSaucepan({ hostRequire, binaryPath: 'fixture' }),
-    ).toMatchObject({ status: 'unavailable' });
+  it.each([
+    ['0.6.0', 'older resource protocols'], ['0.9.0', 'older resource protocols'],
+    ['0.10.0-rc.1', 'older resource protocols'], ['1.0.0', 'major version needs bridge compatibility review'],
+    ['1.0.0-rc.1', 'major version needs bridge compatibility review'], ['0.11', 'semantic version'], ['nonsense', 'semantic version'],
+  ])('rejects %s before capability or mutation calls with relevant recovery', async (version, recovery) => {
+    const hostRequire = host(`if(process.argv[2]!=='--version')process.exit(99);console.log('saucepan ${version}');`);
+    const result = await initializeSaucepan({ hostRequire, binaryPath: 'fixture' });
+    expect(result).toMatchObject({ status: 'unavailable', builtInsAvailable: true,
+      error: { message: expect.stringContaining(version), recovery: expect.stringContaining(recovery) } });
+    expect(JSON.stringify(result)).not.toContain('Node host bridge');
   });
 });

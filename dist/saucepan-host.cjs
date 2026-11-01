@@ -864,7 +864,7 @@ var require_parse = __commonJS({
   "node_modules/semver/functions/parse.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver();
-    var parse4 = (version2, options, throwErrors = false) => {
+    var parse5 = (version2, options, throwErrors = false) => {
       if (version2 instanceof SemVer) {
         return version2;
       }
@@ -877,7 +877,7 @@ var require_parse = __commonJS({
         throw er;
       }
     };
-    module2.exports = parse4;
+    module2.exports = parse5;
   }
 });
 
@@ -885,9 +885,9 @@ var require_parse = __commonJS({
 var require_valid = __commonJS({
   "node_modules/semver/functions/valid.js"(exports2, module2) {
     "use strict";
-    var parse4 = require_parse();
+    var parse5 = require_parse();
     var valid2 = (version2, options) => {
-      const v = parse4(version2, options);
+      const v = parse5(version2, options);
       return v ? v.version : null;
     };
     module2.exports = valid2;
@@ -898,9 +898,9 @@ var require_valid = __commonJS({
 var require_clean = __commonJS({
   "node_modules/semver/functions/clean.js"(exports2, module2) {
     "use strict";
-    var parse4 = require_parse();
+    var parse5 = require_parse();
     var clean = (version2, options) => {
-      const s = parse4(version2.trim().replace(/^[=v]+/, ""), options);
+      const s = parse5(version2.trim().replace(/^[=v]+/, ""), options);
       return s ? s.version : null;
     };
     module2.exports = clean;
@@ -935,10 +935,10 @@ var require_inc = __commonJS({
 var require_diff = __commonJS({
   "node_modules/semver/functions/diff.js"(exports2, module2) {
     "use strict";
-    var parse4 = require_parse();
+    var parse5 = require_parse();
     var diff = (version1, version2) => {
-      const v1 = parse4(version1, null, true);
-      const v2 = parse4(version2, null, true);
+      const v1 = parse5(version1, null, true);
+      const v2 = parse5(version2, null, true);
       const comparison = v1.compare(v2);
       if (comparison === 0) {
         return null;
@@ -1009,9 +1009,9 @@ var require_patch = __commonJS({
 var require_prerelease = __commonJS({
   "node_modules/semver/functions/prerelease.js"(exports2, module2) {
     "use strict";
-    var parse4 = require_parse();
+    var parse5 = require_parse();
     var prerelease = (version2, options) => {
-      const parsed = parse4(version2, options);
+      const parsed = parse5(version2, options);
       return parsed && parsed.prerelease.length ? parsed.prerelease : null;
     };
     module2.exports = prerelease;
@@ -1097,8 +1097,8 @@ var require_lt = __commonJS({
   "node_modules/semver/functions/lt.js"(exports2, module2) {
     "use strict";
     var compare = require_compare();
-    var lt = (a, b, loose) => compare(a, b, loose) < 0;
-    module2.exports = lt;
+    var lt2 = (a, b, loose) => compare(a, b, loose) < 0;
+    module2.exports = lt2;
   }
 });
 
@@ -1150,7 +1150,7 @@ var require_cmp = __commonJS({
     var neq = require_neq();
     var gt = require_gt();
     var gte = require_gte();
-    var lt = require_lt();
+    var lt2 = require_lt();
     var lte = require_lte();
     var cmp = (a, op, b, loose) => {
       switch (op) {
@@ -1181,7 +1181,7 @@ var require_cmp = __commonJS({
         case ">=":
           return gte(a, b, loose);
         case "<":
-          return lt(a, b, loose);
+          return lt2(a, b, loose);
         case "<=":
           return lte(a, b, loose);
         default:
@@ -1197,7 +1197,7 @@ var require_coerce = __commonJS({
   "node_modules/semver/functions/coerce.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver();
-    var parse4 = require_parse();
+    var parse5 = require_parse();
     var { safeRe: re, t } = require_re();
     var coerce = (version2, options) => {
       if (version2 instanceof SemVer) {
@@ -1232,7 +1232,7 @@ var require_coerce = __commonJS({
       const patch = match[4] || "0";
       const prerelease = options.includePrerelease && match[5] ? `-${match[5]}` : "";
       const build = options.includePrerelease && match[6] ? `+${match[6]}` : "";
-      return parse4(`${major}.${minor}.${patch}${prerelease}${build}`, options);
+      return parse5(`${major}.${minor}.${patch}${prerelease}${build}`, options);
     };
     module2.exports = coerce;
   }
@@ -1936,7 +1936,7 @@ var require_outside = __commonJS({
     var Range = require_range();
     var satisfies3 = require_satisfies();
     var gt = require_gt();
-    var lt = require_lt();
+    var lt2 = require_lt();
     var lte = require_lte();
     var gte = require_gte();
     var outside = (version2, range, hilo, options) => {
@@ -1947,12 +1947,12 @@ var require_outside = __commonJS({
         case ">":
           gtfn = gt;
           ltefn = lte;
-          ltfn = lt;
+          ltfn = lt2;
           comp = ">";
           ecomp = ">=";
           break;
         case "<":
-          gtfn = lt;
+          gtfn = lt2;
           ltefn = gte;
           ltfn = gt;
           comp = "<";
@@ -2132,12 +2132,12 @@ var require_subset = __commonJS({
         }
       }
       const eqSet = /* @__PURE__ */ new Set();
-      let gt, lt;
+      let gt, lt2;
       for (const c of sub) {
         if (c.operator === ">" || c.operator === ">=") {
           gt = higherGT(gt, c, options);
         } else if (c.operator === "<" || c.operator === "<=") {
-          lt = lowerLT(lt, c, options);
+          lt2 = lowerLT(lt2, c, options);
         } else {
           eqSet.add(c.semver);
         }
@@ -2146,11 +2146,11 @@ var require_subset = __commonJS({
         return null;
       }
       let gtltComp;
-      if (gt && lt) {
-        gtltComp = compare(gt.semver, lt.semver, options);
+      if (gt && lt2) {
+        gtltComp = compare(gt.semver, lt2.semver, options);
         if (gtltComp > 0) {
           return null;
-        } else if (gtltComp === 0 && (gt.operator !== ">=" || lt.operator !== "<=")) {
+        } else if (gtltComp === 0 && (gt.operator !== ">=" || lt2.operator !== "<=")) {
           return null;
         }
       }
@@ -2158,7 +2158,7 @@ var require_subset = __commonJS({
         if (gt && !satisfies3(eq, String(gt), options)) {
           return null;
         }
-        if (lt && !satisfies3(eq, String(lt), options)) {
+        if (lt2 && !satisfies3(eq, String(lt2), options)) {
           return null;
         }
         for (const c of dom) {
@@ -2170,9 +2170,9 @@ var require_subset = __commonJS({
       }
       let higher, lower;
       let hasDomLT, hasDomGT;
-      let needDomLTPre = lt && !options.includePrerelease && lt.semver.prerelease.length ? lt.semver : false;
+      let needDomLTPre = lt2 && !options.includePrerelease && lt2.semver.prerelease.length ? lt2.semver : false;
       let needDomGTPre = gt && !options.includePrerelease && gt.semver.prerelease.length ? gt.semver : false;
-      if (needDomLTPre && needDomLTPre.prerelease.length === 1 && lt.operator === "<" && needDomLTPre.prerelease[0] === 0) {
+      if (needDomLTPre && needDomLTPre.prerelease.length === 1 && lt2.operator === "<" && needDomLTPre.prerelease[0] === 0) {
         needDomLTPre = false;
       }
       for (const c of dom) {
@@ -2193,29 +2193,29 @@ var require_subset = __commonJS({
             return false;
           }
         }
-        if (lt) {
+        if (lt2) {
           if (needDomLTPre) {
             if (c.semver.prerelease && c.semver.prerelease.length && c.semver.major === needDomLTPre.major && c.semver.minor === needDomLTPre.minor && c.semver.patch === needDomLTPre.patch) {
               needDomLTPre = false;
             }
           }
           if (c.operator === "<" || c.operator === "<=") {
-            lower = lowerLT(lt, c, options);
-            if (lower === c && lower !== lt) {
+            lower = lowerLT(lt2, c, options);
+            if (lower === c && lower !== lt2) {
               return false;
             }
-          } else if (lt.operator === "<=" && !satisfies3(lt.semver, String(c), options)) {
+          } else if (lt2.operator === "<=" && !satisfies3(lt2.semver, String(c), options)) {
             return false;
           }
         }
-        if (!c.operator && (lt || gt) && gtltComp !== 0) {
+        if (!c.operator && (lt2 || gt) && gtltComp !== 0) {
           return false;
         }
       }
-      if (gt && hasDomLT && !lt && gtltComp !== 0) {
+      if (gt && hasDomLT && !lt2 && gtltComp !== 0) {
         return false;
       }
-      if (lt && hasDomGT && !gt && gtltComp !== 0) {
+      if (lt2 && hasDomGT && !gt && gtltComp !== 0) {
         return false;
       }
       if (needDomGTPre || needDomLTPre) {
@@ -2249,7 +2249,7 @@ var require_semver2 = __commonJS({
     var constants = require_constants();
     var SemVer = require_semver();
     var identifiers = require_identifiers();
-    var parse4 = require_parse();
+    var parse5 = require_parse();
     var valid2 = require_valid();
     var clean = require_clean();
     var inc = require_inc();
@@ -2265,7 +2265,7 @@ var require_semver2 = __commonJS({
     var sort = require_sort();
     var rsort = require_rsort();
     var gt = require_gt();
-    var lt = require_lt();
+    var lt2 = require_lt();
     var eq = require_eq();
     var neq = require_neq();
     var gte = require_gte();
@@ -2287,7 +2287,7 @@ var require_semver2 = __commonJS({
     var simplifyRange = require_simplify();
     var subset = require_subset();
     module2.exports = {
-      parse: parse4,
+      parse: parse5,
       valid: valid2,
       clean,
       inc,
@@ -2303,7 +2303,7 @@ var require_semver2 = __commonJS({
       sort,
       rsort,
       gt,
-      lt,
+      lt: lt2,
       eq,
       neq,
       gte,
@@ -2921,13 +2921,25 @@ function sharedSaucepanExecutablePath(options = {}) {
   return filesystem.join(home, ".saucepan", "bin", platform === "win32" ? "saucepan.exe" : "saucepan");
 }
 
+// src/lib/bridge-version.ts
+var import_semver = __toESM(require_semver2(), 1);
+function checkBridgeVersion(version2, policy) {
+  const parsed = /^\d/.test(version2) ? (0, import_semver.parse)(version2) : null;
+  if (!parsed || version2.trim() !== version2) return "invalid";
+  if (parsed.major !== policy.major) return "major";
+  if (policy.minimum && (0, import_semver.lt)(parsed, policy.minimum)) return "minimum";
+  return void 0;
+}
+
 // src/host/install/saucepan-manager.ts
 async function initializeSaucepan(options = {}) {
   let binaryPath = options.binaryPath;
+  let recovery = "Open Power Eagle in Eagle with its Node host bridge available.";
   try {
     const require2 = resolveHostRequire(options.hostRequire);
     binaryPath ??= sharedSaucepanExecutablePath({ hostRequire: require2 });
     const { execFile } = require2("child_process");
+    recovery = "Install Saucepan independently (0.10.0 or later within major 0), or check the configured executable path and permissions.";
     const probe = (args) => new Promise(
       (resolve, reject) => execFile(
         binaryPath,
@@ -2943,8 +2955,13 @@ async function initializeSaucepan(options = {}) {
       )
     );
     const version2 = (await probe(["--version"])).trim();
-    if (!/^saucepan 0\.10\.\d+(?:[-+][\w.-]+)?$/.test(version2))
-      throw new Error(`Unsupported Saucepan executable: ${version2}`);
+    const reported = /^saucepan (\S+)$/.exec(version2)?.[1] ?? "";
+    const issue2 = checkBridgeVersion(reported, { major: 0, minimum: "0.10.0" });
+    if (issue2) {
+      recovery = issue2 === "major" ? "This Saucepan major version needs bridge compatibility review. Use a supported major 0 executable until the bridge is updated." : issue2 === "minimum" ? "Update Saucepan to 0.10.0 or later within major 0; older resource protocols are unsupported." : "Check the selected Saucepan executable: --version must return saucepan followed by a semantic version.";
+      throw new Error(`${issue2 === "invalid" ? "Unrecognized Saucepan version" : "Unsupported Saucepan executable"}: ${version2.slice(0, 200)}`);
+    }
+    recovery = "Check the selected Saucepan executable and its required resource commands; a compatible version must also implement the bridge protocol.";
     const help = await probe(["--help"]);
     for (const command of [
       "register-application",
@@ -2957,7 +2974,7 @@ async function initializeSaucepan(options = {}) {
       "profile",
       "explain-policies"
     ]) {
-      if (!new RegExp(`\\b${command}\\b`).test(help))
+      if (!new RegExp(`(?:^|\\s)${command}(?=\\s|$)`).test(help))
         throw new Error(`Saucepan is missing ${command}`);
     }
     return {
@@ -2978,7 +2995,7 @@ async function initializeSaucepan(options = {}) {
       builtInsAvailable: true,
       error: {
         message: error46 instanceof Error ? error46.message : String(error46),
-        recovery: "Install Saucepan 0.10 independently, or configure its executable path. Eagle must provide its Node host bridge."
+        recovery
       }
     };
   }
@@ -3025,7 +3042,7 @@ var PowerEagleSaucepan = class {
     const path = this.#require("path");
     if (fs.existsSync(path.join(this.options.stateRoot, ".saucepanhash")))
       throw new Error(
-        "Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with Saucepan 0.10. The shared store is not migrated."
+        "Old Saucepan token state is unsupported. Back up and remove the old Power Eagle token before registering with a compatible Saucepan manager (0.10.0 or later within major 0). The shared store is not migrated."
       );
     if (!fs.existsSync(this.#file)) return this.fresh();
     const state = JSON.parse(fs.readFileSync(this.#file, "utf8"));
@@ -3525,7 +3542,7 @@ __export(external_exports, {
   object: () => object4,
   optional: () => optional,
   overwrite: () => _overwrite,
-  parse: () => parse2,
+  parse: () => parse3,
   parseAsync: () => parseAsync2,
   partialRecord: () => partialRecord,
   pipe: () => pipe,
@@ -3829,7 +3846,7 @@ __export(core_exports2, {
   isValidBase64URL: () => isValidBase64URL,
   isValidJWT: () => isValidJWT,
   locales: () => locales_exports,
-  parse: () => parse,
+  parse: () => parse2,
   parseAsync: () => parseAsync,
   prettifyError: () => prettifyError,
   regexes: () => regexes_exports,
@@ -4697,7 +4714,7 @@ var _parse = (_Err) => (schema, value, _ctx, _params) => {
   }
   return result.value;
 };
-var parse = /* @__PURE__ */ _parse($ZodRealError);
+var parse2 = /* @__PURE__ */ _parse($ZodRealError);
 var _parseAsync = (_Err) => async (schema, value, _ctx, params) => {
   const ctx = _ctx ? Object.assign(_ctx, { async: true }) : { async: true };
   let result = schema._zod.run({ value, issues: [] }, ctx);
@@ -7233,10 +7250,10 @@ var $ZodFunction = /* @__PURE__ */ $constructor("$ZodFunction", (inst, def) => {
       throw new Error("implement() must be called with a function");
     }
     return function(...args) {
-      const parsedArgs = inst._def.input ? parse(inst._def.input, args) : args;
+      const parsedArgs = inst._def.input ? parse2(inst._def.input, args) : args;
       const result = Reflect.apply(func, this, parsedArgs);
       if (inst._def.output) {
-        return parse(inst._def.output, result);
+        return parse2(inst._def.output, result);
       }
       return result;
     };
@@ -14858,7 +14875,7 @@ var ZodRealError = $constructor("ZodError", initializer2, {
 });
 
 // node_modules/zod/v4/classic/parse.js
-var parse2 = /* @__PURE__ */ _parse(ZodRealError);
+var parse3 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse2 = /* @__PURE__ */ _safeParse(ZodRealError);
 var safeParseAsync2 = /* @__PURE__ */ _safeParseAsync(ZodRealError);
@@ -14891,7 +14908,7 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
     reg.add(inst, meta);
     return inst;
   });
-  inst.parse = (data, params) => parse2(inst, data, params, { callee: inst.parse });
+  inst.parse = (data, params) => parse3(inst, data, params, { callee: inst.parse });
   inst.safeParse = (data, params) => safeParse2(inst, data, params);
   inst.parseAsync = async (data, params) => parseAsync2(inst, data, params, { callee: inst.parseAsync });
   inst.safeParseAsync = async (data, params) => safeParseAsync2(inst, data, params);
@@ -16016,7 +16033,7 @@ var packageSchema = external_exports.strictObject({
 });
 
 // src/sdui/schema/validate.ts
-var import_semver = __toESM(require_semver2(), 1);
+var import_semver2 = __toESM(require_semver2(), 1);
 var escape = (key) => String(key).replace(/~/g, "~0").replace(/\//g, "~1");
 var at = (path, key) => `${path}/${escape(key)}`;
 var own = (object5, key) => Object.prototype.hasOwnProperty.call(object5, key);
@@ -16070,7 +16087,7 @@ function serializableDiagnostics(value) {
   walk(value, "", 0);
   return diagnostics;
 }
-function parse3(schema, value) {
+function parse4(schema, value) {
   const diagnostics = serializableDiagnostics(value);
   if (diagnostics.length) return { success: false, diagnostics };
   const result = schema.safeParse(value);
@@ -16155,21 +16172,21 @@ function dependenciesDiagnostics(dependencies, path) {
   return dependencies.flatMap((dependency, index) => {
     const result = [];
     const key = `${dependency.package}/${dependency.export}`;
-    if (!(0, import_semver.validRange)(dependency.version)) result.push({ path: `${path}/${index}/version`, code: "version", message: "Invalid semantic version range" });
+    if (!(0, import_semver2.validRange)(dependency.version)) result.push({ path: `${path}/${index}/version`, code: "version", message: "Invalid semantic version range" });
     if (seen.has(key)) result.push({ path: `${path}/${index}`, code: "duplicate", message: `Duplicate dependency ${key}` });
     seen.add(key);
     return result;
   });
 }
 function validatePackage(value, sdkVersion = "1.0.0") {
-  const parsed = parse3(packageSchema, value);
+  const parsed = parse4(packageSchema, value);
   if (!parsed.success) return parsed;
   const manifest = parsed.data;
   const diagnostics = dependenciesDiagnostics(manifest.dependencies, "/dependencies");
   const add = (path, message) => diagnostics.push({ path, code: "manifest", message });
-  if (!(0, import_semver.valid)(manifest.version)) add("/version", "Expected a full semantic version");
-  if (!(0, import_semver.validRange)(manifest.sdk) || !(0, import_semver.satisfies)(sdkVersion, manifest.sdk)) add("/sdk", `Unsupported host SDK range for ${sdkVersion}`);
-  if (manifest.target && !(0, import_semver.validRange)(manifest.target.node)) add("/target/node", "Invalid Node version range");
+  if (!(0, import_semver2.valid)(manifest.version)) add("/version", "Expected a full semantic version");
+  if (!(0, import_semver2.validRange)(manifest.sdk) || !(0, import_semver2.satisfies)(sdkVersion, manifest.sdk)) add("/sdk", `Unsupported host SDK range for ${sdkVersion}`);
+  if (manifest.target && !(0, import_semver2.validRange)(manifest.target.node)) add("/target/node", "Invalid Node version range");
   const entries = Object.entries(manifest.contributions);
   if (!entries.length) add("/contributions", "At least one contribution is required");
   const contributionKeys = { runtime: "runtime", widget: "widgets", styling: "styling", action: "actions", service: "services" };
@@ -16200,7 +16217,7 @@ function validatePackage(value, sdkVersion = "1.0.0") {
 }
 
 // src/host/install/contribution-package.ts
-var import_semver2 = __toESM(require_semver2(), 1);
+var import_semver3 = __toESM(require_semver2(), 1);
 var ContributionPackageError = class extends Error {
   constructor(diagnostics) {
     super(diagnostics.map((item) => `${item.packageRoot}${item.path || "/"}: ${item.message}`).join("\n"));
@@ -16271,7 +16288,7 @@ function checkTarget(manifest, hostTarget, packageRoot, diagnostics) {
   if (!manifest.target.arch.includes(hostTarget.arch)) {
     diagnostics.push({ packageRoot, path: "/target/arch", code: "unsupported-target", message: `Package supports ${manifest.target.arch.join(", ")}, but the host architecture is ${hostTarget.arch}` });
   }
-  if (!(0, import_semver2.satisfies)(hostTarget.node, manifest.target.node)) {
+  if (!(0, import_semver3.satisfies)(hostTarget.node, manifest.target.node)) {
     diagnostics.push({ packageRoot, path: "/target/node", code: "unsupported-target", message: `Package requires Node ${manifest.target.node}, but the host provides ${hostTarget.node}` });
   }
 }
@@ -16312,7 +16329,7 @@ function checkPackagedDependencies(host, packageRoot, diagnostics) {
         cursor = parent;
       }
       if (!metadata?.version) throw new Error("packaged dependency metadata is missing");
-      if (!(0, import_semver2.satisfies)(metadata.version, range)) throw new Error(`packaged version ${metadata.version} does not satisfy ${range}`);
+      if (!(0, import_semver3.satisfies)(metadata.version, range)) throw new Error(`packaged version ${metadata.version} does not satisfy ${range}`);
     } catch (error46) {
       diagnostics.push({
         packageRoot,

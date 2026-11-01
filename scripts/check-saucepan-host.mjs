@@ -3,16 +3,20 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 const executable=process.env.POWER_EAGLE_TEST_SAUCEPAN;
-if(!executable) throw new Error('Set POWER_EAGLE_TEST_SAUCEPAN to a separately installed 0.10 executable');
+if(!executable) throw new Error('Set POWER_EAGLE_TEST_SAUCEPAN to a compatible raw manager executable (>=0.10.0, major 0). A managed shim cannot route from this test\'s fresh store root.');
 const root=await mkdtemp(join(tmpdir(),'power-eagle-packaged-sdk-'));
 try {
   await copyFile('dist/saucepan-host.cjs',join(root,'host.cjs'));
   await cp('examples/runtime-only',join(root,'source'),{recursive:true});
   await writeFile(join(root,'check.cjs'),String.raw`
 const assert=require('assert/strict'),fs=require('fs'),path=require('path'),crypto=require('crypto');
-const {Client,EagleTransport,PowerEagleSaucepan,AcquiredPackageRepository}=require('./host.cjs');
+const {initializeSaucepan,PowerEagleSaucepan,AcquiredPackageRepository}=require('./host.cjs');
 (async()=>{
- const client=new Client({executable:process.argv[2],root:path.join(__dirname,'manager'),transport:new EagleTransport(require)});
+ const managerRoot=path.join(__dirname,'manager');
+ const manager=await initializeSaucepan({binaryPath:process.argv[2],root:managerRoot,hostRequire:require});
+ assert.equal(manager.status,'ready',JSON.stringify(manager.error));
+ assert.equal(fs.existsSync(managerRoot),false,'Readiness must not initialize the store');
+ const client=manager.client;
  assert.deepEqual(await client.profiles(),['managed','explicit-update','temporary']);
  const options={client,stateRoot:path.join(__dirname,'state'),hostRequire:require};
  const app=new PowerEagleSaucepan(options);await app.initializeStore();await app.ensureRegistration();
@@ -32,7 +36,7 @@ const {Client,EagleTransport,PowerEagleSaucepan,AcquiredPackageRepository}=requi
  await repository.dispose(first);await client.reclaim();assert.ok(fs.existsSync(path.join(otherReader.directory,'manifest.json')));
  await reader.close();await client.reclaim();assert.ok(fs.existsSync(path.join(otherReader.directory,'manifest.json')));
  await otherReader.close();
- console.log(JSON.stringify({node:process.version,manager:process.argv[2],outsideCheckout:true,install:true,restart:true,failedReplacement:true,crossWindowReader:true,explicitRemoval:true}));
+ console.log(JSON.stringify({node:process.version,manager:process.argv[2],version:manager.version,readOnlyReadiness:true,outsideCheckout:true,install:true,restart:true,failedReplacement:true,crossWindowReader:true,explicitRemoval:true}));
 })().catch(error=>{console.error(error);process.exitCode=1;});
 `);
   const result=spawnSync(process.env.POWER_EAGLE_TEST_NODE??process.execPath,[join(root,'check.cjs'),resolve(executable)],{cwd:root,encoding:'utf8',timeout:120000});
