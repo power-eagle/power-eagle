@@ -1,0 +1,45 @@
+{
+  "name": "@power-eagle/agent-providers",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "UNLICENSED",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.17"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "prepack": "npm run build",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "typescript": "^5.0.2",
+    "@types/node": "^24.3.2",
+    "vitest": "^3.2.4",
+    "@types/semver": "7.7.1"
+  },
+  "dependencies": {
+    "zod": "4.1.12",
+    "semver": "7.7.3"
+  }
+}

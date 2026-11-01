@@ -28,3 +28,7 @@ dist-ssr
 coverage/
 .artifacts/
 public/builtins/
+
+# Reusable library build output
+/packages/*/dist/
+/packages/*/*.tgz
