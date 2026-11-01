@@ -59,3 +59,42 @@ it('surfaces failed refresh and allows removal and explicit preview close', asyn
   await f.user.click(screen.getByRole('button', { name: 'Close preview' }));
   expect(f.api.closePreview).toHaveBeenCalledWith('installed');
 });
+
+it('supports keyboard submission, announces progress, and prevents overlapping acquisition', async () => {
+  const f = fixture();
+  let finish!: (value: { instanceId: string }) => void;
+  f.api.install.mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+  render(<PackageControls {...f} />);
+  await f.user.click(screen.getByText('Add package'));
+  screen.getByLabelText('Source type').focus();
+  expect(document.activeElement).toBe(screen.getByLabelText('Source type'));
+  await f.user.tab();
+  await f.user.keyboard('C:\\packages\\keyboard');
+  await f.user.tab();
+  await f.user.tab();
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Install' }));
+  await f.user.keyboard('{Enter}');
+  expect(screen.getByRole('status').textContent).toBe('Installing package…');
+  expect(screen.getByLabelText('Package source').matches(':disabled')).toBe(true);
+  expect(screen.getByRole('button', { name: 'Preview' }).matches(':disabled')).toBe(true);
+  expect(screen.getByRole('button', { name: 'Initialize store' }).hasAttribute('disabled')).toBe(true);
+  await f.user.keyboard('{Enter}');
+  expect(f.api.install).toHaveBeenCalledOnce();
+  finish({ instanceId: 'keyboard-install' });
+  await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Package installed.'));
+  expect(f.onSelect).toHaveBeenCalledWith('keyboard-install');
+});
+
+it('labels durable installations and session previews and scopes refresh to the selected installation', async () => {
+  const f = fixture();
+  const selected = { instance: { instanceId: 'selected-installation', acquisition: { revision: 3 } } } as CatalogEntry;
+  const view = render(<PackageControls {...f} selected={selected} />);
+  expect(screen.getByText('Installed source · revision 3')).toBeTruthy();
+  await f.user.click(screen.getByRole('button', { name: 'Refresh source' }));
+  expect(f.api.refresh).toHaveBeenCalledWith('selected-installation');
+  view.rerender(<PackageControls {...f} selected={{ ...selected, session: true }} />);
+  expect(screen.getByText('Session preview')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Refresh source' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Remove installation' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Close preview' })).toBeTruthy();
+});

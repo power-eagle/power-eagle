@@ -27,7 +27,11 @@
     "pretest": "npm run packages:build",
     "pretypecheck": "npm run packages:build",
     "predev": "npm run packages:build",
-    "pretest:watch": "npm run packages:build"
+    "pretest:watch": "npm run packages:build",
+    "release:build": "npm run build && node scripts/eagle-release.mjs",
+    "release:test": "node --test scripts/eagle-release.test.mjs",
+    "release:clean": "node scripts/check-clean-release.mjs",
+    "release:catalog-audit": "node scripts/audit-widget-catalog.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "5.3.0",
@@ -70,6 +74,7 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "fflate": "0.8.3",
     "jsdom": "^29.1.1",
     "postcss": "^8.4.29",
     "probe-clsx-v1": "npm:clsx@1.2.1",
