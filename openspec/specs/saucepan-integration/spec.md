@@ -59,7 +59,7 @@ Git, URL and local package inputs SHALL resolve through the manager's source and
 - **THEN** Power Eagle reads the acquired copy and leaves the original directory unchanged
 
 ### Requirement: Explicit resource profile expansion
-Power Eagle SHALL expose the manager's read-only profile preview and explicit catalog registration through SDK 0.2.0 with Saucepan 0.10. Profile expansion and stage overrides SHALL remain manager-owned. Registration SHALL NOT adopt policies on existing applications or claims; callers SHALL explicitly attach returned immutable UUIDs. Resource profiles SHALL NOT opt into managed-app setup, credentials, scope widening or executable shims. Retained previews SHALL retain managed outputs rather than silently substituting temporary retrieval.
+Power Eagle SHALL expose the manager's read-only profile preview and explicit catalog registration through the public SDK with Saucepan >=0.10.0 in numeric major 0, subject to required command availability. Profile expansion and stage overrides SHALL remain manager-owned. Registration SHALL NOT adopt policies on existing applications or claims; callers SHALL explicitly attach returned immutable UUIDs. Resource profiles SHALL NOT opt into managed-app setup, credentials, scope widening or executable shims. Retained previews SHALL retain managed outputs rather than silently substituting temporary retrieval.
 
 #### Scenario: Preview before initialization
 - **WHEN** a caller previews a managed profile before creating a store
